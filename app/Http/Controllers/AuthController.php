@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -43,13 +45,61 @@ class AuthController extends Controller
 
 
     /**
-     * Create user
-     *
-     * @param  [string] name
-     * @param  [string] email
-     * @param  [string] password
-     * @param  [string] password_confirmation
-     * @return [string] message
+     * @OA\Post(
+     *      path="/auth/signup",
+     *      tags={"Auth"},
+     *      summary="Devuelve un usuario creado",
+     *      description="Devuelve un usuario creado",
+    *       @OA\RequestBody(
+     *    		@OA\MediaType(
+     *    			mediaType="application/json",
+     *    			@OA\Schema(
+     *    				 @OA\Property(property="names",
+     *    					type="string",
+     *    					example="",
+     *    					description=""
+     *    				),
+     *    				 @OA\Property(property="lastname",
+     *    					type="string",
+     *    					example="",
+     *    					description=""
+     *    				),
+     *     			 @OA\Property(property="mother_lastname",
+     *    					type="string",
+     *    					example="",
+     *    					description=""
+     *    				),
+     *     			 @OA\Property(property="rut",
+     *    					type="string",
+     *    					example="",
+     *    					description=""
+     *    				),
+     *     			 @OA\Property(property="email",
+     *    					type="string",
+     *    					example="",
+     *    					description=""
+     *    				),
+     *     	        @OA\Property(property="password",
+     *    					type="string",
+     *    					example="",
+     *    					description=""
+     *    				),
+     *    			),
+     *    		),
+     *    	),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      )
+     *     )
      */
     public function signup(Request $request)
     {
@@ -65,17 +115,17 @@ class AuthController extends Controller
             }
 
             $user = new User([
-        'rut' => $request->rut,
-        'names' => $request->names,
-        'lastname' => $request->lastname,
-        'mother_lastname' => $request->mother_lastname,
-        'email' => $request->email,
-        'password' => bcrypt($request->password)
-      ]);
+                'rut' => $request->rut,
+                'names' => $request->names,
+                'lastname' => $request->lastname,
+                'mother_lastname' => $request->mother_lastname,
+                'email' => $request->email,
+                'password' => bcrypt($request->password)
+              ]);
 
             $user->save();
 
-            return $this->response->created($user->fresh());
+            return response()->json($user->fresh(), 201);
         } catch (\Exception $ex) {
             return $this->response->exception($ex->getMessage());
         }
@@ -83,24 +133,46 @@ class AuthController extends Controller
 
 
     /**
-     * Login user and create token
-     *
-     * @param  [string] email
-     * @param  [string] password
-     * @param  [boolean] remember_me
-     * @return [string] access_token
-     * @return [string] token_type
-     * @return [string] expires_at
+     * @OA\Post(
+     *      path="/auth/login",
+     *      tags={"Auth"},
+     *      summary="Devuelve un token jwt",
+     *      description="Devuelve un token de autenticación",
+     *       @OA\RequestBody(
+     *    		@OA\MediaType(
+     *    			mediaType="application/json",
+     *    			@OA\Schema(
+     *    				 @OA\Property(property="rut",
+     *    					type="string",
+     *    					example="",
+     *    					description=""
+     *    				),
+     *    				 @OA\Property(property="password",
+     *    					type="string",
+     *    					example="",
+     *    					description=""
+     *    				),
+     *    			),
+     *    		),
+     *    	),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      )
+     *     )
      */
-    public function login(Request $request)
+    public function login(AuthRequest $request): JsonResponse
     {
-        $request->validate([
-      'rut' => 'required|string',
-      'password' => 'required|string',
-      'remember_me' => 'boolean'
-    ]);
-
         $credentials = request(['rut', 'password']);
+
 
         if (!Auth::attempt($credentials)) {
             return response()->json([
@@ -127,5 +199,21 @@ class AuthController extends Controller
           $tokenResult->token->expires_at
       )->toDateTimeString()
     ]);
+    }
+
+        /**
+     * Get the authenticated User
+     *
+     * @return [json] user object
+     */
+    public function user(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $searchUser = User::find($user->id);
+
+        return response()->json([
+      'user' => $searchUser
+    ], 200);
     }
 }
