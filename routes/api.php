@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group([
-  'prefix' => 'auth'
+  'prefix' => 'v1/auth'
 ], function () {
     Route::post('login', [App\Http\Controllers\AuthController::class, 'login']);
     Route::post('signup', [App\Http\Controllers\AuthController::class, 'signup']);
@@ -25,6 +25,19 @@ Route::group([
     'middleware' => 'auth:api'
   ], function () {
       Route::get('user', [App\Http\Controllers\AuthController::class, 'user']);
-      Route::get('logout', 'AuthController@logout');
+     // Route::get('logout', 'AuthController@logout');
   });
+});
+
+Route::group([
+  'prefix' => 'v1',
+  'middleware' => 'auth:api'
+], function () {
+    Route::apiResource('permissions', App\Http\Controllers\PermissionController::class);
+    Route::apiResource('users', App\Http\Controllers\UserController::class);
+    Route::apiResource('roles', App\Http\Controllers\RoleController::class);
+    Route::apiResource('roles/{role}/permissions', App\Http\Controllers\RolePermissionController::class);
+
+
+
 });
