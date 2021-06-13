@@ -4,33 +4,34 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleRequest;
 use App\Http\Resources\RoleResource;
-use Illuminate\Http\Request;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\JsonResponse;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+
+    public function index(RoleRequest $request): JsonResponse
     {
-        // d
+        $roles = Role::orderBy('id')->paginate($request->getPaginate());
+
+        return response()->json(
+           RoleResource::collection($roles)
+                ->response()
+                ->getData(true),
+            200);
     }
 
+
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @throws AuthorizationException
      */
-    public function store(Request $request)
+    public function store(RoleRequest $request): JsonResponse
     {
-        $role = Role::create([
-                'name' => $request->name
-            ]
-        );
+
+        $this->authorize('create', Role::class);
+
+        $role = Role::create($request->validated());
 
         return response()->json(new RoleResource($role), 201);
     }
@@ -63,13 +64,9 @@ class RoleController extends Controller
      *          response=403, description="Forbidden")
      *     )
      */
-    public function show(Role $role)
+    public function show(Role $role): JsonResponse
     {
-        if($role){
-            return response()->json(new RoleResource($role), 200);
-        }else{
-            return response()->json(new RoleResource(NULL), 204);
-        }
+        return response()->json(new RoleResource($role), 200);
 
     }
 
@@ -107,7 +104,8 @@ class RoleController extends Controller
      */
     public function update(RoleRequest $request, Role $role)
     {
-        //TODO request->validated()
+        $this->authorize('update', $role);
+
         $role->update($request->validated());
 
         return response()->json(new RoleResource($role), 200);
@@ -116,11 +114,14 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Role $role
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
-    public function destroy(Role $role)
+    public function destroy(Role $role): JsonResponse
     {
+        $this->authorize('delete', $role);
+
         $role->delete();
 
         return response()->json(null, 204);

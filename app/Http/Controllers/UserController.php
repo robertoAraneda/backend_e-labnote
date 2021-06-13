@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserController extends Controller
 {
@@ -52,29 +55,22 @@ class UserController extends Controller
      *      )
      *     )
      */
-    public function index(Request $request)
+    public function index(UserRequest $request): JsonResponse
     {
 
-        $limit = $request->get('paginate', 5);
+        $users = User::orderBy('id')->paginate($request->getPaginate());
 
-        $users = User::orderBy('id')->paginate($limit);
-
-        return UserResource::collection($users);
+        return response()->json(UserResource::collection($users)->response()->getData(true));
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @throws AuthorizationException
      */
-    public function store(UserRequest $request)
+    public function store(UserRequest $request):JsonResponse
     {
-        try {
-            if (!request()->isJson()) {
-               return response()->json([], 400);
-            }
+        $this->authorize('create', User::class);
 
+        try {
             $user = new User([
                 'rut' => $request->rut,
                 'names' => $request->names,
@@ -131,28 +127,9 @@ class UserController extends Controller
      *      )
      *     )
      */
-    public function show($id)
+    public function show(User $user): JsonResponse
     {
-
-        try {
-            $user =User::find($id);
-
-            if(isset($user)){
-
-                return response()->json(new UserResource(User::find($id)), 200);
-
-            }else {
-
-                return response()->json(null, 204);
-
-            }
-        }catch (\Exception $exception){
-
-            return response()->json($exception, 500);
-        }
-
-
-
+        return response()->json(new UserResource($user), 200);
     }
 
     /**
@@ -196,23 +173,29 @@ class UserController extends Controller
      *          description="Forbidden"
      *      )
      *     )
+     * @throws AuthorizationException
      */
-    public function update(UserRequest $request, User $user)
+    public function update(UserRequest $request, User $user): JsonResponse
     {
-        $user->update($request->all());
+        $this->authorize('update', $user);
 
-        return new UserResource($user->fresh());
+        $user->update($request->validated());
+
+        return response()->json(new UserResource($user->fresh()));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param User $user
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
-    public function destroy(User $user)
+    public function destroy(User $user): JsonResponse
     {
-        $delete = $user->delete();
+        $this->authorize('delete', $user);
+
+        $user->delete();
 
         return response()->json(null, 204);
     }

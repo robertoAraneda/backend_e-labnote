@@ -20,8 +20,6 @@ class AuthTest extends TestCase
     public function test_se_genera_token_authenticacion(): void
     {
 
-        $this->withoutExceptionHandling();
-
         User::factory()->create();
 
 
@@ -47,6 +45,40 @@ class AuthTest extends TestCase
         $response->assertStatus(Response::HTTP_CREATED);
         $this->assertDatabaseCount('users',1);
     }
+
+    public function test_se_genera_mensages_error_cuanto_content_type_no_es_json(): void
+    {
+        User::factory()->create();
+
+        $response = $this->post('/api/v1/auth/login',[]);
+
+        $response->assertJsonStructure([
+            'success',
+            'message',
+            'data',
+            'errors'
+        ]);
+
+        $response->assertStatus(Response::HTTP_NOT_ACCEPTABLE);
+    }
+
+    public function test_se_genera_mensages_error_al_validar_request(): void
+    {
+        User::factory()->create();
+
+        $response = $this->postJson('/api/v1/auth/login',[]);
+
+        $response->assertJsonStructure([
+            'success',
+            'message',
+            'data',
+            'errors'
+        ]);
+
+        $response->assertStatus(Response::HTTP_OK);
+    }
+
+
 
 
 }

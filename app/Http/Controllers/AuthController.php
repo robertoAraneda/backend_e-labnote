@@ -171,8 +171,11 @@ class AuthController extends Controller
      */
     public function login(AuthRequest $request): JsonResponse
     {
-        $credentials = request(['rut', 'password']);
+        if(!$request->validated()){
+            return response()->json($request->messages(), 400);
+        }
 
+        $credentials = request(['rut', 'password']);
 
         if (!Auth::attempt($credentials)) {
             return response()->json([

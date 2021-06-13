@@ -29,7 +29,7 @@ class Role extends \Spatie\Permission\Models\Role
      *
      * @var string
      */
-    private string $name;
+    protected string $name;
 
     /**
      * @OA\Property(
@@ -40,7 +40,7 @@ class Role extends \Spatie\Permission\Models\Role
      *
      * @var string
      */
-    private string $guard_name;
+    protected string $guard_name;
 
     /**
      * @OA\Property(
@@ -53,7 +53,7 @@ class Role extends \Spatie\Permission\Models\Role
      *
      * @var \DateTime
      */
-    private string $created_at;
+    protected string $created_at;
 
     /**
      * @OA\Property(
@@ -66,6 +66,33 @@ class Role extends \Spatie\Permission\Models\Role
      *
      * @var \DateTime
      */
-    private string $updated_at;
+    protected string $updated_at;
+
+    protected $table = 'roles';
+    protected $perPage = '10';
+
+    public static function getListJsonStructure(): array
+    {
+        return [
+            'data' => [self::getObjectJsonStructure()],
+            'links',
+            'meta',
+        ];
+    }
+
+    public static function getObjectJsonStructure(): array
+    {
+        return ['id', 'name'];
+    }
+
+    public function getTable():string
+    {
+        return $this->table;
+    }
+
+    public function getPerPage(): string
+    {
+        return $this->perPage;
+    }
 
 }

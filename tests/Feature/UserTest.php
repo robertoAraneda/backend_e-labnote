@@ -2,250 +2,306 @@
 
 namespace Tests\Feature;
 
+use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
+use Illuminate\Foundation\Testing\WithFaker;
 use Database\Seeders\PermissionSeeder;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Testing\Fluent\AssertableJson;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
 class UserTest extends TestCase
 {
-   use RefreshDatabase;
+    use RefreshDatabase, WithFaker;
+
+    private $user;
+    private $permission;
+    private $role;
 
     public function setUp():void {
         parent::setUp();
         $this->artisan('passport:install');
+
+        $user = User::factory()->create();
+
         $this->seed(PermissionSeeder::class);
+        $this->seed(RoleSeeder::class);
+
+        $role = Role::where('name', 'Administrador')->first();
+        $permission = Permission::where('name', 'user.create')->first();
+
+        $role->givePermissionTo('user.create');
+        $role->givePermissionTo('user.update');
+        $role->givePermissionTo('user.delete');
+        $role->givePermissionTo('user.index');
+        $role->givePermissionTo('user.show');
+
+        $user->assignRole($role);
+
+        $this->user =  $user;
+        $this->role = $role;
+        $this->permission = $permission;
 
     }
 
-    public function test_se_puede_obtener_un_usuario_formateado(): void
+    public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
+        $storedUsers = User::count();
+        $users = User::factory()->count(10)->create();
 
-        $user = User::factory()->create();
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson('/api/v1/users');
 
-        $response = $this->actingAs($user, 'api')
-            ->getJson("/api/v1/users/{$user->id}" );
 
-        $userFounded = $response->json();
+        $total = $response->json()['meta']['total'];
 
-        $response->assertStatus(200);
-        $response->assertExactJson( [
-            'id' => $userFounded['id'],
-            'rut' =>  $userFounded['rut'],
-            'names' => $userFounded['names'],
-            'lastname' => $userFounded['lastname'],
-            'mother_lastname' => $userFounded['mother_lastname'],
-            'email' => $userFounded['email']
+        $response->assertStatus(Response::HTTP_OK);
+        $response->assertJsonStructure([
+            'data' => [['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email']],
+            'links',
+            'meta',
         ]);
+
+        $this->assertEquals($total, ($users->count() + $storedUsers));
+
     }
 
-    public function test_se_puede_obtener_un_usuario_con_un_administrador_autenticado(): void
+    public function test_se_puede_obtener_el_detalle_del_recurso(): void
     {
 
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson("/api/v1/users/{$this->user->id}" );
 
-        $user = User::factory()->create();
+        $response->assertStatus(Response::HTTP_OK);
 
-        $response = $this->actingAs($user, 'api')
+        $response->assertJsonStructure(['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email']);
+        $response->assertExactJson(
+            [
+                'id' => $this->user->id,
+                'rut' => $this->user->rut,
+                'names' => $this->user->names,
+                'lastname' => $this->user->lastname,
+                'mother_lastname' => $this->user->mother_lastname,
+                'email' => $this->user->email
+            ]
+        );
+    }
+
+    public function test_se_puede_crear_un_recurso(): void
+    {
+
+       $users = User::count();
+
+        $response = $this->actingAs($this->user, 'api')
             ->postJson('/api/v1/users',  [
                 'rut' => '15.654.738-7',
-                'names' => 'Roberto Alejandro',
-                'lastname' => 'Araneda',
-                'mother_lastname' => 'Espinoza',
-                'email' => 'admin@gmail.com',
-                'password' => bcrypt('12345')
+                'names' => $this->faker->name(),
+                'lastname' => $this->faker->firstName(),
+                'mother_lastname' => $this->faker->firstName(),
+                'email' => $this->faker->safeEmail,
+                'email_verified_at' => now(),
+                'password' => bcrypt('password'), // password
+                'remember_token' => Str::random(10),
             ]);
 
         $response->assertStatus(Response::HTTP_CREATED);
-        $this->assertDatabaseCount('users',2);
+
+        $response->assertJsonStructure(['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email']);
+
+        $this->assertDatabaseCount('users', ($users + 1));
+
     }
 
-    public function test_se_puede_obtener_un_usuario_formateado_al_crear_un_usuario(): void
+    public function test_se_puede_modificar_un_recurso(): void
     {
-        $user = User::factory()->create();
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->actingAs($this->user, 'api')
+            ->putJson(sprintf('/api/v1/users/%s', $this->user->id),  [
+                'names' => 'new names modificado',
+            ]);
+
+        $response->assertStatus(Response::HTTP_OK);
+        $response->assertExactJson([
+            'id' =>  $this->user->id,
+            'rut' => $this->user->rut,
+            'names' => 'new names modificado',
+            'lastname' => $this->user->lastname,
+            'mother_lastname' => $this->user->mother_lastname,
+            'email' => $this->user->email
+        ]);
+        $response->assertJsonStructure(['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email']);
+    }
+
+    public function test_se_puede_eliminar_un_recurso(): void
+    {
+        $users = User::count();
+
+        $response = $this->actingAs($this->user, 'api')
+            ->deleteJson(sprintf('/api/v1/users/%s', $this->user->id));
+
+        $response->assertStatus(Response::HTTP_NO_CONTENT);
+
+        $this->assertDatabaseCount('users', ($users -1));
+
+    }
+
+    public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
+    {
+        $this->role->revokePermissionTo('user.create');
+
+        $users = User::count();
+
+        $response = $this->actingAs($this->user, 'api')
             ->postJson('/api/v1/users',  [
                 'rut' => '15.654.738-7',
-                'names' => 'Roberto Alejandro',
-                'lastname' => 'Araneda',
-                'mother_lastname' => 'Espinoza',
-                'email' => 'admin@gmail.com',
-                'password' => bcrypt('12345')
-            ]);
-        $userFounded =  $response->json();
-        $response->assertExactJson( [
-            'id' => $userFounded['id'],
-            'rut' =>  $userFounded['rut'],
-            'names' => $userFounded['names'],
-            'lastname' => $userFounded['lastname'],
-            'mother_lastname' => $userFounded['mother_lastname'],
-            'email' => $userFounded['email']
-        ]);
-    }
-
-    public function test_se_puede_obtener_una_lista_de_usuarios(): void
-    {
-
-        $user = User::factory()->create();
-
-        User::factory()->count(4)->create();
-
-        $response = $this->actingAs($user, 'api')
-            ->getJson('/api/v1/users')
-            ->assertStatus(Response::HTTP_OK);
-
-        $data = $response->json();
-
-        $this->assertEquals(5,  collect($data['data'])->count());
-    }
-
-    public function test_se_puede_obtener_una_lista_de_formateada_de_usuarios(): void
-    {
-
-        $user = User::factory()->create();
-
-        User::factory()->count(4)->create();
-
-        $response = $this->actingAs($user, 'api')
-            ->getJson('/api/v1/users')
-            ->assertStatus(Response::HTTP_OK);
-
-        $data = $response->json();
-
-        $this->assertEquals(User::all()->map(function($item){
-            return [
-                'id' => $item['id'],
-                'rut' =>  $item['rut'],
-                'names' => $item['names'],
-                'lastname' => $item['lastname'],
-                'mother_lastname' => $item['mother_lastname'],
-                'email' => $item['email']
-            ];
-        }),  collect($data['data']));
-    }
-
-    public function test_se_puede_obtener_una_lista_paginada_de_usuarios(): void
-    {
-
-        $user = User::factory()->create();
-
-        User::factory()->count(4)->create();
-
-        $response = $this->actingAs($user, 'api')
-            ->getJson('/api/v1/users')
-            ->assertStatus(Response::HTTP_OK);
-
-        $response->assertJson(function(AssertableJson $json){
-            $json->whereAllType([
-                    'data' => 'array',
-                    'links' => 'array',
-                    'meta' => 'array',
-            ]);
-        });
-    }
-
-    public function test_se_puede_obtener_una_lista_paginada_cuando_se_modifica_la_pagina(): void
-    {
-        $user = User::factory()->create();
-
-        User::factory()->count(8)->create();
-
-        $responsePageOne = $this->actingAs($user, 'api')
-            ->getJson('/api/v1/users?page=1')
-            ->assertStatus(Response::HTTP_OK);
-
-        $dataPageOne = $responsePageOne->json();
-
-        $this->assertEquals(5,  collect($dataPageOne['data'])->count());
-
-        $responsePageTwo = $this->actingAs($user, 'api')
-            ->getJson('/api/v1/users?page=2')
-            ->assertStatus(Response::HTTP_OK);
-
-        $dataPageTwo = $responsePageTwo->json();
-
-        $this->assertEquals(4,  collect($dataPageTwo['data'])->count());
-
-    }
-
-    public function test_se_puede_obtener_una_lista_paginada_cuando_se_modifica_el_limite(): void
-    {
-
-        $user = User::factory()->create();
-
-        User::factory()->count(8)->create();
-
-        $this->assertDatabaseCount('users', 9);
-
-        $response = $this->actingAs($user, 'api')
-            ->getJson('/api/v1/users?page=1&paginate=10')
-            ->assertStatus(Response::HTTP_OK);
-
-        $data= $response->json();
-
-        $this->assertEquals(9,  collect($data['data'])->count());
-
-    }
-
-    public function test_se_puede_obtener_una_lista_paginada_con_el_limite_por_defecto():void
-    {
-
-        $user = User::factory()->create();
-
-        User::factory()->count(8)->create();
-
-        $response = $this->actingAs($user, 'api')
-            ->getJson('/api/v1/users?page=1')
-            ->assertStatus(Response::HTTP_OK);
-
-        $data= $response->json();
-
-        $this->assertEquals(5,  collect($data['data'])->count());
-    }
-
-    public function test_se_puede_modificar_un_recurso_usuario():void
-    {
-
-        $this->withoutExceptionHandling();
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user, 'api')
-            ->putJson("/api/v1/users/{$user->id}" ,[
-                'id' => $user->id,
-                'rut' =>  $user->rut,
-                'names' => 'Roberto Alejandro',
-                'lastname' => $user->lastname,
-                'mother_lastname' => $user->mother_lastname,
-                'email' => 'admin@gmail.com'
+                'names' => $this->faker->name(),
+                'lastname' => $this->faker->firstName(),
+                'mother_lastname' => $this->faker->firstName(),
+                'email' => $this->faker->safeEmail,
+                'email_verified_at' => now(),
+                'password' => bcrypt('password'), // password
+                'remember_token' => Str::random(10),
             ]);
 
-        $userFounded = $response->json();
-
-        $response->assertStatus(200);
-        $response->assertExactJson( [
-            'id' => $user->id,
-            'rut' =>  $user->rut,
-            'names' => $userFounded['names'],
-            'lastname' => $user->lastname,
-            'mother_lastname' => $user->mother_lastname,
-            'email' => $userFounded['email']
-        ]);
+        $response->assertStatus(Response::HTTP_FORBIDDEN);
+        $this->assertDatabaseCount('users', $users);
     }
 
-    public function test_se_puede_eliminar_un_usuario(): void
+    public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->withoutExceptionHandling();
-        $user           = User::factory()->create();
-        $userDestroy    = User::factory()->create();
+        $this->role->revokePermissionTo('user.update');
 
-        $this->assertDatabaseCount('users', 2);
+        $response = $this->actingAs($this->user, 'api')
+            ->putJson(sprintf('/api/v1/users/%s', $this->user->id),  [
+                'rut' => '15.654.738-7',
+                'names' => 'nombre modificado',
+                'lastname' => $this->faker->firstName(),
+                'mother_lastname' => $this->faker->firstName(),
+                'email' => $this->faker->safeEmail,
+                'email_verified_at' => now(),
+                'password' => bcrypt('password'), // password
+                'remember_token' => Str::random(10),
+            ]);
 
-        $this->actingAs($user, 'api')
-            ->deleteJson("/api/v1/users/{$userDestroy->id}");
-
-        $this->assertDatabaseCount('users', 1);
-        $this->assertDatabaseMissing('users', ['id' => $userDestroy->id]);
+        $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
+
+    public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
+    {
+        $this->role->revokePermissionTo('user.delete');
+
+        $users = User::count();
+
+        $response = $this->actingAs($this->user, 'api')
+            ->deleteJson(sprintf('/api/v1/users/%s', $this->user->id));
+
+        $response->assertStatus(Response::HTTP_FORBIDDEN);
+
+        $this->assertDatabaseCount('users', $users);
+
+    }
+
+    public function test_se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
+    {
+
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson(sprintf('/api/v1/users/%s', -5));
+
+        $response->assertStatus(Response::HTTP_NOT_FOUND);
+
+    }
+
+    public function test_se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
+    {
+        $response = $this->actingAs($this->user, 'api')
+            ->putJson(sprintf('/api/v1/users/%s', -5));
+
+        $response->assertStatus(Response::HTTP_NOT_FOUND);
+
+    }
+
+    public function test_se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
+    {
+
+        $response = $this->actingAs($this->user, 'api')
+            ->deleteJson(sprintf('/api/v1/users/%s', -5));
+
+        $response->assertStatus(Response::HTTP_NOT_FOUND);
+
+    }
+
+    public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
+    {
+        User::factory()->count(20)->create();
+
+        $users = User::count();
+
+        $DEFAULT_PAGINATE = 10;
+
+        $pages = intval(ceil($users / $DEFAULT_PAGINATE));
+
+        for($i = 1; $i <= $pages; $i++){
+            $response = $this->actingAs($this->user, 'api')
+                ->getJson(sprintf('/api/v1/users?page=%s', $i))
+                ->assertStatus(Response::HTTP_OK);
+
+            if($i < $pages){
+                $this->assertEquals($DEFAULT_PAGINATE ,  collect($response['data'])->count());
+            }else{
+                $this->assertEquals($users % $DEFAULT_PAGINATE ,  collect($response['data'])->count());
+            }
+
+            $response->assertJsonStructure([
+                'data' => [['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email']],
+                'links',
+                'meta',
+            ]);
+        }
+
+        $this->assertDatabaseCount('users', $users );
+
+    }
+
+    public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
+    {
+
+        User::factory()->count(20)->create();
+
+        $users = User::count();
+
+        $DEFAULT_PAGINATE = 5;
+
+        $pages = intval(ceil($users / $DEFAULT_PAGINATE));
+        $mod = $users % $DEFAULT_PAGINATE;
+
+        for($i = 1; $i <= $pages; $i++){
+            $response = $this->actingAs($this->user, 'api')
+                ->getJson(sprintf('/api/v1/users?page=%s&paginate=%s', $i, $DEFAULT_PAGINATE ))
+                ->assertStatus(Response::HTTP_OK);
+
+            if($i < $pages){
+                $this->assertEquals($DEFAULT_PAGINATE ,  collect($response['data'])->count());
+            }else{
+                if($mod == 0){
+                    $this->assertEquals($DEFAULT_PAGINATE ,  collect($response['data'])->count());
+                }else{
+
+                    $this->assertEquals($mod ,  collect($response['data'])->count());
+                }
+            }
+
+            $response->assertJsonStructure([
+                'data' => [['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email']],
+                'links',
+                'meta',
+            ]);
+        }
+
+        $this->assertDatabaseCount('users', $users );
+
+    }
+
 }

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PermissionRequest;
 use App\Http\Resources\PermissionResource;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class PermissionController extends Controller
 {
@@ -50,18 +52,21 @@ class PermissionController extends Controller
      *      )
      *     )
      */
-    public function index()
+    public function index(PermissionRequest $request): JsonResponse
     {
-        return Permission::all();
+        $permissions = Permission::orderBy('id')->paginate($request->getPaginate());
+
+        return response()->json(
+            PermissionResource::collection($permissions)
+                ->response()
+                ->getData(true),
+            200);
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @throws AuthorizationException
      */
-    public function store(Request $request)
+    public function store(PermissionRequest $request): JsonResponse
     {
         $this->authorize('create', Permission::class);
 
@@ -75,48 +80,36 @@ class PermissionController extends Controller
         return response()->json(new PermissionResource($permission), 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Permission $permission)
+    public function show(Permission $permission): JsonResponse
     {
         return response()->json(new PermissionResource($permission), 200);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @throws AuthorizationException
      */
-    public function update(Request $request, Permission $permission)
+    public function update(PermissionRequest $request, Permission $permission): JsonResponse
     {
 
-        $permission->update($request->all());
+        $this->authorize('update', $permission);
+
+        $permission->update($request->validated());
 
         return response()->json(new PermissionResource($permission), 200);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @throws AuthorizationException
      */
-    public function destroy(Permission $permission)
+    public function destroy(Permission $permission): JsonResponse
     {
 
-        try {
-            $permission->delete();
-            return response()->json(null, 204);
+        $this->authorize('delete', $permission);
 
-        }catch (\Exception $exception){
-            return response()->json(null, 404);
-        }
+        $permission->delete();
+
+        return response()->json(null, 204);
+
 
     }
 }

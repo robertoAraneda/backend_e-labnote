@@ -32,7 +32,7 @@ class User extends Authenticatable
      *
      * @var string
      */
-   // protected string $rut;
+    protected string $rut;
 
     /**
      * @OA\Property(
@@ -136,4 +136,32 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+
+    protected $table = 'users';
+    protected $perPage = '10';
+
+    public static function getListJsonStructure(): array
+    {
+        return [
+            'data' => [self::getObjectJsonStructure()],
+            'links',
+            'meta',
+        ];
+    }
+
+    public static function getObjectJsonStructure(): array
+    {
+        return ['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email'];
+    }
+
+    public function getTable(): string
+    {
+        return $this->table;
+    }
+
+    public function getPerPage() : string
+    {
+        return $this->perPage;
+    }
 }

@@ -2,43 +2,18 @@
 
 namespace App\Http\Requests;
 
-/**
- * @OA\Schema(
- *      title="Solicitud HTTP Role Request",
- *      description="Datos para actualizar un rol",
- *      type="object",
- *      required={"name"}
- * )
- */
 
-class RoleRequest extends FormRequest
+use App\Models\Permission;
+
+class PermissionRequest extends FormRequest
 {
 
-    /**
-     * @OA\Property(
-     *      title="Nombre",
-     *      description="Nombre del Rol",
-     *      example="Médico"
-     * )
-     *
-     * @var string
-     */
     protected string $name;
 
-    /**
-     * @OA\Property(
-     *      title="Guard name",
-     *      description="Nombre del Guard",
-     *      example="api o web"
-     * )
-     *
-     * @var string
-     */
     protected string $guard_name;
 
     public function rules(): array
     {
-
         switch ($this->getMethod()){
             case 'PUT':
             case 'POST':
@@ -49,11 +24,12 @@ class RoleRequest extends FormRequest
             default:
                 return [];
         }
+
     }
 
     public function getPaginate(): int
     {
-        return $this->get('paginate', 10);
+        return $this->get('paginate', (new Permission)->getPerPage());
     }
 
     public function messages(): array
@@ -69,7 +45,8 @@ class RoleRequest extends FormRequest
     {
         return  [
             'name' => 'Nombre',
-            'guard_name' => 'Puerta',
+            'guard_name' => 'Tipo de puerta',
         ];
     }
+
 }

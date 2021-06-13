@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Model;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Spatie\Permission\Models\Role;
 
@@ -20,10 +19,10 @@ class RoleFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
-            'name' => 'super-user',
+            'name' => $this->faker->name,
             'guard_name' => 'api'
         ];
     }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Models\User;
 
 /**
  * @OA\Schema(
@@ -24,7 +24,7 @@ class UserRequest extends FormRequest
      *
      * @var string
      */
-    protected string $name;
+    protected string $names;
 
     /**
      * @OA\Property(
@@ -37,6 +37,12 @@ class UserRequest extends FormRequest
      */
     protected string $rut;
 
+    protected string $lastname;
+
+    protected string $mother_lastname;
+
+    protected string $password;
+
     /**
      * @OA\Property(
      *      title="Email",
@@ -48,21 +54,6 @@ class UserRequest extends FormRequest
      */
     protected string $email;
 
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules(): array
     {
 
@@ -93,6 +84,42 @@ class UserRequest extends FormRequest
 
     public function getPaginate(): int
     {
-       return $this->get('paginate', 10);
+       return $this->get('paginate', (new User)->getPerPage());
+    }
+
+    public function messages(): array
+    {
+        return [
+            'rut.required' => $this->getRequiredMessage(),
+            'rut.max' => $this->getMaxMessage(12),
+            'rut.string' => $this->getStringMessage(),
+            'names.required' =>  $this->getRequiredMessage(),
+            'names.max' => $this->getMaxMessage(200),
+            'names.string' => $this->getStringMessage(),
+            'lastname.required' =>  $this->getRequiredMessage(),
+            'lastname.max' => $this->getMaxMessage(200),
+            'lastname.string' => $this->getStringMessage(),
+            'mother_lastname.required' =>  $this->getRequiredMessage(),
+            'mother_lastname.max' => $this->getMaxMessage(200),
+            'mother_lastname.string' => $this->getStringMessage(),
+            'email.required' =>  $this->getRequiredMessage(),
+            'email.max' => $this->getMaxMessage(255),
+            'email.unique' => $this->getUniqueMessage(),
+            'email.email' => $this->getEmailMessage(),
+            'password.required' =>  $this->getRequiredMessage(),
+            'password.string' => $this->getStringMessage(),
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return  [
+            'rut' => 'RUT',
+            'names' => 'Nombres',
+            'lastname' => 'Apellido Paterno',
+            'mother_lastname' => 'Apellido Materno',
+            'email' => 'Correo electrónico',
+            'password' => 'contraseña'
+        ];
     }
 }

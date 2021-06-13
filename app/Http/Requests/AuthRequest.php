@@ -2,31 +2,34 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 
 class AuthRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return true;
-    }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
             'rut' => 'required|string',
-            'password' => 'required|string',
+            'password' => 'required',
             'remember_me' => 'boolean'
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'rut.required' => $this->getRequiredMessage(),
+            'rut.string' => $this->getStringMessage(),
+            'password.required' => $this->getRequiredMessage(),
+            'remember_me.boolean' => $this->getBooleanMessage()
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return  [
+            'rut' => 'RUT',
+            'password' => 'contraseña',
         ];
     }
 }
