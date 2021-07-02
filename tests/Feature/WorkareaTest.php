@@ -2,18 +2,19 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\LaboratoryController;
-use App\Models\Laboratory;
+use App\Http\Controllers\WorkareaController;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Workarea;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class LaboratoryTest extends TestCase
+class WorkareaTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -22,7 +23,7 @@ class LaboratoryTest extends TestCase
      */
     private $role;
     private $user, $model;
-    private LaboratoryController $laboratoryController;
+    private WorkareaController $workareaController;
     private string $perPage;
     private string $table;
 
@@ -38,20 +39,20 @@ class LaboratoryTest extends TestCase
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('laboratory.create');
-        $role->givePermissionTo('laboratory.update');
-        $role->givePermissionTo('laboratory.delete');
-        $role->givePermissionTo('laboratory.index');
-        $role->givePermissionTo('laboratory.show');
-
-        $modelClass = new Laboratory();
-        $this->laboratoryController = new LaboratoryController();
+        $role->givePermissionTo('workarea.create');
+        $role->givePermissionTo('workarea.update');
+        $role->givePermissionTo('workarea.delete');
+        $role->givePermissionTo('workarea.index');
+        $role->givePermissionTo('workarea.show');
 
         $user->assignRole($role);
 
-        $this->user =  $user;
+        $modelClass = new Workarea();
+        $this->workareaController = new WorkareaController();
+
+        $this->user = $user;
         $this->role = $role;
-        $this->model = Laboratory::factory()->create();
+        $this->model = Workarea::factory()->create();
         $this->perPage = $modelClass->getPerPage();
         $this->table = $modelClass->getTable();
 
@@ -64,50 +65,53 @@ class LaboratoryTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        Laboratory::factory()->count(10)->create();
+        $this->withoutExceptionHandling();
+
+        Workarea::factory()->count(20)->create();
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson(sprintf('/api/v1/%s', $this->table));
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(Laboratory::getListJsonStructure());
+        $response->assertJson(function(AssertableJson $json) {
+            return $json
+                ->has('links')
+                ->has('meta')
+                ->has('data',10 ,function($json) {
+                    $json->whereAllType([
+                        'id' => 'integer',
+                        'name' => 'string',
+                        'active' => 'boolean'
+                    ]);
+            });
+        });
     }
 
-    public function test_se_puede_obtener_el_detalle_del_recurso(): void
+    public function test_se_puede_obtener_el_detalle_del_recurso(): void //show
     {
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson("/api/v1/{$this->table}/{$this->model->id}" );
 
-
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(Laboratory::getObjectJsonStructure());
+        $response->assertJsonStructure(Workarea::getObjectJsonStructure());
 
         $response->assertExactJson([
             'id' => $this->model->id,
             'name' => $this->model->name,
-            'address' => $this->model->address,
-            'email' => $this->model->email,
-            'phone' =>$this->model->phone,
-            'redirect' => $this->model->redirect,
-            'status' => $this->model->status
+            'active' => $this->model->active
         ]);
     }
 
-    public function test_se_puede_crear_un_recurso(): void
+    public function test_se_puede_crear_un_recurso(): void //store
     {
-       // $this->withoutExceptionHandling();
-        $list = Laboratory::count();
+        $list = Workarea::count();
 
         $factoryModel = [
-            'name' => $this->faker->name,
-            'address' => $this->faker->address,
-            'email' => $this->faker->email,
-            'phone' => $this->faker->phoneNumber,
-            'redirect' => "http://".$this->faker->languageCode.".elabnote.cl",
-            'status' => 1
+            'name' => 'Uroanalisis',
+            'active' => true
         ];
 
         $response = $this->actingAs($this->user, 'api')
@@ -117,78 +121,67 @@ class LaboratoryTest extends TestCase
 
         $response->assertExactJson([
             'id' => $response->json()['id'],
-            'name' =>$factoryModel['name'],
-            'address' => $factoryModel['address'],
-            'email' => $factoryModel['email'],
-            'phone' => $factoryModel['phone'],
-            'redirect' => $factoryModel['redirect'],
-            'status' => $factoryModel['status']
+            'name' => $factoryModel['name'],
+            'active' => $factoryModel['active']
         ]);
-
-        $response->assertJsonStructure(Laboratory::getObjectJsonStructure());
 
         $this->assertDatabaseCount($this->table, ($list + 1));
 
     }
 
-    public function test_se_puede_modificar_un_recurso(): void
+    public function test_se_puede_modificar_un_recurso(): void // update
     {
         $response = $this->actingAs($this->user, 'api')
             ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id),  [
-                'name' => 'new laboratory modificado'
+                'name' => 'new workarea modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
+
         $response->assertExactJson([
-            'id' => $response->json()['id'],
-            'name' => 'new laboratory modificado',
-            'address' => $this->model->address,
-            'email' => $this->model->email,
-            'phone' =>$this->model->phone,
-            'redirect' => $this->model->redirect,
-            'status' => $this->model->status
+            'id' => $this->model->id,
+            'name' => 'new workarea modificado',
+            'active' => $this->model->active
         ]);
     }
 
-    public function test_se_puede_eliminar_un_recurso(): void
+    public function test_se_puede_eliminar_un_recurso(): void //destroy
     {
-        $list = Laboratory::count();
+        $list = Workarea::count();
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id));
 
         $response->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertDatabaseCount($this->table, ($list -1));
+        $this->assertDatabaseCount($this->table, ($list - 1));
 
     }
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = Laboratory::count();
+        $list = Workarea::count();
 
         $factoryModel = [
             'name' => $this->faker->name,
-            'address' => $this->faker->address,
-            'email' => $this->faker->email,
-            'phone' => $this->faker->phoneNumber,
-            'status' => 1
+            'active' => true
         ];
 
-        $this->role->revokePermissionTo('laboratory.create');
+        $this->role->revokePermissionTo('workarea.create');
 
         $response = $this->actingAs($this->user, 'api')
             ->postJson("/api/v1/{$this->table}",  $factoryModel);
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $this->assertDatabaseCount($this->table, $list );
+        $this->assertDatabaseCount($this->table, $list);
 
     }
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-       $this->role->revokePermissionTo('laboratory.update');
+        $this->role->revokePermissionTo('workarea.update');
+
         $url = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
@@ -196,14 +189,17 @@ class LaboratoryTest extends TestCase
                 'name' => 'laboratory name modificado'
             ]);
 
+        $this->assertNotEquals($this->model->name, 'laboratory name modificado');
+
         $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('laboratory.delete');
+        $this->role->revokePermissionTo('workarea.delete');
 
-        $list = Laboratory::count();
+        $list = Workarea::count();
+
         $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
@@ -218,7 +214,7 @@ class LaboratoryTest extends TestCase
     public function test_se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
 
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
+        $uri = sprintf('/api/v1/%s/%s',$this->table , -5);
         $response = $this->actingAs($this->user, 'api')
             ->getJson($uri);
 
@@ -255,15 +251,15 @@ class LaboratoryTest extends TestCase
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
 
-        $response->assertStatus(Response::HTTP_NOT_ACCEPTABLE);
+        $response->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
     public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
 
-        Laboratory::factory()->count(20)->create();
+        Workarea::factory()->count(20)->create();
 
-        $list = Laboratory::count();
+        $list = Workarea::count();
 
         $DEFAULT_PAGINATE = 5;
 
@@ -287,7 +283,7 @@ class LaboratoryTest extends TestCase
 
             }
 
-            $response->assertJsonStructure(Laboratory::getListJsonStructure());
+            $response->assertJsonStructure(Workarea::getListJsonStructure());
         }
 
         $this->assertDatabaseCount($this->table, $list);
@@ -296,9 +292,9 @@ class LaboratoryTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
     {
-        Laboratory::factory()->count(20)->create();
+        Workarea::factory()->count(20)->create();
 
-        $list = Laboratory::count();
+        $list = Workarea::count();
 
         $pages = intval(ceil($list / $this->perPage ));
         $mod = $list % $this->perPage ;
@@ -319,20 +315,11 @@ class LaboratoryTest extends TestCase
                 }
             }
 
-            $response->assertJsonStructure(Laboratory::getListJsonStructure());
+            $response->assertJsonStructure(Workarea::getListJsonStructure());
         }
 
         $this->assertDatabaseCount($this->table, $list);
 
     }
-
-    public function test_se_obtiene_error_not_found_cuando_no_existe_id()
-    {
-        $response = $this->laboratoryController->findById('string');
-
-        $statusCode = $response->getStatusCode();
-
-        $this->assertEquals(400, $statusCode);
-    }
-
+    
 }

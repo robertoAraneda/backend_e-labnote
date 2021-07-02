@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleRequest;
 use App\Http\Resources\RoleResource;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Spatie\Permission\Models\Role;
@@ -125,5 +127,39 @@ class RoleController extends Controller
         $role->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function syncRolesPermission(Request $request, Role $role): JsonResponse
+    {
+        $this->authorize('create', Role::class);
+
+        $role->syncPermissions($request->all());
+
+        return response()->json($role , 201);
+    }
+
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function permissionsByRole(Role $role): JsonResponse
+    {
+        $this->authorize('view', $role);
+
+        $roles = $role->where('id', $role->id)->with('permissions:name')->get();
+
+        return response()->json( $roles, 200);
+    }
+
+    public function assignSuperUser(){
+
+        $role = Role::create(['name' => 'super-admin']);
+        $user = User::find(auth()->id());
+        $user->assignRole($role);
+
+        return $role;
     }
 }

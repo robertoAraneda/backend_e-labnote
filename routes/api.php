@@ -1,7 +1,15 @@
 <?php
 
+use App\Http\Controllers\LaboratoryController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\WorkareaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,10 +41,39 @@ Route::group([
   'prefix' => 'v1',
   'middleware' => 'auth:api'
 ], function () {
-    Route::apiResource('permissions', App\Http\Controllers\PermissionController::class);
-    Route::apiResource('users', App\Http\Controllers\UserController::class);
-    Route::apiResource('roles', App\Http\Controllers\RoleController::class);
-    Route::apiResource('roles/{role}/permissions', App\Http\Controllers\RolePermissionController::class);
+    Route::apiResource('permissions', PermissionController::class)->whereNumber('permission');;
+    Route::apiResource('users', UserController::class)->whereNumber('user');;
+    Route::apiResource('roles', RoleController::class)->whereNumber('role');;
+    Route::apiResource('laboratories', LaboratoryController::class)->whereNumber('laboratory');;
+    Route::apiResource('modules', ModuleController::class)->whereNumber('module');;
+    Route::apiResource('menus', MenuController::class)->whereNumber('menu');;
+    Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea');
+
+
+    Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
+    Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
+
+
+    Route::get('roles/{role}/permissions', [RoleController::class, 'permissionsByRole']);
+    Route::get('laboratories/{laboratory}/modules', [LaboratoryController::class, 'modulesByLaboratory']);
+
+
+
+
+
+
+
+    Route::get('roles/assign/super-admin', [RoleController::class, 'assignSuperUser']);
+
+
+
+
+
+
+
+
+    Route::get('/tests/{id}', [ModuleController::class, 'findById']);
+
 
 
 

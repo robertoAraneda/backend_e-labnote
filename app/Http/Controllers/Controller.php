@@ -36,4 +36,9 @@ class Controller extends BaseController
      *     description="API Endpoints para Elabnote"
      * )
      */
+
+    protected function test(): array
+    {
+        return [];
+    }
 }

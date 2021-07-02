@@ -53,6 +53,11 @@ class FormRequest extends \Illuminate\Foundation\Http\FormRequest
         return "El atributo :attribute debe ser un string.";
     }
 
+    public function getIntegerMessage(): string
+    {
+        return "El atributo :attribute debe ser un entero.";
+    }
+
     public function getEmailMessage(): string
     {
         return "El atributo :attribute debe ser válido.";

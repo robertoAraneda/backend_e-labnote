@@ -50,7 +50,9 @@ class AuthTest extends TestCase
     {
         User::factory()->create();
 
-        $response = $this->post('/api/v1/auth/login',[]);
+        $response = $this->withHeaders([
+            'Content-Type' => 'Value',
+        ])->post('/api/v1/auth/login',[]);
 
         $response->assertJsonStructure([
             'success',

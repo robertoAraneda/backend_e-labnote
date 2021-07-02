@@ -10,9 +10,25 @@ class RolePolicy
 {
     use HandlesAuthorization;
 
+    public function view(User $user, Role $role): bool
+    {
+        return in_array('rolePermission.index', $user->getAllPermissions()->pluck('name')->toArray());
+    }
+
     public function create(User $user): bool
     {
-        return in_array('role.create', $user->getAllPermissions()->pluck('name')->toArray());
+        $roleCreate = in_array('role.create', $user->getAllPermissions()->pluck('name')->toArray());
+
+        if($roleCreate){
+            return true;
+        }
+
+        $rolePermissionCreate = in_array('rolePermission.create', $user->getAllPermissions()->pluck('name')->toArray());
+        if($rolePermissionCreate){
+            return true;
+        }
+
+        return false;
     }
 
     public function update(User $user, Role $role): bool
