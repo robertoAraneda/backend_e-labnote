@@ -67,5 +67,11 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'workarea.delete', 'guard_name' => 'api']);
         Permission::create(['name' => 'workarea.index', 'guard_name' => 'api']);
         Permission::create(['name' => 'workarea.show', 'guard_name' => 'api']);
+
+        Permission::create(['name' => 'disponibility.create', 'guard_name' => 'api']);
+        Permission::create(['name' => 'disponibility.update', 'guard_name' => 'api']);
+        Permission::create(['name' => 'disponibility.delete', 'guard_name' => 'api']);
+        Permission::create(['name' => 'disponibility.index', 'guard_name' => 'api']);
+        Permission::create(['name' => 'disponibility.show', 'guard_name' => 'api']);
     }
 }
