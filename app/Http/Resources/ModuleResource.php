@@ -19,15 +19,15 @@ class ModuleResource extends JsonResource
         if(isset($this->checkbox)){
             return [
                 'id' => $this->id,
-                'description' => $this->description,
-                'status' => intval($this->status),
+                'name' => $this->name,
+                'active' => (bool) $this->active,
                 'checkbox' =>(bool) $this->checkbox
             ];
         }
         return [
             'id' => $this->id,
-            'description' => $this->description,
-            'status' => intval($this->status),
+            'name' => $this->name,
+            'active' => (bool) $this->active,
         ];
 
     }

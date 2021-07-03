@@ -22,8 +22,8 @@ class ModuleFactory extends Factory
     public function definition(): array
     {
         return [
-            'description' => $this->faker->name,
-            'status' => $this->faker->numberBetween(0,1)
+            'name' => $this->faker->name,
+            'active' => $this->faker->boolean
         ];
     }
 }

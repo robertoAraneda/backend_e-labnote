@@ -69,15 +69,19 @@ class LaboratoryModuleTest extends TestCase
     public function test_se_puede_obtener_una_lista_de_modulos_de_un_laboratorio(): void
     {
 
-        $this->withoutExceptionHandling();
         $laboratory = Laboratory::factory()
             ->hasAttached(Module::factory()->count(5), ['user_id' => $this->user->id])
             ->create();
 
+
         $url = "/api/v1/{$this->table}/{$laboratory->id}/modules";
+
+
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson($url);
+
+        dd($response);
 
         $response->assertStatus(Response::HTTP_OK);
 
@@ -86,8 +90,8 @@ class LaboratoryModuleTest extends TestCase
             $json->has('0', fn ($json) =>
             $json->whereAllType([
                 'id' => 'integer',
-                'description' => 'string',
-                'status' => 'integer'
+                'name' => 'string',
+                'active' => 'boolean'
             ]))
             );
     }

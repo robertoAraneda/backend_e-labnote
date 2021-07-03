@@ -321,5 +321,4 @@ class WorkareaTest extends TestCase
         $this->assertDatabaseCount($this->table, $list);
 
     }
-    
 }

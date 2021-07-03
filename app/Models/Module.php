@@ -20,8 +20,8 @@ class Module extends Model
      * @var array
      */
     protected  $fillable = [
-        'description',
-        'status'
+        'name',
+        'active'
     ];
 
     /**
@@ -44,7 +44,7 @@ class Module extends Model
 
     public static function getObjectJsonStructure(): array
     {
-        return ['id', 'description', 'status'];
+        return ['id', 'name', 'active'];
     }
 
     public function getTable():string
@@ -66,7 +66,7 @@ class Module extends Model
      */
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('status', 1);
+        return $query->where('active', true);
     }
 
 }
