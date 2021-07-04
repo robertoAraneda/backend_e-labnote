@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DisponibilityController;
 use App\Http\Controllers\LaboratoryController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleController;
@@ -48,6 +49,7 @@ Route::group([
     Route::apiResource('modules', ModuleController::class)->whereNumber('module');;
     Route::apiResource('menus', MenuController::class)->whereNumber('menu');;
     Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea');
+    Route::apiResource('disponibilities', DisponibilityController::class)->whereNumber('disponibility');
 
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);

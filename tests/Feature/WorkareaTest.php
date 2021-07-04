@@ -65,7 +65,6 @@ class WorkareaTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        $this->withoutExceptionHandling();
 
         Workarea::factory()->count(20)->create();
 
@@ -321,5 +320,5 @@ class WorkareaTest extends TestCase
         $this->assertDatabaseCount($this->table, $list);
 
     }
-    
+
 }

@@ -10,6 +10,8 @@ use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Testing\Fluent\AssertableJson;
+use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
 class DisponibilityTest extends TestCase
@@ -63,9 +65,7 @@ class DisponibilityTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        $this->withoutExceptionHandling();
-
-        Workarea::factory()->count(20)->create();
+        Disponibility::factory()->count(20)->create();
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson(sprintf('/api/v1/%s', $this->table));
