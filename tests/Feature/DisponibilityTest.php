@@ -94,7 +94,7 @@ class DisponibilityTest extends TestCase
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(Workarea::getObjectJsonStructure());
+        $response->assertJsonStructure(Disponibility::getObjectJsonStructure());
 
         $response->assertExactJson([
             'id' => $this->model->id,

@@ -41,12 +41,11 @@ class DisponibilityController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show(Disponibility $disponibility)
     {
-        //
-    }
+        return response()->json(new DisponibilityResource($disponibility), Response::HTTP_OK);    }
 
     /**
      * Update the specified resource in storage.
