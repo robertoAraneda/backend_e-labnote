@@ -60,8 +60,6 @@ class DisponibilityTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        $this->withoutExceptionHandling();
-
         Disponibility::factory()->count(20)->create();
 
         $response = $this->actingAs($this->user, 'api')
@@ -83,7 +81,6 @@ class DisponibilityTest extends TestCase
 
     public function test_se_puede_obtener_el_detalle_del_recurso(): void //show
     {
-
         $response = $this->actingAs($this->user, 'api')
             ->getJson("/api/v1/{$this->table}/{$this->model->id}" );
 
@@ -140,8 +137,6 @@ class DisponibilityTest extends TestCase
 
     public function test_se_puede_eliminar_un_recurso(): void //destroy
     {
-        $this->withoutExceptionHandling();
-
         $list = Disponibility::count();
 
         $response = $this->actingAs($this->user, 'api')
