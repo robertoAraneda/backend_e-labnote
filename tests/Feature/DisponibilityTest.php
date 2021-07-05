@@ -53,7 +53,6 @@ class DisponibilityTest extends TestCase
         $this->user = $user;
         $this->role = $role;
         $this->model = Disponibility::factory()->create();
-        $this->perPage = $modelClass->getPerPage();
         $this->table = $modelClass->getTable();
 
     }

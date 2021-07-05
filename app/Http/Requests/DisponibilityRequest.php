@@ -28,9 +28,4 @@ class DisponibilityRequest extends FormRequest
                 return [];
         }
     }
-
-    public function getPaginate(): int
-    {
-        return $this->get('paginate', (new Disponibility())->getPerPage());
-    }
 }
