@@ -65,7 +65,6 @@ class WorkareaTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-
         Workarea::factory()->count(20)->create();
 
         $response = $this->actingAs($this->user, 'api')

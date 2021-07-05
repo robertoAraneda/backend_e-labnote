@@ -11,6 +11,11 @@ class Disponibility extends Model
 
     protected $perPage = 10;
 
+    protected  $fillable = [
+        'name',
+        'active'
+    ];
+
     public static function getListJsonStructure(): array
     {
         return [

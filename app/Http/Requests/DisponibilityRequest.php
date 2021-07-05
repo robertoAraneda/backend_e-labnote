@@ -13,9 +13,20 @@ class DisponibilityRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-
-        ];
+        switch ($this->getMethod()){
+            case 'PUT':
+                return [
+                    'name' => 'string',
+                    'active' => 'boolean',
+                ];
+            case 'POST':
+                return [
+                    'name' => 'required|string',
+                    'active' => 'boolean'
+                ];
+            default:
+                return [];
+        }
     }
 
     public function getPaginate(): int
