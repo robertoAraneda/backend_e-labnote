@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProcessTimeRequest;
 use App\Http\Resources\ProcessTimeResource;
 use App\Models\ProcessTime;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,12 +28,17 @@ class ProcessTimeController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param ProcessTimeRequest $request
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
-    public function store(Request $request)
+    public function store(ProcessTimeRequest $request): JsonResponse
     {
-        //
+        $this->authorize('create', ProcessTime::class);
+
+        $model = ProcessTime::create($request->validated());
+
+        return response()->json(new ProcessTimeResource($model->fresh()), Response::HTTP_CREATED);
     }
 
     /**
@@ -41,22 +47,29 @@ class ProcessTimeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(ProcessTime $processTime)
     {
-        //
+        return response()->json(new ProcessTimeResource($processTime), Response::HTTP_OK);
     }
+
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ProcessTimeRequest $request
+     * @param ProcessTime $processTime
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
-    public function update(Request $request, $id)
+    public function update(ProcessTimeRequest $request, ProcessTime $processTime): JsonResponse
     {
-        //
+        $this->authorize('update', $processTime);
+
+        $processTime->update($request->validated());
+
+        return response()->json(new ProcessTimeResource($processTime), Response::HTTP_OK);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -64,8 +77,17 @@ class ProcessTimeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(ProcessTime $processTime): JsonResponse
     {
-        //
+        $this->authorize('delete', $processTime);
+
+        try {
+            $processTime->delete();
+
+            return response()->json(null, Response::HTTP_NO_CONTENT);
+        }catch (\Exception $exception){
+
+            return response()->json(null, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

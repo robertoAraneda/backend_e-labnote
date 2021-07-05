@@ -6,7 +6,7 @@ use App\Http\Controllers\ProcessTimeController;
 use App\Models\ProcessTime;
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\PermissionSeeder;
+use Database\Seeders\ProcessTimePermissionsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -34,7 +34,7 @@ class ProcessTimeTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(PermissionSeeder::class);
+        $this->seed(ProcessTimePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
@@ -53,7 +53,6 @@ class ProcessTimeTest extends TestCase
         $this->user = $user;
         $this->role = $role;
         $this->model = ProcessTime::factory()->create();
-        $this->perPage = $modelClass->getPerPage();
         $this->table = $modelClass->getTable();
 
     }
@@ -86,7 +85,7 @@ class ProcessTimeTest extends TestCase
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(Disponibility::getObjectJsonStructure());
+        $response->assertJsonStructure(ProcessTime::getObjectJsonStructure());
 
         $response->assertExactJson([
             'id' => $this->model->id,
@@ -97,10 +96,10 @@ class ProcessTimeTest extends TestCase
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
-        $list = Disponibility::count();
+        $list = ProcessTime::count();
 
         $factoryModel = [
-            'name' => 'Disponibilidad 1',
+            'name' => 'Tiempo de proceso 1',
             'active' => true
         ];
 
@@ -123,21 +122,23 @@ class ProcessTimeTest extends TestCase
     {
         $response = $this->actingAs($this->user, 'api')
             ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id),  [
-                'name' => 'new disponibility modificado'
+                'name' => 'new processTime modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertExactJson([
             'id' => $this->model->id,
-            'name' => 'new disponibility modificado',
+            'name' => 'new processTime modificado',
             'active' => $this->model->active
         ]);
     }
 
     public function test_se_puede_eliminar_un_recurso(): void //destroy
     {
-        $list = Disponibility::count();
+        $this->withoutExceptionHandling();
+
+        $list = ProcessTime::count();
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id));
@@ -150,14 +151,14 @@ class ProcessTimeTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = Disponibility::count();
+        $list = ProcessTime::count();
 
         $factoryModel = [
             'name' => $this->faker->name,
             'active' => true
         ];
 
-        $this->role->revokePermissionTo('disponibility.create');
+        $this->role->revokePermissionTo('processTime.create');
 
         $response = $this->actingAs($this->user, 'api')
             ->postJson("/api/v1/{$this->table}",  $factoryModel);
@@ -170,25 +171,25 @@ class ProcessTimeTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('disponibility.update');
+        $this->role->revokePermissionTo('processTime.update');
 
         $url = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($url,  [
-                'name' => 'disponibility name modificado'
+                'name' => 'processTime name modificado'
             ]);
 
-        $this->assertNotEquals($this->model->name, 'disponibility name modificado');
+        $this->assertNotEquals($this->model->name, 'processTime name modificado');
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('disponibility.delete');
+        $this->role->revokePermissionTo('processTime.delete');
 
-        $list = Disponibility::count();
+        $list = ProcessTime::count();
 
         $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
 

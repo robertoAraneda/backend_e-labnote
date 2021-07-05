@@ -9,6 +9,11 @@ class ProcessTime extends Model
 {
     use HasFactory;
 
+    protected  $fillable = [
+        'name',
+        'active'
+    ];
+
     public static function getListJsonStructure(): array
     {
         return [
