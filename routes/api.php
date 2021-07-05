@@ -4,6 +4,7 @@ use App\Http\Controllers\DisponibilityController;
 use App\Http\Controllers\LaboratoryController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\ProcessTimeController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\WorkareaController;
 use Illuminate\Http\Request;
@@ -50,7 +51,7 @@ Route::group([
     Route::apiResource('menus', MenuController::class)->whereNumber('menu');;
     Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea');
     Route::apiResource('disponibilities', DisponibilityController::class)->whereNumber('disponibility');
-
+    Route::apiResource('process_times', processTimeController::class)->whereNumber('processTime');
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);

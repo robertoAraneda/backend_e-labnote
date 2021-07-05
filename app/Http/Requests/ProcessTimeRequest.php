@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Disponibility;
-
-class DisponibilityRequest extends FormRequest
+class ProcessTimeRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.

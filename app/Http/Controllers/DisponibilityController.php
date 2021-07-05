@@ -50,7 +50,8 @@ class DisponibilityController extends Controller
      */
     public function show(Disponibility $disponibility): JsonResponse
     {
-        return response()->json(new DisponibilityResource($disponibility), Response::HTTP_OK);    }
+        return response()->json(new DisponibilityResource($disponibility), Response::HTTP_OK);
+    }
 
     /**
      * Update the specified resource in storage.

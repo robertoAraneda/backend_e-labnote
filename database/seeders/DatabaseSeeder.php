@@ -17,7 +17,9 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             PermissionSeeder::class,
             LaboratorySeeder::class,
-            ModuleSeeder::class
+            ModuleSeeder::class,
+            DisponibilityPermissionsSeeder::class,
+            ProcessTimePermissionsSeeder::class
         ]);
     }
 }

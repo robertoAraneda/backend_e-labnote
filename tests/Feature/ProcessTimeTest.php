@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\DisponibilityController;
-use App\Models\Disponibility;
+use App\Http\Controllers\ProcessTimeController;
+use App\Models\ProcessTime;
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\DisponibilityPermissionsSeeder;
+use Database\Seeders\ProcessTimePermissionsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -14,7 +14,7 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class DisponibilityTest extends TestCase
+class ProcessTimeTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -23,7 +23,7 @@ class DisponibilityTest extends TestCase
      */
     private $role;
     private $user, $model;
-    private DisponibilityController $disponibilityController;
+    private ProcessTimeController $processTimeController;
     private string $perPage;
     private string $table;
 
@@ -34,32 +34,32 @@ class DisponibilityTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(DisponibilityPermissionsSeeder::class);
+        $this->seed(ProcessTimePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('disponibility.create');
-        $role->givePermissionTo('disponibility.update');
-        $role->givePermissionTo('disponibility.delete');
-        $role->givePermissionTo('disponibility.index');
-        $role->givePermissionTo('disponibility.show');
+        $role->givePermissionTo('processTime.create');
+        $role->givePermissionTo('processTime.update');
+        $role->givePermissionTo('processTime.delete');
+        $role->givePermissionTo('processTime.index');
+        $role->givePermissionTo('processTime.show');
 
         $user->assignRole($role);
 
-        $modelClass = new Disponibility();
-        $this->disponibilityController = new DisponibilityController();
+        $modelClass = new ProcessTime();
+        $this->processTimeController = new ProcessTimeController();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = Disponibility::factory()->create();
+        $this->model = ProcessTime::factory()->create();
         $this->table = $modelClass->getTable();
 
     }
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        Disponibility::factory()->count(20)->create();
+        ProcessTime::factory()->count(20)->create();
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson(sprintf('/api/v1/%s', $this->table));
@@ -85,7 +85,7 @@ class DisponibilityTest extends TestCase
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(Disponibility::getObjectJsonStructure());
+        $response->assertJsonStructure(ProcessTime::getObjectJsonStructure());
 
         $response->assertExactJson([
             'id' => $this->model->id,
@@ -96,10 +96,10 @@ class DisponibilityTest extends TestCase
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
-        $list = Disponibility::count();
+        $list = ProcessTime::count();
 
         $factoryModel = [
-            'name' => 'Disponibilidad 1',
+            'name' => 'Tiempo de proceso 1',
             'active' => true
         ];
 
@@ -122,21 +122,23 @@ class DisponibilityTest extends TestCase
     {
         $response = $this->actingAs($this->user, 'api')
             ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id),  [
-                'name' => 'new disponibility modificado'
+                'name' => 'new processTime modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertExactJson([
             'id' => $this->model->id,
-            'name' => 'new disponibility modificado',
+            'name' => 'new processTime modificado',
             'active' => $this->model->active
         ]);
     }
 
     public function test_se_puede_eliminar_un_recurso(): void //destroy
     {
-        $list = Disponibility::count();
+        $this->withoutExceptionHandling();
+
+        $list = ProcessTime::count();
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id));
@@ -149,14 +151,14 @@ class DisponibilityTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = Disponibility::count();
+        $list = ProcessTime::count();
 
         $factoryModel = [
             'name' => $this->faker->name,
             'active' => true
         ];
 
-        $this->role->revokePermissionTo('disponibility.create');
+        $this->role->revokePermissionTo('processTime.create');
 
         $response = $this->actingAs($this->user, 'api')
             ->postJson("/api/v1/{$this->table}",  $factoryModel);
@@ -169,25 +171,25 @@ class DisponibilityTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('disponibility.update');
+        $this->role->revokePermissionTo('processTime.update');
 
         $url = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($url,  [
-                'name' => 'disponibility name modificado'
+                'name' => 'processTime name modificado'
             ]);
 
-        $this->assertNotEquals($this->model->name, 'disponibility name modificado');
+        $this->assertNotEquals($this->model->name, 'processTime name modificado');
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('disponibility.delete');
+        $this->role->revokePermissionTo('processTime.delete');
 
-        $list = Disponibility::count();
+        $list = ProcessTime::count();
 
         $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
 
