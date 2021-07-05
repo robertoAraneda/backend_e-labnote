@@ -6,7 +6,7 @@ use App\Http\Controllers\DisponibilityController;
 use App\Models\Disponibility;
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\PermissionSeeder;
+use Database\Seeders\DisponibilityPermissionsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -34,7 +34,7 @@ class DisponibilityTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(PermissionSeeder::class);
+        $this->seed(DisponibilityPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
