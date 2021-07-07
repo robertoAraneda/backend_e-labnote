@@ -25,6 +25,7 @@ class ProcessTimeTest extends TestCase
     private $user, $model;
     private ProcessTimeController $processTimeController;
     private string $table;
+    private string $base_url;
 
     public function setUp():void
     {
@@ -53,6 +54,8 @@ class ProcessTimeTest extends TestCase
         $this->role = $role;
         $this->model = ProcessTime::factory()->create();
         $this->table = $modelClass->getTable();
+        $this->base_url = '/api/v1/process-times';
+
 
     }
 
@@ -61,7 +64,7 @@ class ProcessTimeTest extends TestCase
         ProcessTime::factory()->count(20)->create();
 
         $response = $this->actingAs($this->user, 'api')
-            ->getJson(sprintf('/api/v1/%s', $this->table));
+            ->getJson($this->base_url);
 
         $response->assertStatus(Response::HTTP_OK);
 
@@ -80,7 +83,7 @@ class ProcessTimeTest extends TestCase
     public function test_se_puede_obtener_el_detalle_del_recurso(): void //show
     {
         $response = $this->actingAs($this->user, 'api')
-            ->getJson("/api/v1/{$this->table}/{$this->model->id}" );
+            ->getJson(sprintf('%s/%s', $this->base_url, $this->model->id));
 
         $response->assertStatus(Response::HTTP_OK);
 
@@ -103,7 +106,7 @@ class ProcessTimeTest extends TestCase
         ];
 
         $response = $this->actingAs($this->user, 'api')
-            ->postJson("/api/v1/{$this->table}",  $factoryModel);
+            ->postJson($this->base_url,  $factoryModel);
 
         $response->assertStatus(Response::HTTP_CREATED);
 
@@ -120,7 +123,7 @@ class ProcessTimeTest extends TestCase
     public function test_se_puede_modificar_un_recurso(): void // update
     {
         $response = $this->actingAs($this->user, 'api')
-            ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id),  [
+            ->putJson(sprintf('%s/%s', $this->base_url, $this->model->id),  [
                 'name' => 'new processTime modificado'
             ]);
 
@@ -138,7 +141,7 @@ class ProcessTimeTest extends TestCase
         $list = ProcessTime::count();
 
         $response = $this->actingAs($this->user, 'api')
-            ->deleteJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id));
+            ->deleteJson(sprintf('%s/%s', $this->base_url, $this->model->id));
 
         $response->assertStatus(Response::HTTP_NO_CONTENT);
 
@@ -158,7 +161,7 @@ class ProcessTimeTest extends TestCase
         $this->role->revokePermissionTo('processTime.create');
 
         $response = $this->actingAs($this->user, 'api')
-            ->postJson("/api/v1/{$this->table}",  $factoryModel);
+            ->postJson($this->base_url,  $factoryModel);
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
 
@@ -170,7 +173,7 @@ class ProcessTimeTest extends TestCase
     {
         $this->role->revokePermissionTo('processTime.update');
 
-        $url = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
+        $url = sprintf('%s/%s',$this->base_url ,$this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($url,  [
@@ -188,7 +191,7 @@ class ProcessTimeTest extends TestCase
 
         $list = ProcessTime::count();
 
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
+        $uri = sprintf('%s/%s',$this->base_url ,$this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
@@ -201,7 +204,7 @@ class ProcessTimeTest extends TestCase
 
     public function test_se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table , -5);
+        $uri = sprintf('%s/%s',$this->base_url , -5);
         $response = $this->actingAs($this->user, 'api')
             ->getJson($uri);
 
@@ -211,7 +214,7 @@ class ProcessTimeTest extends TestCase
 
     public function test_se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
+        $uri = sprintf('%s/%s',$this->base_url ,-5);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($uri);
@@ -222,7 +225,7 @@ class ProcessTimeTest extends TestCase
 
     public function test_se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
+        $uri = sprintf('%s/%s',$this->base_url ,-5);
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
@@ -233,7 +236,7 @@ class ProcessTimeTest extends TestCase
 
     public function test_se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,'string');
+        $uri = sprintf('%s/%s',$this->base_url ,'string');
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
