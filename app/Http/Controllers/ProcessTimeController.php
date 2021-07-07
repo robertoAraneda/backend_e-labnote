@@ -44,10 +44,10 @@ class ProcessTimeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ProcessTime $processTime
+     * @return JsonResponse
      */
-    public function show(ProcessTime $processTime)
+    public function show(ProcessTime $processTime): JsonResponse
     {
         return response()->json(new ProcessTimeResource($processTime), Response::HTTP_OK);
     }
@@ -74,8 +74,9 @@ class ProcessTimeController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ProcessTime $processTime
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function destroy(ProcessTime $processTime): JsonResponse
     {

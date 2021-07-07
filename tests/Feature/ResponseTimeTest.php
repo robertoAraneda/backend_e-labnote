@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\ProcessTimeController;
-use App\Models\ProcessTime;
+use App\Http\Controllers\ResponseTimeController;
+use App\Models\ResponseTime;
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\ProcessTimePermissionsSeeder;
+use Database\Seeders\ResponseTimePermissionsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -14,7 +14,7 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class ProcessTimeTest extends TestCase
+class ResponseTimeTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -23,7 +23,7 @@ class ProcessTimeTest extends TestCase
      */
     private $role;
     private $user, $model;
-    private ProcessTimeController $processTimeController;
+    private ResponseTimeController $responseTimeController;
     private string $table;
 
     public function setUp():void
@@ -33,32 +33,32 @@ class ProcessTimeTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(ProcessTimePermissionsSeeder::class);
+        $this->seed(ResponseTimePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('processTime.create');
-        $role->givePermissionTo('processTime.update');
-        $role->givePermissionTo('processTime.delete');
-        $role->givePermissionTo('processTime.index');
-        $role->givePermissionTo('processTime.show');
+        $role->givePermissionTo('responseTime.create');
+        $role->givePermissionTo('responseTime.update');
+        $role->givePermissionTo('responseTime.delete');
+        $role->givePermissionTo('responseTime.index');
+        $role->givePermissionTo('responseTime.show');
 
         $user->assignRole($role);
 
-        $modelClass = new ProcessTime();
-        $this->processTimeController = new ProcessTimeController();
+        $modelClass = new ResponseTime();
+        $this->responseTimeController = new ResponseTimeController();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = ProcessTime::factory()->create();
+        $this->model = ResponseTime::factory()->create();
         $this->table = $modelClass->getTable();
 
     }
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        ProcessTime::factory()->count(20)->create();
+        ResponseTime::factory()->count(20)->create();
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson(sprintf('/api/v1/%s', $this->table));
@@ -84,7 +84,7 @@ class ProcessTimeTest extends TestCase
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(ProcessTime::getObjectJsonStructure());
+        $response->assertJsonStructure(ResponseTime::getObjectJsonStructure());
 
         $response->assertExactJson([
             'id' => $this->model->id,
@@ -95,10 +95,10 @@ class ProcessTimeTest extends TestCase
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
-        $list = ProcessTime::count();
+        $list = ResponseTime::count();
 
         $factoryModel = [
-            'name' => 'Tiempo de proceso 1',
+            'name' => 'Tiempo de respuesta 1',
             'active' => true
         ];
 
@@ -121,21 +121,21 @@ class ProcessTimeTest extends TestCase
     {
         $response = $this->actingAs($this->user, 'api')
             ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id),  [
-                'name' => 'new processTime modificado'
+                'name' => 'new responseTime modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertExactJson([
             'id' => $this->model->id,
-            'name' => 'new processTime modificado',
+            'name' => 'new responseTime modificado',
             'active' => $this->model->active
         ]);
     }
 
     public function test_se_puede_eliminar_un_recurso(): void //destroy
     {
-        $list = ProcessTime::count();
+        $list = ResponseTime::count();
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id));
@@ -148,14 +148,14 @@ class ProcessTimeTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = ProcessTime::count();
+        $list = ResponseTime::count();
 
         $factoryModel = [
             'name' => $this->faker->name,
             'active' => true
         ];
 
-        $this->role->revokePermissionTo('processTime.create');
+        $this->role->revokePermissionTo('responseTime.create');
 
         $response = $this->actingAs($this->user, 'api')
             ->postJson("/api/v1/{$this->table}",  $factoryModel);
@@ -168,25 +168,25 @@ class ProcessTimeTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('processTime.update');
+        $this->role->revokePermissionTo('responseTime.update');
 
         $url = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($url,  [
-                'name' => 'processTime name modificado'
+                'name' => 'responseTime name modificado'
             ]);
 
-        $this->assertNotEquals($this->model->name, 'processTime name modificado');
+        $this->assertNotEquals($this->model->name, 'responseTime name modificado');
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('processTime.delete');
+        $this->role->revokePermissionTo('responseTime.delete');
 
-        $list = ProcessTime::count();
+        $list = ResponseTime::count();
 
         $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
 
@@ -240,5 +240,6 @@ class ProcessTimeTest extends TestCase
 
         $response->assertStatus(Response::HTTP_NOT_FOUND);
     }
+
 
 }
