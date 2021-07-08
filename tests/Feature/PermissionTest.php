@@ -75,6 +75,10 @@ class PermissionTest extends TestCase
         $response->assertExactJson([
             'id' =>  $response->json()['id'],
             'name' => $this->permission->name,
+            'description' =>$this->permission->description,
+            'model' => $this->permission->model,
+            'action' => $this->permission->action
+
         ]);
     }
 
@@ -85,6 +89,9 @@ class PermissionTest extends TestCase
         $response = $this->actingAs($this->user, 'api')
             ->postJson('/api/v1/permissions',  [
                 'name' => 'user-create',
+                'description' =>'description',
+                'model' => 'model',
+                'action' => 'action',
                 'guard_name' => 'api'
             ]);
 
@@ -93,6 +100,9 @@ class PermissionTest extends TestCase
         $response->assertExactJson([
             'id' =>  $response->json()['id'],
             'name' => 'user-create',
+            'description' =>'description',
+            'model' => 'model',
+            'action' => 'action',
         ]);
 
         $this->assertDatabaseCount('permissions', ($permissions + 1));
@@ -112,6 +122,9 @@ class PermissionTest extends TestCase
         $response->assertExactJson([
             'id' =>  $this->permission->id,
             'name' => 'user-create-modificado',
+            'description' => $this->permission->description,
+            'model' => $this->permission->model,
+            'action' => $this->permission->action,
         ]);
     }
 

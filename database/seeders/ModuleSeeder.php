@@ -14,8 +14,21 @@ class ModuleSeeder extends Seeder
      */
     public function run()
     {
-        Module::create(['name' => 'Configuración']);
-        Module::create(['name' => 'Solicitud de medios']);
-        Module::create(['name' => 'Toma de muestras']);
+        Module::create(
+            [   'name' => 'Configuración',
+                'icon' => 'cog',
+                'url' => 'setting',
+                'slug' => 'configuracion'
+            ]);
+        Module::create(['name' => 'Solicitud de medios',
+            'icon' => 'cog',
+            'url' => 'laboratoryRequest',
+             'slug' => 'solicitud-de-medios'
+            ]);
+        Module::create(['name' => 'Toma de muestras',
+            'icon' => 'cog',
+            'url' => 'sampling',
+            'slug' => 'toma-de-muestras'
+            ]);
     }
 }

@@ -19,6 +19,9 @@ class PermissionRequest extends FormRequest
             case 'POST':
                 return [
                     'name' => 'required|string',
+                    'model' => 'string',
+                    'action' => 'string',
+                    'description' => 'string',
                     'guard_name' => 'string',
                 ];
             default:

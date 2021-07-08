@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\ModuleController;
+use App\Models\Menu;
 use App\Models\Module;
 use App\Models\Role;
 use App\Models\User;
@@ -87,19 +88,25 @@ class ModuleTest extends TestCase
 
         $response->assertExactJson([
             'id' => $this->model->id,
-            'description' => $this->model->description,
-            'status' => $this->model->status
+            'name' => $this->model->name,
+            'slug' => $this->model->slug,
+            'icon' => $this->model->icon,
+            'url' => $this->model->url,
+            'menus' => $this->model->menus,
+            'active' => $this->model->active
         ]);
     }
 
     public function test_se_puede_crear_un_recurso(): void
     {
-
         $list = Module::count();
 
         $factoryModel = [
-            'description' => $this->faker->name,
-            'status' => $this->faker->numberBetween(0,1)
+            'name' => $this->faker->name,
+            'url' => $this->faker->url,
+            'icon' => $this->faker->lastname,
+            'slug' => $this->faker->slug,
+            'active' => $this->faker->boolean
         ];
 
         $response = $this->actingAs($this->user, 'api')
@@ -110,8 +117,12 @@ class ModuleTest extends TestCase
 
         $response->assertExactJson([
             'id' => $response->json()['id'],
-            'description' =>$factoryModel['description'],
-            'status' => $factoryModel['status']
+            'name' =>$factoryModel['name'],
+            'icon' =>$factoryModel['icon'],
+            'url' =>$factoryModel['url'],
+            'slug' =>$factoryModel['slug'],
+            'menus' => $response->json()['menus'],
+            'active' => $factoryModel['active']
         ]);
 
         $response->assertJsonStructure(Module::getObjectJsonStructure());
@@ -124,15 +135,19 @@ class ModuleTest extends TestCase
     {
         $response = $this->actingAs($this->user, 'api')
             ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id),  [
-                'description' => 'new module modificado'
+                'name' => 'new module modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertExactJson([
             'id' => $this->model->id,
-            'description' => 'new module modificado',
-            'status' => $this->model->status
+            'name' => 'new module modificado',
+            'url' => $this->model->url,
+            'slug' => $this->model->slug,
+            'icon' => $this->model->icon,
+            'menus' => $this->model->menus,
+            'active' => $this->model->active
         ]);
     }
 
@@ -154,8 +169,8 @@ class ModuleTest extends TestCase
         $list = Module::count();
 
         $factoryModel = [
-            'description' => $this->faker->name,
-            'status' => $this->faker->numberBetween(0,1)
+            'name' => $this->faker->name,
+            'active' => $this->faker->boolean
         ];
 
         $this->role->revokePermissionTo('module.create');
@@ -239,7 +254,7 @@ class ModuleTest extends TestCase
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
 
-        $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        $response->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
     public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
@@ -309,22 +324,14 @@ class ModuleTest extends TestCase
         $this->assertDatabaseCount($this->table, $list);
 
     }
-
-    public function test_expect_exception_cuando_el_parametro_id_no_es_integer_find_by_id(): void
+    public function test_se_puede_obtener_una_lista_de_menus_por_modulo(): void
     {
-        $this->expectException(\TypeError::class);
+        $module = Module::factory()->create();
+        Menu::factory()->count(20)->for($module)->create();
 
-        $this->findById('string');
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson(sprintf('/api/v1/%s/%s/menus',$this->table , $module->id))
+            ->assertStatus(Response::HTTP_OK);
 
-    }
-
-    private function findById($id)
-    {
-
-        $response = $this->controller->findById($id);
-
-        $statusCode = $response->getStatusCode();
-
-        $this->assertEquals(500, $statusCode);
     }
 }

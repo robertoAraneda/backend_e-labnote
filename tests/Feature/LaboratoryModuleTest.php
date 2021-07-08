@@ -61,38 +61,28 @@ class LaboratoryModuleTest extends TestCase
         $this->table = $modelClass->getTable();
     }
 
-    public function test_se_obtiene_el_valor_por_pagina_por_defecto(): void
-    {
-        $this->assertEquals(10, $this->perPage);
-    }
-
     public function test_se_puede_obtener_una_lista_de_modulos_de_un_laboratorio(): void
     {
-
         $laboratory = Laboratory::factory()
             ->hasAttached(Module::factory()->count(5), ['user_id' => $this->user->id])
             ->create();
 
-
         $url = "/api/v1/{$this->table}/{$laboratory->id}/modules";
 
-
-
-        $response = $this->actingAs($this->user, 'api')
-            ->getJson($url);
-
-        dd($response);
-
-        $response->assertStatus(Response::HTTP_OK);
-
-        $response
+        $this->actingAs($this->user, 'api')
+            ->getJson($url)
+            ->assertStatus(Response::HTTP_OK)
             ->assertJson(fn (AssertableJson $json) =>
-            $json->has('0', fn ($json) =>
-            $json->whereAllType([
-                'id' => 'integer',
-                'name' => 'string',
-                'active' => 'boolean'
-            ]))
+                $json->has('0', fn ($json) =>
+                    $json->whereAllType([
+                        'id' => 'integer',
+                        'name' => 'string',
+                        'url' => 'string',
+                        'slug' => 'string',
+                        'icon' => 'string',
+                        'menus' => 'array',
+                        'active' => 'boolean'
+                    ]))
             );
     }
 
@@ -114,8 +104,11 @@ class LaboratoryModuleTest extends TestCase
             $json->has('0', fn ($json) =>
                 $json->whereAllType([
                     'id' => 'integer',
-                    'description' => 'string',
-                    'status' => 'integer',
+                    'name' => 'string',
+                    'active' => 'boolean',
+                    'icon' => 'string',
+                    'url' => 'string',
+                    'slug'  => 'string',
                     'checkbox' => 'boolean'
                 ]))
             );
@@ -139,8 +132,12 @@ class LaboratoryModuleTest extends TestCase
             $json->has('0', fn ($json) =>
                 $json->whereAllType([
                     'id' => 'integer',
-                    'description' => 'string',
-                    'status' => 'integer'
+                    'name' => 'string',
+                    'icon' => 'string',
+                    'url' => 'string',
+                    'slug' => 'string',
+                    'menus' => 'array',
+                    'active' => 'boolean'
                 ]))
             );
     }

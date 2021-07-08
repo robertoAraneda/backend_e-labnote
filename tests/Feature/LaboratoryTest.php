@@ -255,7 +255,7 @@ class LaboratoryTest extends TestCase
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
 
-        $response->assertStatus(Response::HTTP_NOT_ACCEPTABLE);
+        $response->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
     public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void

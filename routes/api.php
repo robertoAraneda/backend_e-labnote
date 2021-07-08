@@ -3,6 +3,8 @@
 use App\Http\Controllers\LaboratoryController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\RelLaboratoryModuleController;
+use App\Http\Controllers\RelModulePermissionController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\WorkareaController;
 use Illuminate\Http\Request;
@@ -50,16 +52,26 @@ Route::group([
     Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea');
 
 
+
+    //rels
+    Route::apiResource('modules.permissions', RelModulePermissionController::class )->only('index', 'store')->whereNumber('module');
+    Route::apiResource('laboratories.modules', RelLaboratoryModuleController::class )->only('index', 'store')->whereNumber('laboratory');
+
+
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
-    Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
+  // Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
 
 
     Route::get('roles/{role}/permissions', [RoleController::class, 'permissionsByRole']);
-    Route::get('laboratories/{laboratory}/modules', [LaboratoryController::class, 'modulesByLaboratory']);
+  //  Route::get('laboratories/{laboratory}/modules', [LaboratoryController::class, 'modulesByLaboratory']);
+    Route::get('modules/{module}/menus', [ModuleController::class, 'menusByModule']);
 
 
 
 
+    //search queries
+
+    Route::get('modules/search', [ModuleController::class, 'searchByParams']);
 
 
 

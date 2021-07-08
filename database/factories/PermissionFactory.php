@@ -21,6 +21,11 @@ class PermissionFactory extends Factory
      */
     public function definition(): array
     {
-        return ['name' => $this->faker->name, 'guard_name' => 'api'];
+        return [
+            'name' => $this->faker->name,
+            'guard_name' => 'api',
+            'model' => Permission::class,
+            'action' => $this->faker->name,
+            'description' => $this->faker->slug];
     }
 }

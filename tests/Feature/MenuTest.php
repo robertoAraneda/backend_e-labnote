@@ -90,7 +90,9 @@ class MenuTest extends TestCase
         $response->assertExactJson([
             'id' => $this->model->id,
             'name' => $this->model->name,
-            'status' => $this->model->status
+            'icon' => $this->model->icon,
+            'url' => $this->model->url,
+            'active' => $this->model->active
         ]);
     }
 
@@ -105,7 +107,9 @@ class MenuTest extends TestCase
         $factoryModel = [
             'name' => $this->faker->name,
             'module_id' => $module->id,
-            'status' => $this->faker->numberBetween(0,1)
+            'url' => $this->faker->url,
+            'icon' => $this->faker->lastName,
+            'active' => $this->faker->boolean
         ];
 
         $response = $this->actingAs($this->user, 'api')
@@ -117,7 +121,9 @@ class MenuTest extends TestCase
         $response->assertExactJson([
             'id' => $response->json()['id'],
             'name' =>$factoryModel['name'],
-            'status' => $factoryModel['status']
+            'icon' =>$factoryModel['icon'],
+            'url' =>$factoryModel['url'],
+            'active' => $factoryModel['active']
         ]);
 
         $response->assertJsonStructure(Menu::getObjectJsonStructure());
@@ -129,7 +135,6 @@ class MenuTest extends TestCase
     public function test_se_puede_modificar_un_recurso(): void
     {
 
-        $this->withoutExceptionHandling();
         $response = $this->actingAs($this->user, 'api')
             ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id),  [
                 'name' => 'new menu modificado'
@@ -140,7 +145,9 @@ class MenuTest extends TestCase
         $response->assertExactJson([
             'id' => $this->model->id,
             'name' => 'new menu modificado',
-            'status' => $this->model->status
+            'url' => $this->model->url,
+            'icon' => $this->model->icon,
+            'active' => $this->model->active
         ]);
     }
 
@@ -166,7 +173,7 @@ class MenuTest extends TestCase
         $factoryModel = [
             'name' => $this->faker->name,
             'module_id' => $module->id,
-            'status' => $this->faker->numberBetween(0,1)
+            'active' => $this->faker->boolean
         ];
 
         $this->role->revokePermissionTo('menu.create');
@@ -189,7 +196,7 @@ class MenuTest extends TestCase
         $factoryModel = [
             'name' => $this->faker->name,
             'module_id' => $module->id,
-            'status' => $this->faker->numberBetween(0,1)
+            'active' => $this->faker->boolean
         ];
 
         $this->role->revokePermissionTo('menu.create');
@@ -362,10 +369,6 @@ class MenuTest extends TestCase
 
     }
 
-    public function test_expect_exception_cuando_el_parametro_id_no_es_integer_find_by_id(): void
-    {
-        $this->expectException(\TypeError::class);
 
-        $this->controller->findById('string');
-    }
+
 }

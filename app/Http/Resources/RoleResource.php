@@ -17,7 +17,11 @@ class RoleResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name
+            'name' => $this->name,
+            'guardName' => $this->guard_name,
+            'active' => (bool) $this->active,
+            'createdUser' => $this->created_user->names,
+            'createdAt' => $this->created_at->format('d/m/Y')
         ];
     }
 }

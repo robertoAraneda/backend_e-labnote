@@ -71,11 +71,7 @@ class PermissionController extends Controller
         $this->authorize('create', Permission::class);
 
 
-        $permission = Permission::create([
-                'name' => $request->name,
-                'guard_name' => $request->guard_name
-            ]
-        );
+        $permission = Permission::create($request->validated());
 
         return response()->json(new PermissionResource($permission), 201);
     }

@@ -49,10 +49,6 @@ class RolePermissionTest extends TestCase
 
         $this->user =  $user;
         $this->role = $role;
-       // $this->model = RolePermission::factory()->create();
-        //$this->perPage = $modelClass->getPerPage();
-        //$this->table = $modelClass->getTable();
-
     }
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
@@ -63,18 +59,16 @@ class RolePermissionTest extends TestCase
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJson(function(AssertableJson $json) {
-           return $json->has('0', function($json) {
-               $json->whereAllType([
-                   'id' => 'integer',
-                   'name' => 'string',
-                   'permissions' => 'array',
-                   'guard_name' => 'string',
-                   'created_at' => 'string',
-                   'updated_at' => 'string'
-               ]);
-           });
-        });
+        $response->assertJson(fn (AssertableJson $json) =>
+        $json->whereType('0.id', 'integer')
+            ->whereAllType([
+                '0.name' => 'string',
+                '0.description'=> 'string|null',
+                '0.model'=> 'string|null',
+                '0.action'=> 'string|null'
+            ])
+        );
+
     }
 
     public function test_se_puede_crear_un_recurso(): void

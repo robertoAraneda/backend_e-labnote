@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
 /**
@@ -19,57 +20,15 @@ class Role extends \Spatie\Permission\Models\Role
 {
     use HasFactory;
 
-
-    /**
-     * @OA\Property(
-     *      title="name",
-     *      description="Nombre del rol",
-     *      example="Este es el nombre del rol"
-     * )
-     *
-     * @var string
-     */
-    protected string $name;
-
-    /**
-     * @OA\Property(
-     *      title="Guard name",
-     *      description="Nombre del guard",
-     *      example="Este es el nombre del guard del rol"
-     * )
-     *
-     * @var string
-     */
-    protected string $guard_name;
-
-    /**
-     * @OA\Property(
-     *     title="Created at",
-     *     description="Created at",
-     *     example="2020-01-27 17:50:45",
-     *     format="datetime",
-     *     type="string"
-     * )
-     *
-     * @var \DateTime
-     */
-    protected string $created_at;
-
-    /**
-     * @OA\Property(
-     *     title="Updated at",
-     *     description="Updated at",
-     *     example="2020-01-27 17:50:45",
-     *     format="datetime",
-     *     type="string"
-     * )
-     *
-     * @var \DateTime
-     */
-    protected string $updated_at;
-
     protected $table = 'roles';
     protected $perPage = '10';
+    protected $fillable = [
+        'name',
+        'guard_name',
+        'created_user_id',
+        'updated_user_id',
+        'active'
+    ];
 
     public static function getListJsonStructure(): array
     {
@@ -95,4 +54,8 @@ class Role extends \Spatie\Permission\Models\Role
         return $this->perPage;
     }
 
+    public function created_user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_user_id');
+    }
 }

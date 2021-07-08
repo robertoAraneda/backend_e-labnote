@@ -122,29 +122,6 @@ class LaboratoryController extends Controller
         }
     }
 
-    public function modulesByLaboratory(LaboratoryRequest $request, Laboratory $laboratory): JsonResponse
-    {
-
-        if($request->input('cross')){
-
-            $allModules = Module::active()->orderBy('id')->get();
-            $modulesLab = $laboratory->modules()->orderBy('id')->get()->pluck('id');
-
-            $modules = $allModules->map(function ($module) use ($modulesLab){
-
-                $module->checkbox = in_array($module->id, $modulesLab->all());
-                return $module;
-            });
-
-
-        }else{
-            $modules = $laboratory->modules()->active()->orderBy('id')->get();
-        }
-
-        return response()->json(ModuleResource::collection($modules), 200);
-
-    }
-
 
     public function syncModulesLaboratory(Request $request, Laboratory $laboratory): JsonResponse
     {

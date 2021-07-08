@@ -16,13 +16,19 @@ class ModuleRequest extends FormRequest
         switch ($this->getMethod()){
             case 'PUT':
                 return [
-                    'description' => 'string',
-                    'status' => 'number',
+                    'name' => 'string',
+                    'icon' => 'string',
+                    'url' => 'string',
+                    'slug' => 'string',
+                    'active' => 'boolean',
                     ];
             case 'POST':
                 return [
-                    'description' => 'required|string',
-                    'status' => 'integer'
+                    'name' => 'required|string',
+                    'url' => 'string',
+                    'icon' => 'string',
+                    'slug' => 'string',
+                    'active' => 'boolean'
                 ];
             default:
                 return [];
@@ -37,16 +43,22 @@ class ModuleRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'description.required' => $this->getRequiredMessage(),
-            'description.string' => $this->getStringMessage(),
-            'status.integer' => $this->getIntegerMessage()
+            'name.required' => $this->getRequiredMessage(),
+            'name.string' => $this->getStringMessage(),
+            'name.icon' => $this->getStringMessage(),
+            'name.url' => $this->getStringMessage(),
+            'name.slug' => $this->getStringMessage(),
+            'active.boolean' => $this->getBooleanMessage()
         ];
     }
 
     public function attributes(): array
     {
         return  [
-            'description' => 'Nombre'
+            'name' => 'Nombre',
+            'icon' => 'Icono',
+            'url' => 'url',
+            'slug' => 'slug'
         ];
     }
 }
