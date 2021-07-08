@@ -3,25 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleRequest;
+use App\Http\Resources\PermissionResource;
 use App\Http\Resources\RoleResource;
+use App\Models\Module;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
-use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
 
-    public function index(RoleRequest $request): JsonResponse
+    public function index(): JsonResponse
     {
-        $roles = Role::orderBy('id')->paginate($request->getPaginate());
+        $roles = Role::with('created_user')->orderBy('id')->get();
 
-        return response()->json(
-           RoleResource::collection($roles)
-                ->response()
-                ->getData(true),
-            200);
+        return response()->json(RoleResource::collection($roles), 200);
     }
 
 
@@ -33,7 +31,9 @@ class RoleController extends Controller
 
         $this->authorize('create', Role::class);
 
-        $role = Role::create($request->validated());
+        $data = array_merge($request->validated(), ['created_user_id' => auth()->id()]);
+
+        $role = Role::create($data);
 
         return response()->json(new RoleResource($role), 201);
     }
@@ -103,12 +103,15 @@ class RoleController extends Controller
      *         @OA\MediaType(mediaType="application/json"),
      *          response=403, description="Forbidden")
      *     )
+     * @throws AuthorizationException
      */
-    public function update(RoleRequest $request, Role $role)
+    public function update(RoleRequest $request, Role $role): JsonResponse
     {
         $this->authorize('update', $role);
 
-        $role->update($request->validated());
+        $data = array_merge($request->validated(), ['updated_user_id' => auth()->id()]);
+
+        $role->update($data);
 
         return response()->json(new RoleResource($role), 200);
     }
@@ -145,13 +148,28 @@ class RoleController extends Controller
     /**
      * @throws AuthorizationException
      */
-    public function permissionsByRole(Role $role): JsonResponse
+    public function permissionsByRole(Request $request, Role $role): JsonResponse
     {
         $this->authorize('view', $role);
 
-        $roles = $role->where('id', $role->id)->with('permissions:name')->get();
+        if($request->input('cross')){
 
-        return response()->json( $roles, 200);
+            $module = Module::find($request->input('module_id'));
+
+            $roles_permissions = $role->permissions()->orderBy('id')->get()->pluck('id');
+
+            $permissions = $module->permissions->map(function ($permission) use ($roles_permissions){
+
+                $permission->checkbox = in_array($permission->id, $roles_permissions->all());
+                return $permission;
+            });
+
+
+        }else{
+            $permissions = $role->permissions()->orderBy('id')->get();
+        }
+
+        return response()->json(PermissionResource::collection($permissions), 200);
     }
 
     public function assignSuperUser(){

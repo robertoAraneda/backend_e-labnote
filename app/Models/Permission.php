@@ -12,6 +12,13 @@ class Permission extends \Spatie\Permission\Models\Permission
     protected $table = 'permissions';
     protected $perPage = '10';
 
+    protected $fillable = [
+        'name',
+        'guard_name',
+        'model',
+        'action',
+        'description'
+    ];
     public static function getListJsonStructure(): array
     {
         return [
@@ -24,7 +31,7 @@ class Permission extends \Spatie\Permission\Models\Permission
     public static function getObjectJsonStructure(): array
     {
         return
-            ['id', 'name']
+            ['id', 'name', 'action', 'description', 'model']
         ;
     }
 

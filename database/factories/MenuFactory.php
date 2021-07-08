@@ -25,7 +25,9 @@ class MenuFactory extends Factory
         return [
             'module_id' => Module::factory(),
             'name' => $this->faker->title(),
-            'status' => $this->faker->numberBetween(0,1),
+            'icon' => $this->faker->lastName,
+            'url' => $this->faker->url,
+            'active' => $this->faker->boolean,
         ];
     }
 }

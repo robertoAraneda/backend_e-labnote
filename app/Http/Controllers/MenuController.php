@@ -92,9 +92,6 @@ class MenuController extends Controller
         }
     }
 
-    public function findById(int $id): Menu
-    {
-        return Menu::find($id);
 
-    }
+
 }

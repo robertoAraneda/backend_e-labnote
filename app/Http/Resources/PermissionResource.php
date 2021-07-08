@@ -15,9 +15,22 @@ class PermissionResource extends JsonResource
      */
     public function toArray($request): array
     {
+        if(isset($this->checkbox)){
+            return [
+                'id' => $this->id,
+                'name' => $this->name,
+                'model' => $this->model,
+                'action' => $this->action,
+                'description' => $this->description,
+                'checkbox' =>(bool) $this->checkbox
+            ];
+        }
         return [
             'id' => $this->id,
-            'name' => $this->name
+            'name' => $this->name,
+            'model' => $this->model,
+            'action' => $this->action,
+            'description' => $this->description,
         ];
     }
 }

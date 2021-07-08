@@ -20,12 +20,6 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'permission.index', 'guard_name' => 'api']);
         Permission::create(['name' => 'permission.show', 'guard_name' => 'api']);
 
-        Permission::create(['name' => 'role.create', 'guard_name' => 'api']);
-        Permission::create(['name' => 'role.update', 'guard_name' => 'api']);
-        Permission::create(['name' => 'role.delete', 'guard_name' => 'api']);
-        Permission::create(['name' => 'role.index', 'guard_name' => 'api']);
-        Permission::create(['name' => 'role.show', 'guard_name' => 'api']);
-
         Permission::create(['name' => 'user.create', 'guard_name' => 'api']);
         Permission::create(['name' => 'user.update', 'guard_name' => 'api']);
         Permission::create(['name' => 'user.delete', 'guard_name' => 'api']);
