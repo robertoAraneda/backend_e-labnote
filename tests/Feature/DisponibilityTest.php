@@ -136,15 +136,13 @@ class DisponibilityTest extends TestCase
 
     public function test_se_puede_eliminar_un_recurso(): void //destroy
     {
-        $list = Disponibility::count();
-
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id));
 
         $response->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertDatabaseCount($this->table, ($list - 1));
-
+        $this->assertDatabaseHas($this->table, ['id'=> $this->model->id]);
+        $this->assertSoftDeleted($this->model);
     }
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
