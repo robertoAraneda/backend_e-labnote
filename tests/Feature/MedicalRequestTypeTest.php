@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\DisponibilityController;
-use App\Models\Disponibility;
+use App\Http\Controllers\MedicalRequestTypeController;
+use App\Models\MedicalRequestType;
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\DisponibilityPermissionsSeeder;
+use Database\Seeders\MedicalRequestTypePermissionsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -14,7 +14,7 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class DisponibilityTest extends TestCase
+class MedicalRequestTypeTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -23,9 +23,9 @@ class DisponibilityTest extends TestCase
      */
     private $role;
     private $user, $model;
-    private DisponibilityController $disponibilityController;
-    private string $perPage;
+    private MedicalRequestTypeController $medicalRequestTypeController;
     private string $table;
+    private string $base_url;
 
     public function setUp():void
     {
@@ -34,35 +34,36 @@ class DisponibilityTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(DisponibilityPermissionsSeeder::class);
+        $this->seed(MedicalRequestTypePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('disponibility.create');
-        $role->givePermissionTo('disponibility.update');
-        $role->givePermissionTo('disponibility.delete');
-        $role->givePermissionTo('disponibility.index');
-        $role->givePermissionTo('disponibility.show');
+        $role->givePermissionTo('medicalRequestType.create');
+        $role->givePermissionTo('medicalRequestType.update');
+        $role->givePermissionTo('medicalRequestType.delete');
+        $role->givePermissionTo('medicalRequestType.index');
+        $role->givePermissionTo('medicalRequestType.show');
 
         $user->assignRole($role);
 
-        $modelClass = new Disponibility();
-        $this->disponibilityController = new DisponibilityController();
+        $modelClass = new MedicalRequestType();
+        $this->medicalRequestTypeController = new MedicalRequestTypeController();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = Disponibility::factory()->create();
+        $this->model = MedicalRequestType::factory()->create();
         $this->table = $modelClass->getTable();
+        $this->base_url = '/api/v1/medical-request-types';
 
     }
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        Disponibility::factory()->count(20)->create();
+        MedicalRequestType::factory()->count(20)->create();
 
         $response = $this->actingAs($this->user, 'api')
-            ->getJson(sprintf('/api/v1/%s', $this->table));
+            ->getJson($this->base_url);
 
         $response->assertStatus(Response::HTTP_OK);
 
@@ -81,11 +82,11 @@ class DisponibilityTest extends TestCase
     public function test_se_puede_obtener_el_detalle_del_recurso(): void //show
     {
         $response = $this->actingAs($this->user, 'api')
-            ->getJson("/api/v1/{$this->table}/{$this->model->id}" );
+            ->getJson(sprintf('%s/%s', $this->base_url, $this->model->id));
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(Disponibility::getObjectJsonStructure());
+        $response->assertJsonStructure(MedicalRequestType::getObjectJsonStructure());
 
         $response->assertExactJson([
             'id' => $this->model->id,
@@ -96,15 +97,15 @@ class DisponibilityTest extends TestCase
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
-        $list = Disponibility::count();
+        $list = MedicalRequestType::count();
 
         $factoryModel = [
-            'name' => 'Disponibilidad 1',
+            'name' => 'Tipo de solicitud médica 1',
             'active' => true
         ];
 
         $response = $this->actingAs($this->user, 'api')
-            ->postJson("/api/v1/{$this->table}",  $factoryModel);
+            ->postJson($this->base_url,  $factoryModel);
 
         $response->assertStatus(Response::HTTP_CREATED);
 
@@ -121,15 +122,15 @@ class DisponibilityTest extends TestCase
     public function test_se_puede_modificar_un_recurso(): void // update
     {
         $response = $this->actingAs($this->user, 'api')
-            ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id),  [
-                'name' => 'new disponibility modificado'
+            ->putJson(sprintf('%s/%s', $this->base_url, $this->model->id),  [
+                'name' => 'new medicalRequestType modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertExactJson([
             'id' => $this->model->id,
-            'name' => 'new disponibility modificado',
+            'name' => 'new medicalRequestType modificado',
             'active' => $this->model->active
         ]);
     }
@@ -137,7 +138,7 @@ class DisponibilityTest extends TestCase
     public function test_se_puede_eliminar_un_recurso(): void //destroy
     {
         $response = $this->actingAs($this->user, 'api')
-            ->deleteJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id));
+            ->deleteJson(sprintf('%s/%s', $this->base_url, $this->model->id));
 
         $response->assertStatus(Response::HTTP_NO_CONTENT);
 
@@ -147,17 +148,17 @@ class DisponibilityTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = Disponibility::count();
+        $list = MedicalRequestType::count();
 
         $factoryModel = [
             'name' => $this->faker->name,
             'active' => true
         ];
 
-        $this->role->revokePermissionTo('disponibility.create');
+        $this->role->revokePermissionTo('medicalRequestType.create');
 
         $response = $this->actingAs($this->user, 'api')
-            ->postJson("/api/v1/{$this->table}",  $factoryModel);
+            ->postJson($this->base_url, $factoryModel);
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
 
@@ -167,27 +168,27 @@ class DisponibilityTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('disponibility.update');
+        $this->role->revokePermissionTo('medicalRequestType.update');
 
-        $url = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
+        $url = sprintf('%s/%s',$this->base_url, $this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($url,  [
-                'name' => 'disponibility name modificado'
+                'name' => 'medicalRequestType name modificado'
             ]);
 
-        $this->assertNotEquals($this->model->name, 'disponibility name modificado');
+        $this->assertNotEquals($this->model->name, 'medicalRequestType name modificado');
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('disponibility.delete');
+        $this->role->revokePermissionTo('medicalRequestType.delete');
 
-        $list = Disponibility::count();
+        $list = MedicalRequestType::count();
 
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
+        $uri = sprintf('%s/%s',$this->base_url ,$this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
@@ -200,7 +201,7 @@ class DisponibilityTest extends TestCase
 
     public function test_se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table , -5);
+        $uri = sprintf('%s/%s',$this->base_url , -5);
         $response = $this->actingAs($this->user, 'api')
             ->getJson($uri);
 
@@ -210,7 +211,7 @@ class DisponibilityTest extends TestCase
 
     public function test_se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
+        $uri = sprintf('%s/%s',$this->base_url ,-5);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($uri);
@@ -221,7 +222,7 @@ class DisponibilityTest extends TestCase
 
     public function test_se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
+        $uri = sprintf('%s/%s',$this->base_url ,-5);
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
@@ -232,12 +233,13 @@ class DisponibilityTest extends TestCase
 
     public function test_se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,'string');
+        $uri = sprintf('%s/%s',$this->base_url ,'string');
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
 
         $response->assertStatus(Response::HTTP_NOT_FOUND);
     }
+
 
 }

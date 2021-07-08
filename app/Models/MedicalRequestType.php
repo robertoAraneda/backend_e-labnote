@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ResponseTime extends Model
+class MedicalRequestType extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -28,4 +28,5 @@ class ResponseTime extends Model
     {
         return ['id', 'name', 'active'];
     }
+
 }

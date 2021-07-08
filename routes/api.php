@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DisponibilityController;
 use App\Http\Controllers\LaboratoryController;
+use App\Http\Controllers\MedicalRequestTypeController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ProcessTimeController;
@@ -52,8 +53,9 @@ Route::group([
     Route::apiResource('menus', MenuController::class)->whereNumber('menu');
     Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea');
     Route::apiResource('disponibilities', DisponibilityController::class)->whereNumber('disponibility');
-    Route::apiResource('process_times', ProcessTimeController::class)->whereNumber('processTime');
-    Route::apiResource('response_times', ResponseTimeController::class)->whereNumber('responseTime');
+    Route::apiResource('process-times', ProcessTimeController::class)->whereNumber('process_time');
+    Route::apiResource('response-times', ResponseTimeController::class)->whereNumber('response_time');
+    Route::apiResource('medical-request-types', MedicalRequestTypeController::class)->whereNumber('medical_request_type');
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
