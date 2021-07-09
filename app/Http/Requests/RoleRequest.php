@@ -41,9 +41,17 @@ class RoleRequest extends FormRequest
 
         switch ($this->getMethod()){
             case 'PUT':
+                return [
+                    'name' => 'required|string',
+                    'updated_user_id' => 'integer',
+                    'active' => 'boolean',
+                    'guard_name' => 'string',
+                ];
             case 'POST':
                 return [
                     'name' => 'required|string',
+                    'created_user_id' => 'integer',
+                    'active' => 'boolean',
                     'guard_name' => 'string',
                 ];
             default:

@@ -23,6 +23,9 @@ class ModuleFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
+            'url' => $this->faker->url,
+            'slug' => $this->faker->slug,
+            'icon' => $this->faker->lastName,
             'active' => $this->faker->boolean
         ];
     }

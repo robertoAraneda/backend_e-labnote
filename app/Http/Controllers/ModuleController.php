@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ModuleRequest;
+use App\Http\Resources\MenuResource;
 use App\Http\Resources\ModuleResource;
 use App\Models\Module;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class ModuleController extends Controller
 {
@@ -75,22 +78,16 @@ class ModuleController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
+     * @param Module $module
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(int $id):JsonResponse
+    public function destroy(Module $module):JsonResponse
     {
-        $model = Module::find($id);
-
-        if(!isset($model)){
-            return response()->json(null, 404);
-        }
-
-        $this->authorize('delete', $model);
+        $this->authorize('delete', $module);
 
         try {
-            $model->delete();
+            $module->delete();
 
             return response()->json(null, 204);
         }catch (\Exception $exception){
@@ -99,9 +96,29 @@ class ModuleController extends Controller
         }
     }
 
-    public function findById(int $id): Module
-    {
-       return Module::find($id);
 
+    public function searchByParams(Request $request): JsonResponse
+    {
+        if($request->input('slug')){
+            $module = $this->findBySlug($request->input('slug'));
+            return response()->json(new ModuleResource($module), Response::HTTP_OK);
+        }
+
+        return response()->json([], Response::HTTP_OK);
+    }
+
+    public function menusByModule(Module $module): JsonResponse
+    {
+        $menus = $module->menus()->active()->orderBy('id')->get();
+
+        return response()->json(MenuResource::collection($menus), 200);
+    }
+
+    private function findByName($name){
+        return Module::active()->with('menus')->where('name', $name)->first();
+    }
+
+    private function findBySlug($slug){
+        return Module::active()->with('menus')->where('slug', $slug)->first();
     }
 }

@@ -10,7 +10,6 @@ use App\Http\Controllers\ProcessTimeController;
 use App\Http\Controllers\ResponseTimeController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\WorkareaController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;

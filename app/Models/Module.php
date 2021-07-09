@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -21,6 +22,9 @@ class Module extends Model
      */
     protected  $fillable = [
         'name',
+        'icon',
+        'url',
+        'slug',
         'active'
     ];
 
@@ -44,7 +48,7 @@ class Module extends Model
 
     public static function getObjectJsonStructure(): array
     {
-        return ['id', 'name', 'active'];
+        return ['id', 'name','icon', 'url', 'slug', 'active'];
     }
 
     public function getTable():string
@@ -55,6 +59,18 @@ class Module extends Model
     public function laboratories(): BelongsToMany
     {
         return $this->belongsToMany(Laboratory::class, 'laboratory_modules');
+    }
+
+    public function menus(): HasMany
+    {
+        return $this->hasMany(Menu::class);
+    }
+
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class, 'module_permission')
+            ->withPivot('user_id', 'created_at', 'updated_at')
+            ->withTimestamps();;
     }
 
 

@@ -20,6 +20,9 @@ class ModuleResource extends JsonResource
             return [
                 'id' => $this->id,
                 'name' => $this->name,
+                'icon' => $this->icon,
+                'url' => $this->url,
+                'slug' => $this->slug,
                 'active' => (bool) $this->active,
                 'checkbox' =>(bool) $this->checkbox
             ];
@@ -27,6 +30,10 @@ class ModuleResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'icon' => $this->icon,
+            'url' => $this->url,
+            'slug' => $this->slug,
+            'menus' => $this->menus,
             'active' => (bool) $this->active,
         ];
 

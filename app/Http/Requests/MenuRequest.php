@@ -17,14 +17,18 @@ class MenuRequest extends FormRequest
             case 'PUT':
                 return [
                     'name' => 'string',
+                    'icon' => 'string',
+                    'url' => 'string',
                     'module_id' => 'integer',
-                    'status' => 'integer',
+                    'active' => 'boolean',
                 ];
             case 'POST':
                 return [
                     'name' => 'required|string',
+                    'icon' => 'string',
+                    'url' => 'string',
                     'module_id' => 'required|integer',
-                    'status' => 'integer'
+                    'active' => 'boolean'
                 ];
             default:
                 return [];
@@ -41,9 +45,11 @@ class MenuRequest extends FormRequest
         return [
             'name.required' => $this->getRequiredMessage(),
             'name.string' => $this->getStringMessage(),
+            'url.string' => $this->getStringMessage(),
+            'icon.string' => $this->getStringMessage(),
             'module_id.required' => $this->getRequiredMessage(),
             'module_id.integer' => $this->getIntegerMessage(),
-            'status.integer' => $this->getIntegerMessage()
+            'active.boolean' => $this->getBooleanMessage()
         ];
     }
 
@@ -51,8 +57,10 @@ class MenuRequest extends FormRequest
     {
         return  [
             'name' => 'name',
+            'icon' => 'icon',
+            'url' => 'url',
             'module_id' => 'module_id',
-            'status' => 'status'
+            'active' => 'active'
         ];
     }
 }

@@ -5,9 +5,10 @@ namespace Tests\Feature;
 use App\Models\Permission;
 use App\Models\User;
 use App\Models\Role;
-use Database\Seeders\PermissionSeeder;
+use Database\Seeders\RolePermissionsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
@@ -15,7 +16,9 @@ class RoleTest extends TestCase
 {
     use RefreshDatabase;
 
-    private $user, $permission, $role, $table, $perPage;
+    private $user, $permission, $role;
+    private string $perPage;
+    private string $table;
 
     public function setUp():void
     {
@@ -24,7 +27,7 @@ class RoleTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(PermissionSeeder::class);
+        $this->seed(RolePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
@@ -54,11 +57,14 @@ class RoleTest extends TestCase
             ->getJson('/api/v1/roles');
 
         $response->assertStatus(Response::HTTP_OK);
-        $response->assertJsonStructure([
-            'data' => [['id', 'name']],
-            'links',
-            'meta',
-        ]);
+        $response->assertJson(fn (AssertableJson $json) =>
+        $json->whereType('0.id', 'integer')
+            ->whereAllType([
+                '0.name' => 'string',
+                '0.guardName' => 'string',
+                '0.createdAt' => 'string',
+            ])
+        );
     }
 
     public function test_se_puede_obtener_el_detalle_del_recurso(): void
@@ -70,8 +76,12 @@ class RoleTest extends TestCase
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertExactJson([
-            'id' =>  $response->json()['id'],
+            'id' =>  $this->role->id,
             'name' => $this->role->name,
+            'createdUser' => $this->role->created_user->names,
+            'createdAt' => $this->role->created_at->format('d/m/Y'),
+            'guardName' => $this->role->guard_name,
+            'active' => (bool) $this->role->active
         ]);
     }
 
@@ -83,6 +93,8 @@ class RoleTest extends TestCase
         $response = $this->actingAs($this->user, 'api')
             ->postJson('/api/v1/roles',  [
                 'name' => 'new role',
+                'active' => true,
+                'created_user_id' => $this->user->id,
                 'guard_name' => 'api'
             ]);
 
@@ -91,6 +103,10 @@ class RoleTest extends TestCase
         $response->assertExactJson([
             'id' =>  $response->json()['id'],
             'name' => 'new role',
+            'active' => true,
+            'createdUser' => $this->user->names,
+            'createdAt' => $response->json()['createdAt'],
+            'guardName' => 'api'
         ]);
 
         $this->assertDatabaseCount('roles', ($roles + 1));
@@ -110,6 +126,10 @@ class RoleTest extends TestCase
         $response->assertExactJson([
             'id' =>  $this->role->id,
             'name' => 'new role modificado',
+            'createdUser' => $this->role->created_user->names,
+            'createdAt' => $this->role->created_at->format('d/m/Y'),
+            'guardName' => $this->role->guard_name,
+            'active' => (bool) $this->role->active
         ]);
     }
 
@@ -194,74 +214,6 @@ class RoleTest extends TestCase
             ->deleteJson(sprintf('/api/v1/roles/%s', -5));
 
         $response->assertStatus(Response::HTTP_NOT_FOUND);
-
-    }
-
-    public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
-    {
-
-        Role::factory()->count(20)->create();
-
-        $list = Role::count();
-
-        $DEFAULT_PAGINATE = 5;
-
-        $mod = $list % $DEFAULT_PAGINATE;
-
-        $pages = intval(ceil($list / $DEFAULT_PAGINATE));
-
-        for($i = 1; $i <= $pages; $i++){
-            $response = $this->actingAs($this->user, 'api')
-                ->getJson(sprintf('/api/v1/%s?page=%s&paginate=%s',$this->table , $i, $DEFAULT_PAGINATE ))
-                ->assertStatus(Response::HTTP_OK);
-
-            if($i < $pages){
-                $this->assertEquals($DEFAULT_PAGINATE ,  collect($response['data'])->count());
-            }else{
-                if($mod == 0){
-                    $this->assertEquals($DEFAULT_PAGINATE ,  collect($response['data'])->count());
-                }else{
-                    $this->assertEquals($mod ,  collect($response['data'])->count());
-                }
-
-            }
-
-            $response->assertJsonStructure(Role::getListJsonStructure());
-        }
-
-        $this->assertDatabaseCount($this->table, $list);
-
-    }
-
-    public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
-    {
-        Role::factory()->count(20)->create();
-
-        $list = Role::count();
-
-        $pages = intval(ceil($list / $this->perPage ));
-        $mod = $list % $this->perPage ;
-
-        for($i = 1; $i <= $pages; $i++){
-
-            $response = $this->actingAs($this->user, 'api')
-                ->getJson(sprintf('/api/v1/%s?page=%s',$this->table ,$i))
-                ->assertStatus(Response::HTTP_OK);
-
-            if($i < $pages){
-                $this->assertEquals($this->perPage ,  collect($response['data'])->count());
-            }else{
-                if($mod == 0){
-                    $this->assertEquals($this->perPage ,  collect($response['data'])->count());
-                }else{
-                    $this->assertEquals($mod ,  collect($response['data'])->count());
-                }
-            }
-
-            $response->assertJsonStructure(Role::getListJsonStructure());
-        }
-
-        $this->assertDatabaseCount($this->table, $list);
 
     }
 

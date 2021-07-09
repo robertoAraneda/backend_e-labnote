@@ -2,8 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Spatie\Permission\Models\Role;
 
 class RoleFactory extends Factory
 {
@@ -23,6 +24,8 @@ class RoleFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
+            'active' => $this->faker->boolean,
+            'created_user_id' => User::factory(),
             'guard_name' => 'api'
         ];
     }

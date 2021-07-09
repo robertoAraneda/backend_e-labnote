@@ -19,8 +19,10 @@ class Menu extends Model
      */
     protected  $fillable = [
         'name',
+        'url',
+        'icon',
         'module_id',
-        'status'
+        'active'
     ];
 
     /**
@@ -43,7 +45,7 @@ class Menu extends Model
 
     public static function getObjectJsonStructure(): array
     {
-        return ['id', 'name', 'status'];
+        return ['id', 'name','icon', 'url','active'];
     }
 
     public function getTable():string
@@ -54,5 +56,16 @@ class Menu extends Model
     public function module(): BelongsTo
     {
         return $this->belongsTo(Module::class);
+    }
+
+    /**
+     * Scope a query to only include active users.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
     }
 }

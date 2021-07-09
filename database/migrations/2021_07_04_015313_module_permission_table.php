@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateModulesTable extends Migration
+class ModulePermissionTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,11 @@ class CreateModulesTable extends Migration
      */
     public function up()
     {
-        Schema::create('modules', function (Blueprint $table) {
+        Schema::create('module_permission', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('icon');
-            $table->string('url');
-            $table->string('slug');
-            $table->boolean('active')->default(true);
+            $table->unsignedBigInteger('module_id');
+            $table->unsignedBigInteger('permission_id');
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
         });
     }
@@ -31,6 +29,6 @@ class CreateModulesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('modules');
+        Schema::dropIfExists('module_permission');
     }
 }
