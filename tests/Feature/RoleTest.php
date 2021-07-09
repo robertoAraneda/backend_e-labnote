@@ -217,4 +217,16 @@ class RoleTest extends TestCase
 
     }
 
+    public function test_se_puede_modificar_el_estado_de_un_rol()
+    {
+       $status = filter_var($this->role->active, FILTER_VALIDATE_BOOLEAN);
+
+        $response = $this->actingAs($this->user, 'api')
+            ->putJson(sprintf('/api/v1/roles/%s', $this->role->id),  [
+                'active' => !$status,
+            ]);
+
+        $this->assertNotEquals($this->role->active, (bool) $response->json()['active']);
+    }
+
 }

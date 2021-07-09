@@ -6,6 +6,8 @@ use App\Http\Controllers\MedicalRequestTypeController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ProcessTimeController;
+use App\Http\Controllers\RelLaboratoryModuleController;
+use App\Http\Controllers\RelModulePermissionController;
 use App\Http\Controllers\ResponseTimeController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\WorkareaController;
@@ -65,7 +67,14 @@ Route::group([
 
 
 
+    //rels
+    Route::apiResource('modules.permissions', RelModulePermissionController::class)->only('index', 'store')->whereNumber('module');
+    Route::apiResource('laboratories.modules', RelLaboratoryModuleController::class)->only('index', 'store')->whereNumber('laboratory');
 
+
+
+    //search queries
+    Route::get('modules/search', [ModuleController::class, 'searchByParams']);
 
 
 
@@ -73,6 +82,8 @@ Route::group([
 
 
 
+    //change active attribute mode
+    Route::put('roles/{role}/status', [RoleController::class, 'changeActiveAttribute']);
 
 
 
