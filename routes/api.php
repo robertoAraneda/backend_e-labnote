@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DisponibilityController;
+use App\Http\Controllers\FonasaController;
 use App\Http\Controllers\LaboratoryController;
 use App\Http\Controllers\MedicalRequestTypeController;
 use App\Http\Controllers\MenuController;
@@ -56,6 +57,7 @@ Route::group([
     Route::apiResource('process-times', ProcessTimeController::class)->whereNumber('process_time');
     Route::apiResource('response-times', ResponseTimeController::class)->whereNumber('response_time');
     Route::apiResource('medical-request-types', MedicalRequestTypeController::class)->whereNumber('medical_request_type');
+    Route::apiResource('fonasas', FonasaController::class)->whereNumber('fonasa');
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
