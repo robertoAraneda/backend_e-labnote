@@ -14,7 +14,9 @@ use Illuminate\Http\JsonResponse;
 
 class RoleController extends Controller
 {
-
+    /**
+     * @return JsonResponse
+     */
     public function index(): JsonResponse
     {
         $roles = Role::with('created_user')->orderBy('id')->get();
@@ -22,8 +24,9 @@ class RoleController extends Controller
         return response()->json(RoleResource::collection($roles), 200);
     }
 
-
     /**
+     * @param RoleRequest $request
+     * @return JsonResponse
      * @throws AuthorizationException
      */
     public function store(RoleRequest $request): JsonResponse
@@ -39,32 +42,8 @@ class RoleController extends Controller
     }
 
     /**
-     * @OA\Get(
-     *      path="/roles/{id}",
-     *      tags={"Rol"},
-     *      summary="Obtener un rol",
-     *      description="Retorna un rol solicitado",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *          name="id",
-     *          description="Id del rol",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(type="integer")
-     *      ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=200, description="Successful operation"),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=204, description="No Content"),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=401, description="Unauthenticated"),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=403, description="Forbidden")
-     *     )
+     * @param Role $role
+     * @return JsonResponse
      */
     public function show(Role $role): JsonResponse
     {
@@ -73,36 +52,9 @@ class RoleController extends Controller
     }
 
     /**
-     * @OA\Put(
-     *      path="/roles/{id}",
-     *      tags={"Rol"},
-     *      summary="Actualizar un rol",
-     *      description="Retorna un rol actualizado",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *          name="id",
-     *          description="Id del rol",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(type="integer")
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(ref="#/components/schemas/RoleRequest")
-     *      ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=200, description="Successful operation"),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=204, description="No Content"),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=401, description="Unauthenticated"),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=403, description="Forbidden")
-     *     )
+     * @param RoleRequest $request
+     * @param Role $role
+     * @return JsonResponse
      * @throws AuthorizationException
      */
     public function update(RoleRequest $request, Role $role): JsonResponse
@@ -133,6 +85,10 @@ class RoleController extends Controller
     }
 
     /**
+     *
+     * @param Request $request
+     * @param Role $role
+     * @return JsonResponse
      * @throws AuthorizationException
      */
     public function syncRolesPermission(Request $request, Role $role): JsonResponse
@@ -144,8 +100,10 @@ class RoleController extends Controller
         return response()->json($role , 201);
     }
 
-
     /**
+     * @param Request $request
+     * @param Role $role
+     * @return JsonResponse
      * @throws AuthorizationException
      */
     public function permissionsByRole(Request $request, Role $role): JsonResponse
@@ -159,7 +117,6 @@ class RoleController extends Controller
             $roles_permissions = $role->permissions()->orderBy('id')->get()->pluck('id');
 
             $permissions = $module->permissions->map(function ($permission) use ($roles_permissions){
-
                 $permission->checkbox = in_array($permission->id, $roles_permissions->all());
                 return $permission;
             });
@@ -170,6 +127,21 @@ class RoleController extends Controller
         }
 
         return response()->json(PermissionResource::collection($permissions), 200);
+    }
+
+    /**
+     * @param Request $request
+     * @param Role $role
+     * @return JsonResponse
+     */
+    public function changeActiveAttribute(Request $request, Role $role): JsonResponse
+    {
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        $role->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+        return response()->json(new RoleResource($role), 200);
     }
 
     public function assignSuperUser(){
