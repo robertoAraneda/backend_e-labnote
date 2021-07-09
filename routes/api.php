@@ -11,6 +11,7 @@ use App\Http\Controllers\RelLaboratoryModuleController;
 use App\Http\Controllers\RelModulePermissionController;
 use App\Http\Controllers\ResponseTimeController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\SampleQuantityController;
 use App\Http\Controllers\WorkareaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PermissionController;
@@ -59,6 +60,7 @@ Route::group([
     Route::apiResource('response-times', ResponseTimeController::class)->whereNumber('response_time');
     Route::apiResource('medical-request-types', MedicalRequestTypeController::class)->whereNumber('medical_request_type');
     Route::apiResource('fonasas', FonasaController::class)->whereNumber('fonasa');
+    Route::apiResource('sample-quantities', SampleQuantityController::class)->whereNumber('sample-quantity');
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
