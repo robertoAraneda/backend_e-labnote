@@ -2,19 +2,19 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\SampleQuantityController;
+use App\Http\Controllers\SamplingConditionController;
 use App\Models\Role;
-use App\Models\SampleQuantity;
+use App\Models\SamplingCondition;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
-use Database\Seeders\SampleQuantityPermissionsSeeder;
+use Database\Seeders\SamplingConditionPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class SampleQuantityTest extends TestCase
+class SamplingConditionTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -23,7 +23,7 @@ class SampleQuantityTest extends TestCase
      */
     private $role;
     private $user, $model;
-    private SampleQuantityController $sampleQuantityController;
+    private SamplingConditionController $samplingConditionController;
     private string $table;
     private string $base_url;
 
@@ -34,33 +34,33 @@ class SampleQuantityTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(SampleQuantityPermissionsSeeder::class);
+        $this->seed(SamplingConditionPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('sampleQuantity.create');
-        $role->givePermissionTo('sampleQuantity.update');
-        $role->givePermissionTo('sampleQuantity.delete');
-        $role->givePermissionTo('sampleQuantity.index');
-        $role->givePermissionTo('sampleQuantity.show');
+        $role->givePermissionTo('samplingCondition.create');
+        $role->givePermissionTo('samplingCondition.update');
+        $role->givePermissionTo('samplingCondition.delete');
+        $role->givePermissionTo('samplingCondition.index');
+        $role->givePermissionTo('samplingCondition.show');
 
         $user->assignRole($role);
 
-        $modelClass = new SampleQuantity();
-        $this->sampleQuantityController = new SampleQuantityController();
+        $modelClass = new SamplingCondition();
+        $this->sampleQuantityController = new SamplingConditionController();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = SampleQuantity::factory()->create();
+        $this->model = SamplingCondition::factory()->create();
         $this->table = $modelClass->getTable();
-        $this->base_url = '/api/v1/sample-quantities';
+        $this->base_url = '/api/v1/sampling-conditions';
 
     }
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        SampleQuantity::factory()->count(20)->create();
+        SamplingCondition::factory()->count(20)->create();
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson($this->base_url);
@@ -86,7 +86,7 @@ class SampleQuantityTest extends TestCase
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(SampleQuantity::getObjectJsonStructure());
+        $response->assertJsonStructure(SamplingCondition::getObjectJsonStructure());
 
         $response->assertExactJson([
             'id' => $this->model->id,
@@ -97,10 +97,10 @@ class SampleQuantityTest extends TestCase
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
-        $list = SampleQuantity::count();
+        $list = SamplingCondition::count();
 
         $factoryModel = [
-            'name' => 'SampleQuantity 1',
+            'name' => 'SamplingCondition 1',
             'active' => true
         ];
 
@@ -123,14 +123,14 @@ class SampleQuantityTest extends TestCase
     {
         $response = $this->actingAs($this->user, 'api')
             ->putJson(sprintf('%s/%s', $this->base_url, $this->model->id),  [
-                'name' => 'new sampleQuantity modificado'
+                'name' => 'new samplingCondition modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertExactJson([
             'id' => $this->model->id,
-            'name' => 'new sampleQuantity modificado',
+            'name' => 'new samplingCondition modificado',
             'active' => $this->model->active
         ]);
     }
@@ -148,14 +148,14 @@ class SampleQuantityTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = SampleQuantity::count();
+        $list = SamplingCondition::count();
 
         $factoryModel = [
             'name' => $this->faker->name,
             'active' => true
         ];
 
-        $this->role->revokePermissionTo('sampleQuantity.create');
+        $this->role->revokePermissionTo('samplingCondition.create');
 
         $response = $this->actingAs($this->user, 'api')
             ->postJson($this->base_url, $factoryModel);
@@ -168,25 +168,25 @@ class SampleQuantityTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('sampleQuantity.update');
+        $this->role->revokePermissionTo('samplingCondition.update');
 
         $url = sprintf('%s/%s',$this->base_url, $this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($url,  [
-                'name' => 'sampleQuantity name modificado'
+                'name' => 'samplingCondition name modificado'
             ]);
 
-        $this->assertNotEquals($this->model->name, 'sampleQuantity name modificado');
+        $this->assertNotEquals($this->model->name, 'samplingCondition name modificado');
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('sampleQuantity.delete');
+        $this->role->revokePermissionTo('samplingCondition.delete');
 
-        $list = SampleQuantity::count();
+        $list = SamplingCondition::count();
 
         $uri = sprintf('%s/%s',$this->base_url ,$this->model->id);
 
@@ -242,4 +242,3 @@ class SampleQuantityTest extends TestCase
     }
 
 }
-

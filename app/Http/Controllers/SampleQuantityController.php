@@ -15,7 +15,8 @@ class SampleQuantityController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param SampleQuantityRequest $request
+     * @return JsonResponse
      */
     public function index(SampleQuantityRequest $request): JsonResponse
     {
