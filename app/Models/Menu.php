@@ -58,6 +58,11 @@ class Menu extends Model
         return $this->belongsTo(Module::class);
     }
 
+    public function permission(): BelongsTo
+    {
+        return $this->belongsTo(Permission::class);
+    }
+
     /**
      * Scope a query to only include active users.
      *

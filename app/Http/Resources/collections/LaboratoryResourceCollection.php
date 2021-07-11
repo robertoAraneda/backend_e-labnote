@@ -6,6 +6,14 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class LaboratoryResourceCollection extends ResourceCollection
 {
+
+    /**
+     * The resource that this resource collects.
+     *
+     * @var string
+     */
+    public $collects = 'App\Http\Resources\Collections\LaboratoryResource';
+
     /**
      * Transform the resource collection into an array.
      *

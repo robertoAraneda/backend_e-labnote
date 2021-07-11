@@ -21,6 +21,7 @@ class MenuResource extends JsonResource
                 'name' => $this->name,
                 'icon' => $this->icon,
                 'url' => $this->url,
+                'permissionTrigger' => $this->permission,
                 'active' => (bool) $this->active,
                 'checkbox' =>(bool) $this->checkbox
             ];
@@ -29,6 +30,7 @@ class MenuResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'url' => $this->url,
+            'permissionTrigger' => $this->permission,
             'icon' => $this->icon,
             'active' => (bool)$this->active
         ];

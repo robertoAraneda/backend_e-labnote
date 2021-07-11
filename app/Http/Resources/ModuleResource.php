@@ -95,6 +95,7 @@ class ModuleResource extends JsonResource
         return $menus->map(function($menu) {
           return  [
                 'name' => $menu->name,
+                'triggerPermission' => $menu->permission->name,
                 '_links' => [
                     'self' => route('api.menus.show', ['menu' => $menu->id], false),
                 ]

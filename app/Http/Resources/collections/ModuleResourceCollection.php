@@ -7,6 +7,14 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ModuleResourceCollection extends ResourceCollection
 {
+
+    /**
+     * The resource that this resource collects.
+     *
+     * @var string
+     */
+    public $collects = 'App\Http\Resources\Collections\ModuleResource';
+
     /**
      * Transform the resource collection into an array.
      *
