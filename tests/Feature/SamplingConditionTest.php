@@ -2,19 +2,19 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\FonasaController;
-use App\Models\Fonasa;
+use App\Http\Controllers\SamplingConditionController;
 use App\Models\Role;
+use App\Models\SamplingCondition;
 use App\Models\User;
-use Database\Seeders\FonasaPermissionsSeeder;
 use Database\Seeders\RoleSeeder;
+use Database\Seeders\SamplingConditionPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class FonasaTest extends TestCase
+class SamplingConditionTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -23,7 +23,7 @@ class FonasaTest extends TestCase
      */
     private $role;
     private $user, $model;
-    private FonasaController $fonasaController;
+    private SamplingConditionController $samplingConditionController;
     private string $table;
     private string $base_url;
 
@@ -34,33 +34,33 @@ class FonasaTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(FonasaPermissionsSeeder::class);
+        $this->seed(SamplingConditionPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('fonasa.create');
-        $role->givePermissionTo('fonasa.update');
-        $role->givePermissionTo('fonasa.delete');
-        $role->givePermissionTo('fonasa.index');
-        $role->givePermissionTo('fonasa.show');
+        $role->givePermissionTo('samplingCondition.create');
+        $role->givePermissionTo('samplingCondition.update');
+        $role->givePermissionTo('samplingCondition.delete');
+        $role->givePermissionTo('samplingCondition.index');
+        $role->givePermissionTo('samplingCondition.show');
 
         $user->assignRole($role);
 
-        $modelClass = new Fonasa();
-        $this->fonasaController = new FonasaController();
+        $modelClass = new SamplingCondition();
+        $this->sampleQuantityController = new SamplingConditionController();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = Fonasa::factory()->create();
+        $this->model = SamplingCondition::factory()->create();
         $this->table = $modelClass->getTable();
-        $this->base_url = '/api/v1/fonasas';
+        $this->base_url = '/api/v1/sampling-conditions';
 
     }
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        Fonasa::factory()->count(20)->create();
+        SamplingCondition::factory()->count(20)->create();
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson($this->base_url);
@@ -86,7 +86,7 @@ class FonasaTest extends TestCase
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(Fonasa::getObjectJsonStructure());
+        $response->assertJsonStructure(SamplingCondition::getObjectJsonStructure());
 
         $response->assertExactJson([
             'id' => $this->model->id,
@@ -97,10 +97,10 @@ class FonasaTest extends TestCase
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
-        $list = Fonasa::count();
+        $list = SamplingCondition::count();
 
         $factoryModel = [
-            'name' => 'Fonasa 1',
+            'name' => 'SamplingCondition 1',
             'active' => true
         ];
 
@@ -123,14 +123,14 @@ class FonasaTest extends TestCase
     {
         $response = $this->actingAs($this->user, 'api')
             ->putJson(sprintf('%s/%s', $this->base_url, $this->model->id),  [
-                'name' => 'new fonasa modificado'
+                'name' => 'new samplingCondition modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertExactJson([
             'id' => $this->model->id,
-            'name' => 'new fonasa modificado',
+            'name' => 'new samplingCondition modificado',
             'active' => $this->model->active
         ]);
     }
@@ -148,14 +148,14 @@ class FonasaTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = Fonasa::count();
+        $list = SamplingCondition::count();
 
         $factoryModel = [
             'name' => $this->faker->name,
             'active' => true
         ];
 
-        $this->role->revokePermissionTo('fonasa.create');
+        $this->role->revokePermissionTo('samplingCondition.create');
 
         $response = $this->actingAs($this->user, 'api')
             ->postJson($this->base_url, $factoryModel);
@@ -168,25 +168,25 @@ class FonasaTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('fonasa.update');
+        $this->role->revokePermissionTo('samplingCondition.update');
 
         $url = sprintf('%s/%s',$this->base_url, $this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($url,  [
-                'name' => 'fonasa name modificado'
+                'name' => 'samplingCondition name modificado'
             ]);
 
-        $this->assertNotEquals($this->model->name, 'fonasa name modificado');
+        $this->assertNotEquals($this->model->name, 'samplingCondition name modificado');
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('fonasa.delete');
+        $this->role->revokePermissionTo('samplingCondition.delete');
 
-        $list = Fonasa::count();
+        $list = SamplingCondition::count();
 
         $uri = sprintf('%s/%s',$this->base_url ,$this->model->id);
 

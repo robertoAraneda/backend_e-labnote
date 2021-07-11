@@ -2,19 +2,19 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\FonasaController;
-use App\Models\Fonasa;
+use App\Http\Controllers\SampleQuantityController;
 use App\Models\Role;
+use App\Models\SampleQuantity;
 use App\Models\User;
-use Database\Seeders\FonasaPermissionsSeeder;
 use Database\Seeders\RoleSeeder;
+use Database\Seeders\SampleQuantityPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class FonasaTest extends TestCase
+class SampleQuantityTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -23,7 +23,7 @@ class FonasaTest extends TestCase
      */
     private $role;
     private $user, $model;
-    private FonasaController $fonasaController;
+    private SampleQuantityController $sampleQuantityController;
     private string $table;
     private string $base_url;
 
@@ -34,33 +34,33 @@ class FonasaTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(FonasaPermissionsSeeder::class);
+        $this->seed(SampleQuantityPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('fonasa.create');
-        $role->givePermissionTo('fonasa.update');
-        $role->givePermissionTo('fonasa.delete');
-        $role->givePermissionTo('fonasa.index');
-        $role->givePermissionTo('fonasa.show');
+        $role->givePermissionTo('sampleQuantity.create');
+        $role->givePermissionTo('sampleQuantity.update');
+        $role->givePermissionTo('sampleQuantity.delete');
+        $role->givePermissionTo('sampleQuantity.index');
+        $role->givePermissionTo('sampleQuantity.show');
 
         $user->assignRole($role);
 
-        $modelClass = new Fonasa();
-        $this->fonasaController = new FonasaController();
+        $modelClass = new SampleQuantity();
+        $this->sampleQuantityController = new SampleQuantityController();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = Fonasa::factory()->create();
+        $this->model = SampleQuantity::factory()->create();
         $this->table = $modelClass->getTable();
-        $this->base_url = '/api/v1/fonasas';
+        $this->base_url = '/api/v1/sample-quantities';
 
     }
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        Fonasa::factory()->count(20)->create();
+        SampleQuantity::factory()->count(20)->create();
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson($this->base_url);
@@ -86,7 +86,7 @@ class FonasaTest extends TestCase
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(Fonasa::getObjectJsonStructure());
+        $response->assertJsonStructure(SampleQuantity::getObjectJsonStructure());
 
         $response->assertExactJson([
             'id' => $this->model->id,
@@ -97,10 +97,10 @@ class FonasaTest extends TestCase
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
-        $list = Fonasa::count();
+        $list = SampleQuantity::count();
 
         $factoryModel = [
-            'name' => 'Fonasa 1',
+            'name' => 'SampleQuantity 1',
             'active' => true
         ];
 
@@ -123,14 +123,14 @@ class FonasaTest extends TestCase
     {
         $response = $this->actingAs($this->user, 'api')
             ->putJson(sprintf('%s/%s', $this->base_url, $this->model->id),  [
-                'name' => 'new fonasa modificado'
+                'name' => 'new sampleQuantity modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertExactJson([
             'id' => $this->model->id,
-            'name' => 'new fonasa modificado',
+            'name' => 'new sampleQuantity modificado',
             'active' => $this->model->active
         ]);
     }
@@ -148,14 +148,14 @@ class FonasaTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = Fonasa::count();
+        $list = SampleQuantity::count();
 
         $factoryModel = [
             'name' => $this->faker->name,
             'active' => true
         ];
 
-        $this->role->revokePermissionTo('fonasa.create');
+        $this->role->revokePermissionTo('sampleQuantity.create');
 
         $response = $this->actingAs($this->user, 'api')
             ->postJson($this->base_url, $factoryModel);
@@ -168,25 +168,25 @@ class FonasaTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('fonasa.update');
+        $this->role->revokePermissionTo('sampleQuantity.update');
 
         $url = sprintf('%s/%s',$this->base_url, $this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($url,  [
-                'name' => 'fonasa name modificado'
+                'name' => 'sampleQuantity name modificado'
             ]);
 
-        $this->assertNotEquals($this->model->name, 'fonasa name modificado');
+        $this->assertNotEquals($this->model->name, 'sampleQuantity name modificado');
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('fonasa.delete');
+        $this->role->revokePermissionTo('sampleQuantity.delete');
 
-        $list = Fonasa::count();
+        $list = SampleQuantity::count();
 
         $uri = sprintf('%s/%s',$this->base_url ,$this->model->id);
 
@@ -242,3 +242,4 @@ class FonasaTest extends TestCase
     }
 
 }
+
