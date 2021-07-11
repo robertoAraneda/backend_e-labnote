@@ -3,56 +3,11 @@
 namespace App\Http\Requests;
 
 use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
-/**
- * @OA\Schema(
- *      title="Solicitud HTTP User Request",
- *      description="Datos para actualizar un usuario",
- *      type="object",
- *      required={"name, rut"}
- * )
- */
 class UserRequest extends FormRequest
 {
-
-    /**
-     * @OA\Property(
-     *      title="Nombre",
-     *      description="Nombre del Usuario",
-     *      example="Roberto Alejandro"
-     * )
-     *
-     * @var string
-     */
-    protected string $names;
-
-    /**
-     * @OA\Property(
-     *      title="Nombre",
-     *      description="Rut del usuario",
-     *      example="12.345.678-9"
-     * )
-     *
-     * @var string
-     */
-    protected string $rut;
-
-    protected string $lastname;
-
-    protected string $mother_lastname;
-
-    protected string $password;
-
-    /**
-     * @OA\Property(
-     *      title="Email",
-     *      description="Correo electrónico del usuario",
-     *      example="robaraneda@gmail.com"
-     * )
-     *
-     * @var string
-     */
-    protected string $email;
 
     public function rules(): array
     {
@@ -65,7 +20,11 @@ class UserRequest extends FormRequest
                     'lastname' => 'required|max:200|string',
                     'mother_lastname' => 'required|max:200|string',
                     'email' => 'required|max:255|email|unique:users',
-                    'password' => 'required|string'
+                    'password' => 'required|string',
+                    'phone' => 'string',
+                    'created_user_id' => 'integer',
+                    'created_user_ip' => 'integer',
+                    'active' => 'boolean'
                 ];
             case 'PUT':
                 return [
@@ -73,13 +32,35 @@ class UserRequest extends FormRequest
                     'names' => 'max:200|string',
                     'lastname' => 'max:200|string',
                     'mother_lastname' => 'max:200|string',
-                    'email' => 'max:255|email|unique:users',
-                    'password' => 'string'
+                    'phone' => 'string',
+                    'email' =>[
+                        'max:255',
+                        'email',
+                        Rule::unique('users')->ignore($this->id),
+                    ], 'max:255|email|unique:users',
+                    'password' => 'string',
+                    'active' => 'boolean'
                 ];
             default:
                 return [];
         }
 
+    }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'password' => bcrypt($this->password),
+            'rut' => Str::upper($this->rut),
+            'names' => Str::upper($this->names),
+            'lastname' => Str::upper($this->lastname),
+            'mother_lastname' => Str::upper($this->mother_lastname),
+        ]);
     }
 
     public function getPaginate(): int
@@ -114,12 +95,12 @@ class UserRequest extends FormRequest
     public function attributes(): array
     {
         return  [
-            'rut' => 'RUT',
-            'names' => 'Nombres',
-            'lastname' => 'Apellido Paterno',
-            'mother_lastname' => 'Apellido Materno',
-            'email' => 'Correo electrónico',
-            'password' => 'contraseña'
+            'rut' => 'RUT (rut)',
+            'names' => 'Nombres (names)',
+            'lastname' => 'Apellido Paterno (lastname)',
+            'mother_lastname' => 'Apellido Materno (mother_lastname)',
+            'email' => 'Correo electrónico (email)',
+            'password' => 'Contraseña (password)'
         ];
     }
 }

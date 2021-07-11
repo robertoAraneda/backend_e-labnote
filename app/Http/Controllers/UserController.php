@@ -3,66 +3,44 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Http\Resources\collections\UserResourceCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class UserController extends Controller
 {
 
+
     /**
-     * @OA\Get(
-     *      path="/users",
-     *      tags={"Users"},
-     *      summary="Obtener un listado de usuarios",
-     *      description="Retorna una lista de usuarios",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *          name="page",
-     *          description="Pagina",
-     *          required=false,
-     *          in="query",
-     *          @OA\Schema(
-     *              type="integer"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="paginate",
-     *          description="Numero de elementos a retornar",
-     *          required=false,
-     *          in="query",
-     *          @OA\Schema(
-     *              type="integer"
-     *          )
-     *      ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=200,
-     *          description="Successful operation",
-     *       ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=401,
-     *          description="Unauthenticated",
-     *      ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=403,
-     *          description="Forbidden"
-     *      )
-     *     )
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
-    public function index(UserRequest $request): JsonResponse
+    public function index(): JsonResponse
     {
 
-        $users = User::orderBy('id')->paginate($request->getPaginate());
+        $this->authorize('viewAny', User::class);
 
-        return response()->json(UserResource::collection($users)->response()->getData(true));
+        $users = User::select(
+            'id',
+            'names',
+            'lastname',
+            'mother_lastname',
+            'rut',
+            'email',
+            'active',
+            )
+            ->orderBy('id')
+            ->paginate(10);
+
+        $collection = new UserResourceCollection($users);
+
+        return response()->json($collection->response()->getData(true), 200);
     }
-
     /**
      * @throws AuthorizationException
      */
@@ -70,116 +48,52 @@ class UserController extends Controller
     {
         $this->authorize('create', User::class);
 
-        try {
-            $user = new User([
-                'rut' => $request->rut,
-                'names' => $request->names,
-                'lastname' => $request->lastname,
-                'mother_lastname' => $request->mother_lastname,
-                'email' => $request->email,
-                'password' => bcrypt($request->password)
+        $data = array_merge($request->validated(),
+            [
+                'created_user_id' => auth()->id(),
+                'created_user_ip' => $request->ip(),
+                'url' => $request->url()
             ]);
+        try {
 
-            $user->save();
+            $user =  User::create($data);
 
-            return response()->json(new UserResource($user->fresh()) , 201);
+            return response()->json(new UserResource($user) , 201);
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), 500);
         }
     }
 
-
     /**
-     * @OA\Get(
-     *      path="/users/{id}",
-     *      tags={"Users"},
-     *      summary="Obtener un usuario",
-     *      description="Retorna un usuario solicitado",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *          name="id",
-     *          description="Id del usuario",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(
-     *              type="integer"
-     *          )
-     *      ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=200,
-     *          description="Successful operation",
-     *       ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=204,
-     *          description="No Content",
-     *       ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=401,
-     *          description="Unauthenticated",
-     *      ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=403,
-     *          description="Forbidden"
-     *      )
-     *     )
+     * @param User $user
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function show(User $user): JsonResponse
     {
+        $this->authorize('view', $user);
+
         return response()->json(new UserResource($user), 200);
     }
 
     /**
-     * @OA\Put(
-     *      path="/users/{id}",
-     *      tags={"Users"},
-     *      summary="Actualizar un usuario",
-     *      description="Retorna un usuario actualizado",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *          name="id",
-     *          description="Id del usuario",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(
-     *              type="integer"
-     *          )
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(ref="#/components/schemas/UserRequest")
-     *      ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=200,
-     *          description="Successful operation",
-     *       ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=204,
-     *          description="No Content",
-     *       ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=401,
-     *          description="Unauthenticated",
-     *      ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=403,
-     *          description="Forbidden"
-     *      )
-     *     )
+     * @param UserRequest $request
+     * @param User $user
+     * @return JsonResponse
      * @throws AuthorizationException
      */
     public function update(UserRequest $request, User $user): JsonResponse
     {
         $this->authorize('update', $user);
 
-        $user->update($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'updated_user_id' => auth()->id(),
+                'updated_user_ip' => $request->ip(),
+                'url' => $request->url()
+            ]);
+
+        $user->update($data);
 
         return response()->json(new UserResource($user->fresh()));
     }
@@ -191,12 +105,32 @@ class UserController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(User $user): JsonResponse
+    public function destroy(UserRequest $request, User $user): JsonResponse
     {
         $this->authorize('delete', $user);
+
+        $user->update([
+            'deleted_user_id' => auth()->id(),
+            'deleted_user_ip' => $request->ip()
+        ]);
 
         $user->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * @param Request $request
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function changeActiveAttribute(Request $request, User $user): JsonResponse
+    {
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        $user->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+        return response()->json(new UserResource($user), 200);
     }
 }

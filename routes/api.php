@@ -48,7 +48,7 @@ Route::group([
   'middleware' => 'auth:api'
 ], function () {
     Route::apiResource('permissions', PermissionController::class)->whereNumber('permission');
-    Route::apiResource('users', UserController::class)->whereNumber('user');
+    Route::apiResource('users', UserController::class)->whereNumber('user')->names('api.users');
     Route::apiResource('roles', RoleController::class)->whereNumber('role');
     Route::apiResource('laboratories', LaboratoryController::class)->whereNumber('laboratory');
     Route::apiResource('modules', ModuleController::class)->whereNumber('module');
@@ -86,7 +86,7 @@ Route::group([
 
     //change active attribute mode
     Route::put('roles/{role}/status', [RoleController::class, 'changeActiveAttribute']);
-
+    Route::put('users/{user}/status', [UserController::class, 'changeActiveAttribute']);
 
 
 

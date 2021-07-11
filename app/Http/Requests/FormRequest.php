@@ -18,7 +18,7 @@ class FormRequest extends \Illuminate\Foundation\Http\FormRequest
                 'message' => 'Ops! Some errors occurred',
                 'data' => NULL,
                 'errors' => $validator->errors()
-            ]);
+            ], 404);
         }else{
             $response = response()->json([
                 'success' => false,

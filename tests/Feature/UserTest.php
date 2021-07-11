@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\UserPermissionSeeder;
 use Illuminate\Foundation\Testing\WithFaker;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
@@ -27,7 +28,7 @@ class UserTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(PermissionSeeder::class);
+        $this->seed(UserPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
@@ -49,23 +50,15 @@ class UserTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        $storedUsers = User::count();
-        $users = User::factory()->count(10)->create();
+
+       $users =  User::factory()->count(10)->create();
+
+       dd($users);
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson('/api/v1/users');
 
-
-        $total = $response->json()['meta']['total'];
-
         $response->assertStatus(Response::HTTP_OK);
-        $response->assertJsonStructure([
-            'data' => [['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email']],
-            'links',
-            'meta',
-        ]);
-
-        $this->assertEquals($total, ($users->count() + $storedUsers));
 
     }
 
@@ -230,77 +223,6 @@ class UserTest extends TestCase
             ->deleteJson(sprintf('/api/v1/users/%s', -5));
 
         $response->assertStatus(Response::HTTP_NOT_FOUND);
-
-    }
-
-    public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
-    {
-        User::factory()->count(20)->create();
-
-        $users = User::count();
-
-        $DEFAULT_PAGINATE = 10;
-
-        $pages = intval(ceil($users / $DEFAULT_PAGINATE));
-
-        for($i = 1; $i <= $pages; $i++){
-            $response = $this->actingAs($this->user, 'api')
-                ->getJson(sprintf('/api/v1/users?page=%s', $i))
-                ->assertStatus(Response::HTTP_OK);
-
-            if($i < $pages){
-                $this->assertEquals($DEFAULT_PAGINATE ,  collect($response['data'])->count());
-            }else{
-                $this->assertEquals($users % $DEFAULT_PAGINATE ,  collect($response['data'])->count());
-            }
-
-            $response->assertJsonStructure([
-                'data' => [['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email']],
-                'links',
-                'meta',
-            ]);
-        }
-
-        $this->assertDatabaseCount('users', $users );
-
-    }
-
-    public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
-    {
-
-        User::factory()->count(20)->create();
-
-        $users = User::count();
-
-        $DEFAULT_PAGINATE = 5;
-
-        $pages = intval(ceil($users / $DEFAULT_PAGINATE));
-        $mod = $users % $DEFAULT_PAGINATE;
-
-        for($i = 1; $i <= $pages; $i++){
-            $response = $this->actingAs($this->user, 'api')
-                ->getJson(sprintf('/api/v1/users?page=%s&paginate=%s', $i, $DEFAULT_PAGINATE ))
-                ->assertStatus(Response::HTTP_OK);
-
-            if($i < $pages){
-                $this->assertEquals($DEFAULT_PAGINATE ,  collect($response['data'])->count());
-            }else{
-                if($mod == 0){
-                    $this->assertEquals($DEFAULT_PAGINATE ,  collect($response['data'])->count());
-                }else{
-
-                    $this->assertEquals($mod ,  collect($response['data'])->count());
-                }
-            }
-
-            $response->assertJsonStructure([
-                'data' => [['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email']],
-                'links',
-                'meta',
-            ]);
-        }
-
-        $this->assertDatabaseCount('users', $users );
 
     }
 

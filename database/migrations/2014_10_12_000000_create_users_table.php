@@ -22,8 +22,17 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('phone')->nullable();
             $table->rememberToken();
+            $table->unsignedBigInteger('created_user_id')->nullable();
+            $table->unsignedBigInteger('updated_user_id')->nullable();
+            $table->unsignedBigInteger('deleted_user_id')->nullable();
+            $table->string('created_user_ip')->nullable();
+            $table->string('updated_user_ip')->nullable();
+            $table->string('deleted_user_ip')->nullable();
             $table->timestamps();
+            $table->softDeletes();
+            $table->boolean('active')->default(true);
         });
     }
 
