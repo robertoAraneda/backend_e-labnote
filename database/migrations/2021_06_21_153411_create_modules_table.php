@@ -20,6 +20,13 @@ class CreateModulesTable extends Migration
             $table->string('url');
             $table->string('slug');
             $table->boolean('active')->default(true);
+            $table->unsignedBigInteger('created_user_id')->nullable();
+            $table->unsignedBigInteger('updated_user_id')->nullable();
+            $table->unsignedBigInteger('deleted_user_id')->nullable();
+            $table->string('created_user_ip')->nullable();
+            $table->string('updated_user_ip')->nullable();
+            $table->string('deleted_user_ip')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

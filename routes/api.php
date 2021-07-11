@@ -53,8 +53,8 @@ Route::group([
     Route::apiResource('users', UserController::class)->whereNumber('user')->names('api.users');
     Route::apiResource('roles', RoleController::class)->whereNumber('role');
     Route::apiResource('laboratories', LaboratoryController::class)->whereNumber('laboratory')->names('api.laboratories');
-    Route::apiResource('modules', ModuleController::class)->whereNumber('module');
-    Route::apiResource('menus', MenuController::class)->whereNumber('menu');
+    Route::apiResource('modules', ModuleController::class)->whereNumber('module')->names('api.modules');
+    Route::apiResource('menus', MenuController::class)->whereNumber('menu')->names('api.menus');
     Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea');
     Route::apiResource('disponibilities', DisponibilityController::class)->whereNumber('disponibility');
     Route::apiResource('process-times', ProcessTimeController::class)->whereNumber('process_time');
@@ -70,14 +70,13 @@ Route::group([
 
     Route::get('roles/{role}/permissions', [RoleController::class, 'permissionsByRole']);
     Route::get('laboratories/{laboratory}/modules', [LaboratoryController::class, 'modulesByLaboratory']);
+    Route::get('modules/{module}/menus', [ModuleController::class, 'menusByModule'] )->name('api.module.menus');
 
 
 
     //rels
     Route::apiResource('modules.permissions', RelModulePermissionController::class)->only('index', 'store')->whereNumber('module');
-    Route::apiResource('laboratories.modules', RelLaboratoryModuleController::class)->only('index', 'store')->whereNumber('laboratory');
-
-
+    Route::apiResource('laboratories.modules', RelLaboratoryModuleController::class)->only('index', 'store')->whereNumber('laboratory')->names('api.laboratories.modules');
 
     //search queries
     Route::get('modules/search', [ModuleController::class, 'searchByParams']);

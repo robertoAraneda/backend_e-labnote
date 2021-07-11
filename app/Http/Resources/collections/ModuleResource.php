@@ -5,7 +5,7 @@ namespace App\Http\Resources\collections;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class LaboratoryResource extends JsonResource
+class ModuleResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,11 +18,16 @@ class LaboratoryResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'phone' => $this->phone,
+            'url' => $this->url,
+            'slug' => $this->slug,
+            'icon' => $this->icon,
             'active' => (bool) $this->active,
             '_link' => [
                 'self' =>[
-                    'href' => route('api.laboratories.show', ['laboratory' => $this->id], false),
+                    'href' => route('api.modules.show', ['module' => $this->id], false),
+                ] ,
+                'menus' =>[
+                    'href' => route('api.module.menus', ['module' => $this->id], false),
                 ] ,
             ],
         ];
