@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LaboratoryRequest;
+use App\Http\Resources\collections\LaboratoryResourceCollection;
 use App\Http\Resources\LaboratoryResource;
 use App\Models\Module;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\ModuleResource;
 use App\Models\Laboratory;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\DB;
 
 class LaboratoryController extends Controller
@@ -21,16 +25,37 @@ class LaboratoryController extends Controller
      *
      * @param LaboratoryRequest $request
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function index(LaboratoryRequest $request): JsonResponse
     {
-        $items = Laboratory::orderBy('id')->paginate($request->getPaginate());
+        $this->authorize('viewAny', User::class);
 
-        return response()->json(
-            LaboratoryResource::collection($items)
-                ->response()
-                ->getData(true),
-            200);
+        $page = $request->input('page');
+
+        if(isset($page)){
+            $items = Laboratory::select(
+                'id',
+                'name',
+                'phone',
+                'active'
+            )
+                ->orderBy('id')
+                ->paginate($request->getPaginate());
+        }else{
+            $items = Laboratory::select(
+                'id',
+                'name',
+                'phone',
+                'active'
+            )
+                ->orderBy('id')
+                ->get();
+        }
+        $collection = new LaboratoryResourceCollection($items);
+        return
+            response()
+                ->json($collection->response()->getData(true), 200);
     }
 
     /**
@@ -40,14 +65,24 @@ class LaboratoryController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function store(LaboratoryRequest $request)
+    public function store(LaboratoryRequest $request): JsonResponse
     {
-
         $this->authorize('create', Laboratory::class);
 
-        $model = Laboratory::create($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'created_user_id' => auth()->id(),
+                'created_user_ip' => $request->ip(),
+                'url' => $request->url()
+            ]);
+        try {
 
-        return response()->json(new LaboratoryResource($model->fresh()), 201);
+            $model = Laboratory::create($data);
+
+            return response()->json(new LaboratoryResource($model) , 201);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), 500);
+        }
     }
 
     /**
@@ -55,9 +90,13 @@ class LaboratoryController extends Controller
      *
      * @param Laboratory $laboratory
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function show(Laboratory $laboratory): JsonResponse
     {
+
+        $this->authorize('view', $laboratory);
+
         return response()->json(new LaboratoryResource($laboratory), 200);
     }
 
@@ -71,54 +110,51 @@ class LaboratoryController extends Controller
      */
     public function update(LaboratoryRequest $request, Laboratory $laboratory): JsonResponse
     {
+
         $this->authorize('update', $laboratory);
 
-        $laboratory->update($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'updated_user_id' => auth()->id(),
+                'updated_user_ip' => $request->ip(),
+                'url' => $request->url()
+            ]);
 
-        return response()->json(new LaboratoryResource($laboratory), 200);
+        try {
+            $laboratory->update($data);
+
+            return response()->json(new LaboratoryResource($laboratory) , 200);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage() , 500);
+        }
+
     }
 
     /**
      * Remove the specified resource from storage.
      *
+     * @param LaboratoryRequest $request
      * @param Laboratory $laboratory
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy($id): JsonResponse
+    public function destroy(LaboratoryRequest $request, Laboratory $laboratory): JsonResponse
     {
-        if(!is_numeric($id)){
-            return response()->json(null, 406) ;
-        }
-        $model = Laboratory::find($id);
 
-        if(!isset($model)){
-            abort(404);
-            //return response()->json(null, 404);
-        }
+        $this->authorize('delete', $laboratory);
 
-        $this->authorize('delete', $model);
+        $laboratory->update([
+            'deleted_user_id' => auth()->id(),
+            'deleted_user_ip' => $request->ip()
+        ]);
 
         try {
-            $model->delete();
+            $laboratory->delete();
 
             return response()->json(null, 204);
-        }catch (\Exception $exception){
 
-            return response()->json(null, 500);
-        }
-
-    }
-
-    public function findById($id){
-        if(!is_numeric($id)){
-            return response()->json(null, 400);
-        }
-        $model = Laboratory::find($id);
-
-        if(!isset($model)){
-            abort(404);
-            //return response()->json(null, 404);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), 500);
         }
     }
 
@@ -130,5 +166,28 @@ class LaboratoryController extends Controller
         $collection = $laboratory->modules()->orderBy('id')->get();
 
         return response()->json(ModuleResource::collection($collection), 200);
+    }
+
+    /**
+     * Change status for specified resource.
+     *
+     * @param Request $request
+     * @param Laboratory $laboratory
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function changeActiveAttribute(Request $request, Laboratory $laboratory): JsonResponse
+    {
+        $this->authorize('update', $laboratory);
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        try {
+            $laboratory->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+            return response()->json(new LaboratoryResource($laboratory), 200);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), 500);
+        }
     }
 }

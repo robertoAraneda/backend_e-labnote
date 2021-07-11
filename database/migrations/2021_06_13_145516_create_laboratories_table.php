@@ -20,7 +20,14 @@ class CreateLaboratoriesTable extends Migration
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('redirect')->nullable();
-            $table->tinyInteger('status')->default(1);
+            $table->boolean('active')->default(true);
+            $table->string('technicalDirector')->nullable();
+            $table->unsignedBigInteger('created_user_id')->nullable();
+            $table->unsignedBigInteger('updated_user_id')->nullable();
+            $table->unsignedBigInteger('deleted_user_id')->nullable();
+            $table->string('created_user_ip')->nullable();
+            $table->string('updated_user_ip')->nullable();
+            $table->string('deleted_user_ip')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

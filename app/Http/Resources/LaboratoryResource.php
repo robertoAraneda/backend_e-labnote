@@ -22,7 +22,41 @@ class LaboratoryResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'redirect' => $this->redirect,
-            'status' => intval($this->status)
+            'technical_director' => $this->technical_director,
+            'active' => (bool) $this->active,
+            'createdUserIp' => $this->created_user_ip,
+            'updatedUserIp' => $this->updated_user_ip,
+            'createdAt' => $this->date($this->created_at),
+            'updatedAt' => $this->date($this->updated_at),
+            '_links' => [
+                'self' => [
+                    'href' => route('api.users.show', ['user' => $this->id], false),
+                ]
+            ],
+            '_embedded' => [
+                'createdUser' => $this->user($this->createdUser),
+                'updatedUser' => $this->user($this->updatedUser),
+            ],
+        ];
+    }
+
+    private function date($date){
+        if(!isset($date)) return null;
+
+        return $date->format('d/m/Y h:i:s');
+    }
+
+    private function user($user): ?array
+    {
+        if(!isset($user)) return null;
+
+        return [
+            'name' => $user->names,
+            '_links' => [
+                'self' => [
+                    'href' => route('api.users.show', ['user' => $user->id], false)
+                ]
+            ]
         ];
     }
 }

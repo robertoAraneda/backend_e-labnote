@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Laboratory;
+use Illuminate\Support\Str;
 
 class LaboratoryRequest extends FormRequest
 {
@@ -20,15 +21,19 @@ class LaboratoryRequest extends FormRequest
                     'address' => 'string',
                     'email' => 'email',
                     'phone' => 'string',
-                    'redirect' => 'string'
+                    'redirect' => 'string',
+                    'active' => 'boolean',
+                    'technical_director' => 'string'
                 ];
             case 'POST':
                 return [
                     'name' => 'required|string',
-                    'address' => 'string',
-                    'email' => 'email',
-                    'phone' => 'string',
-                    'redirect' => 'string'
+                    'address' => 'required|string',
+                    'email' => 'required|email',
+                    'phone' => 'required|string',
+                    'redirect' => 'required|string',
+                    'active' => 'required|boolean',
+                    'technical_director' => 'required|string'
                 ];
             default:
                 return [];
@@ -62,6 +67,20 @@ class LaboratoryRequest extends FormRequest
             'redirect' => 'Dirección http página web',
             'phone' => 'Teléfono'
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'name' => Str::upper($this->name),
+            'address' => Str::upper($this->address),
+            'technical_director' => Str::upper($this->technical_director)
+        ]);
     }
 
 }
