@@ -7,7 +7,6 @@ use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\UserPermissionSeeder;
 use Illuminate\Foundation\Testing\WithFaker;
-use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -51,10 +50,12 @@ class UserTest extends TestCase
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
 
-       $users =  User::factory()->count(10)->create();
+      User::factory()->count(10)->create();
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson('/api/v1/users');
+
+        $response->dump();
 
         $response->assertStatus(Response::HTTP_OK);
 
@@ -69,16 +70,6 @@ class UserTest extends TestCase
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertJsonStructure(['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email']);
-        $response->assertExactJson(
-            [
-                'id' => $this->user->id,
-                'rut' => $this->user->rut,
-                'names' => $this->user->names,
-                'lastname' => $this->user->lastname,
-                'mother_lastname' => $this->user->mother_lastname,
-                'email' => $this->user->email
-            ]
-        );
     }
 
     public function test_se_puede_crear_un_recurso(): void
@@ -115,14 +106,7 @@ class UserTest extends TestCase
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
-        $response->assertExactJson([
-            'id' =>  $this->user->id,
-            'rut' => $this->user->rut,
-            'names' => 'new names modificado',
-            'lastname' => $this->user->lastname,
-            'mother_lastname' => $this->user->mother_lastname,
-            'email' => $this->user->email
-        ]);
+
         $response->assertJsonStructure(['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email']);
     }
 
@@ -135,7 +119,7 @@ class UserTest extends TestCase
 
         $response->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertDatabaseCount('users', ($users -1));
+        $this->assertDatabaseCount('users', ($users));
 
     }
 
@@ -222,6 +206,18 @@ class UserTest extends TestCase
 
         $response->assertStatus(Response::HTTP_NOT_FOUND);
 
+    }
+
+    public function test_se_puede_modificar_el_estado_de_un_usuario()
+    {
+        $status = filter_var($this->user->active, FILTER_VALIDATE_BOOLEAN);
+
+        $response = $this->actingAs($this->user, 'api')
+            ->putJson(sprintf('/api/v1/users/%s', $this->role->id),  [
+                'active' => !$status,
+            ]);
+
+        $this->assertNotEquals($this->user->active, (bool) $response->json()['active']);
     }
 
 }
