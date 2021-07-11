@@ -53,8 +53,6 @@ class UserTest extends TestCase
 
        $users =  User::factory()->count(10)->create();
 
-       dd($users);
-
         $response = $this->actingAs($this->user, 'api')
             ->getJson('/api/v1/users');
 

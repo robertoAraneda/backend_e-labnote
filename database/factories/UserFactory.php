@@ -22,6 +22,7 @@ class UserFactory extends Factory
      */
     public function definition()
     {
+
         return [
             'rut' => '15.654.738-7',
             'names' => $this->faker->name(),
@@ -31,7 +32,6 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => bcrypt('password'), // password
             'remember_token' => Str::random(10),
-            'created_user_id' => User::factory()
         ];
     }
 
