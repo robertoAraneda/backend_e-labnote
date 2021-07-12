@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MenuRequest;
+use App\Http\Resources\collections\MenuResourceCollection;
 use App\Http\Resources\MenuResource;
 use App\Models\Menu;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class MenuController extends Controller
 {
@@ -15,16 +17,45 @@ class MenuController extends Controller
      *
      * @param MenuRequest $request
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function index(MenuRequest $request): JsonResponse
     {
-        $items = Menu::with('module')->orderBy('id')->paginate($request->getPaginate());
+        $this->authorize('viewAny', Menu::class);
 
-        return response()->json(
-            MenuResource::collection($items)
-                ->response()
-                ->getData(true),
-            200);
+        $page = $request->input('page');
+
+        if(isset($page)) {
+            $items = Menu::select(
+                'id',
+                'name',
+                'permission_id',
+                'module_id',
+                'url',
+                'icon',
+                'active'
+            )
+                ->with(['module', 'permission'])
+                ->orderBy('order')
+                ->paginate($request->getPaginate());
+        }else{
+            $items = Menu::select(
+                'id',
+                'name',
+                'permission_id',
+                'module_id',
+                'url',
+                'icon',
+                'active'
+            )
+                ->with(['module', 'permission'])
+                ->orderBy('order')
+                ->get();
+        }
+        $collection = new MenuResourceCollection($items);
+        return
+            response()
+                ->json($collection->response()->getData(true), 200);
     }
 
     /**
@@ -38,9 +69,20 @@ class MenuController extends Controller
     {
         $this->authorize('create', Menu::class);
 
-        $model = Menu::create($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'created_user_id' => auth()->id(),
+                'created_user_ip' => $request->ip(),
+            ]);
+        try {
 
-        return response()->json(new MenuResource($model->fresh()), 201);
+            $model = Menu::create($data);
+
+            return response()->json(new MenuResource($model) , 201);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), 500);
+        }
+
     }
 
     /**
@@ -48,9 +90,12 @@ class MenuController extends Controller
      *
      * @param Menu $menu
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function show(Menu $menu): JsonResponse
     {
+        $this->authorize('view', $menu);
+
         return response()->json(new MenuResource($menu), 200);
     }
 
@@ -64,11 +109,23 @@ class MenuController extends Controller
      */
     public function update(MenuRequest $request, Menu $menu): JsonResponse
     {
+
         $this->authorize('update', $menu);
 
-        $menu->update($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'updated_user_id' => auth()->id(),
+                'updated_user_ip' => $request->ip(),
+            ]);
 
-        return response()->json(new MenuResource($menu), 200);
+        try {
+            $menu->update($data);
+
+            return response()->json(new MenuResource($menu) , 200);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage() , 500);
+        }
+
     }
 
     /**
@@ -78,17 +135,22 @@ class MenuController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(Menu $menu): JsonResponse
+    public function destroy(MenuRequest $request, Menu $menu): JsonResponse
     {
         $this->authorize('delete', $menu);
+
+        $menu->update([
+            'deleted_user_id' => auth()->id(),
+            'deleted_user_ip' => $request->ip()
+        ]);
 
         try {
             $menu->delete();
 
             return response()->json(null, 204);
-        }catch (\Exception $exception){
 
-            return response()->json(null, 500);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), 500);
         }
     }
 

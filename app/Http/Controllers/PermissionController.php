@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PermissionRequest;
+use App\Http\Resources\collections\PermissionResourceCollection;
 use App\Http\Resources\PermissionResource;
 use Illuminate\Http\JsonResponse;
 use Spatie\Permission\Models\Permission;
@@ -10,57 +11,46 @@ use Illuminate\Auth\Access\AuthorizationException;
 
 class PermissionController extends Controller
 {
+
     /**
-     * @OA\Get(
-     *      path="/permissions",
-     *      tags={"Permisos"},
-     *      summary="Obtener un listado de permisos",
-     *      description="Retorna una lista de permnisos",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *          name="page",
-     *          description="Pagina",
-     *          required=false,
-     *          in="query",
-     *          @OA\Schema(
-     *              type="integer"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="paginate",
-     *          description="Numero de elementos a retornar",
-     *          required=false,
-     *          in="query",
-     *          @OA\Schema(
-     *              type="integer"
-     *          )
-     *      ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=200,
-     *          description="Successful operation",
-     *       ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=401,
-     *          description="Unauthenticated",
-     *      ),
-     *      @OA\Response(
-     *         @OA\MediaType(mediaType="application/json"),
-     *          response=403,
-     *          description="Forbidden"
-     *      )
-     *     )
+     * @param PermissionRequest $request
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function index(PermissionRequest $request): JsonResponse
     {
-        $permissions = Permission::orderBy('id')->paginate($request->getPaginate());
 
-        return response()->json(
-            PermissionResource::collection($permissions)
-                ->response()
-                ->getData(true),
-            200);
+        $this->authorize('viewAny', Permission::class);
+
+        $page = $request->input('page');
+
+        if(isset($page)) {
+            $items = Permission::select(
+                'id',
+                'name',
+                'guard_name',
+                'action',
+                'model',
+                'description',
+            )
+                ->orderBy('id')
+                ->paginate($request->getPaginate());
+        }else{
+            $items = Permission::select(
+                'id',
+                'name',
+                'guard_name',
+                'action',
+                'model',
+                'description',
+            )
+                ->orderBy('id')
+                ->get();
+        }
+        $collection = new PermissionResourceCollection($items);
+        return
+            response()
+                ->json($collection->response()->getData(true), 200);
     }
 
     /**

@@ -59,11 +59,15 @@ class ModuleResource extends JsonResource
                 'menus' => [
                     'href' => route('api.module.menus', ['module' => $this->id], false),
                 ],
+                'permissions' => [
+                    'href' => route('api.modules.permissions.index', ['module' => $this->id], false),
+                ],
             ],
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),
                 'updatedUser' => $this->user($this->updatedUser),
-                'menus' => $this->menus($this->menus)
+                'menus' => $this->menus($this->menus),
+                'permissions' => $this->permissions($this->permissions),
             ],
         ];
 
@@ -98,6 +102,19 @@ class ModuleResource extends JsonResource
                 'triggerPermission' => $menu->permission->name,
                 '_links' => [
                     'self' => route('api.menus.show', ['menu' => $menu->id], false),
+                ]
+            ];
+        });
+    }
+
+    private function permissions($permissions){
+        if(!isset($permissions)) return null;
+
+        return $permissions->map(function($permission) {
+            return  [
+                'name' => $permission->name,
+                '_links' => [
+                    'self' => route('api.menus.show', ['menu' => $permission->id], false),
                 ]
             ];
         });

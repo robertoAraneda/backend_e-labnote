@@ -49,7 +49,7 @@ Route::group([
   'prefix' => 'v1',
   'middleware' => 'auth:api'
 ], function () {
-    Route::apiResource('permissions', PermissionController::class)->whereNumber('permission');
+    Route::apiResource('permissions', PermissionController::class)->whereNumber('permission')->names('api.permissions');
     Route::apiResource('users', UserController::class)->whereNumber('user')->names('api.users');
     Route::apiResource('roles', RoleController::class)->whereNumber('role');
     Route::apiResource('laboratories', LaboratoryController::class)->whereNumber('laboratory')->names('api.laboratories');
@@ -75,7 +75,7 @@ Route::group([
 
 
     //rels
-    Route::apiResource('modules.permissions', RelModulePermissionController::class)->only('index', 'store')->whereNumber('module');
+    Route::apiResource('modules.permissions', RelModulePermissionController::class)->only('index', 'store')->whereNumber('module')->names('api.modules.permissions');
     Route::apiResource('laboratories.modules', RelLaboratoryModuleController::class)->only('index', 'store')->whereNumber('laboratory')->names('api.laboratories.modules');
 
     //search queries

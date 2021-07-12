@@ -44,4 +44,5 @@ class Permission extends \Spatie\Permission\Models\Permission
     {
         return $this->perPage;
     }
+
 }
