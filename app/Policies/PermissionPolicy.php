@@ -14,12 +14,12 @@ class PermissionPolicy
 
     public function viewAny(User $user)
     {
-        //
+        return in_array('permission.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     public function view(User $user, Permission $permission)
     {
-
+        return in_array('permission.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     public function create(User $user): bool

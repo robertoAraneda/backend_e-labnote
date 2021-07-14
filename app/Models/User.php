@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -94,16 +95,46 @@ class User extends Authenticatable
         return $this->perPage;
     }
 
+    /**
+     * Scope a query to only include active users.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('active', true);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function laboratories(): BelongsToMany
+    {
+        return $this->belongsToMany(Laboratory::class, 'laboratory_users')
+            ->withPivot('user_id', 'created_at', 'updated_at')
+            ->withTimestamps();
+    }
+
+    /**
+     * @return BelongsTo
+     */
     public function createdUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_user_id');
     }
 
+    /**
+     * @return BelongsTo
+     */
     public function updatedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_user_id');
     }
 
+    /**
+     * @return BelongsTo
+     */
     public function deletedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_user_id');

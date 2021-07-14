@@ -18,7 +18,7 @@ class LaboratoryPolicy
      */
     public function viewAny(User $user)
     {
-        //
+        return in_array('laboratory.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
@@ -30,7 +30,7 @@ class LaboratoryPolicy
      */
     public function view(User $user, Laboratory $laboratory)
     {
-        //
+        return in_array('laboratory.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**

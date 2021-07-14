@@ -49,13 +49,13 @@ Route::group([
   'prefix' => 'v1',
   'middleware' => 'auth:api'
 ], function () {
-    Route::apiResource('permissions', PermissionController::class)->whereNumber('permission');
+    Route::apiResource('permissions', PermissionController::class)->whereNumber('permission')->names('api.permissions');
     Route::apiResource('users', UserController::class)->whereNumber('user')->names('api.users');
     Route::apiResource('roles', RoleController::class)->whereNumber('role');
-    Route::apiResource('laboratories', LaboratoryController::class)->whereNumber('laboratory');
-    Route::apiResource('modules', ModuleController::class)->whereNumber('module');
-    Route::apiResource('menus', MenuController::class)->whereNumber('menu');
-    Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea');
+    Route::apiResource('laboratories', LaboratoryController::class)->whereNumber('laboratory')->names('api.laboratories');
+    Route::apiResource('modules', ModuleController::class)->whereNumber('module')->names('api.modules');
+    Route::apiResource('menus', MenuController::class)->whereNumber('menu')->names('api.menus');
+    Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea')->names('api.workareas');
     Route::apiResource('disponibilities', DisponibilityController::class)->whereNumber('disponibility');
     Route::apiResource('process-times', ProcessTimeController::class)->whereNumber('process_time');
     Route::apiResource('response-times', ResponseTimeController::class)->whereNumber('response_time');
@@ -70,31 +70,29 @@ Route::group([
 
     Route::get('roles/{role}/permissions', [RoleController::class, 'permissionsByRole']);
     Route::get('laboratories/{laboratory}/modules', [LaboratoryController::class, 'modulesByLaboratory']);
+    Route::get('modules/{module}/menus', [ModuleController::class, 'menusByModule'] )->name('api.module.menus');
 
 
 
     //rels
-    Route::apiResource('modules.permissions', RelModulePermissionController::class)->only('index', 'store')->whereNumber('module');
-    Route::apiResource('laboratories.modules', RelLaboratoryModuleController::class)->only('index', 'store')->whereNumber('laboratory');
-
-
+    Route::apiResource('modules.permissions', RelModulePermissionController::class)->only('index', 'store')->whereNumber('module')->names('api.modules.permissions');
+    Route::apiResource('laboratories.modules', RelLaboratoryModuleController::class)->only('index', 'store')->whereNumber('laboratory')->names('api.laboratories.modules');
 
     //search queries
     Route::get('modules/search', [ModuleController::class, 'searchByParams']);
 
 
-
-    Route::get('roles/assign/super-admin', [RoleController::class, 'assignSuperUser']);
-
-
-
     //change active attribute mode
     Route::put('roles/{role}/status', [RoleController::class, 'changeActiveAttribute']);
     Route::put('users/{user}/status', [UserController::class, 'changeActiveAttribute']);
+    Route::put('laboratories/{laboratory}/status', [LaboratoryController::class, 'changeActiveAttribute']);
+    Route::put('workareas/{workarea}/status', [WorkareaController::class, 'changeActiveAttribute']);
 
 
 
 
+
+    Route::get('roles/assign/super-admin', [RoleController::class, 'assignSuperUser']);
     Route::get('/tests/{id}', [ModuleController::class, 'findById']);
 
 

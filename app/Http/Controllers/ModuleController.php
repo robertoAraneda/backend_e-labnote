@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ModuleRequest;
+use App\Http\Resources\collections\MenuResourceCollection;
+use App\Http\Resources\collections\ModuleResourceCollection;
 use App\Http\Resources\MenuResource;
 use App\Http\Resources\ModuleResource;
 use App\Models\Module;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Symfony\Component\HttpFoundation\Response;
 
 class ModuleController extends Controller
@@ -18,16 +21,43 @@ class ModuleController extends Controller
      *
      * @param ModuleRequest $request
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function index(ModuleRequest $request): JsonResponse
     {
-        $items = Module::orderBy('id')->paginate($request->getPaginate());
 
-        return response()->json(
-            ModuleResource::collection($items)
-                ->response()
-                ->getData(true),
-            200);
+        $this->authorize('viewAny', Module::class);
+
+        $page = $request->input('page');
+
+        if(isset($page)){
+            $items = Module::select(
+                'id',
+                'name',
+                'url',
+                'icon',
+                'slug',
+                'active',
+            )
+                ->orderBy('id')
+                ->paginate($request->getPaginate());
+        }else{
+            $items = Module::select(
+                'id',
+                'name',
+                'url',
+                'icon',
+                'slug',
+                'active',
+            )
+                ->orderBy('id')
+                ->get();
+        }
+        $collection = new ModuleResourceCollection($items);
+        return
+            response()
+                ->json($collection->response()->getData(true), 200);
+
     }
 
     /**
@@ -39,11 +69,22 @@ class ModuleController extends Controller
      */
     public function store(ModuleRequest $request):JsonResponse
     {
+
         $this->authorize('create', Module::class);
 
-        $model = Module::create($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'created_user_id' => auth()->id(),
+                'created_user_ip' => $request->ip(),
+            ]);
+        try {
 
-        return response()->json(new ModuleResource($model->fresh()), 201);
+            $model = Module::create($data);
+
+            return response()->json(new ModuleResource($model) , 201);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), 500);
+        }
     }
 
     /**
@@ -51,9 +92,12 @@ class ModuleController extends Controller
      *
      * @param Module $module
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function show(Module $module): JsonResponse
     {
+        $this->authorize('view', $module);
+
         return response()->json(new ModuleResource($module), 200);
     }
 
@@ -70,32 +114,49 @@ class ModuleController extends Controller
 
         $this->authorize('update', $module);
 
-        $module->update($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'updated_user_id' => auth()->id(),
+                'updated_user_ip' => $request->ip(),
+            ]);
 
-        return response()->json(new ModuleResource($module), 200);
+        try {
+            $module->update($data);
+
+            return response()->json(new ModuleResource($module) , 200);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage() , 500);
+        }
+
     }
 
     /**
      * Remove the specified resource from storage.
      *
+     * @param ModuleRequest $request
      * @param Module $module
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(Module $module):JsonResponse
+    public function destroy(ModuleRequest $request, Module $module):JsonResponse
     {
+
         $this->authorize('delete', $module);
+
+        $module->update([
+            'deleted_user_id' => auth()->id(),
+            'deleted_user_ip' => $request->ip()
+        ]);
 
         try {
             $module->delete();
 
             return response()->json(null, 204);
-        }catch (\Exception $exception){
 
-            return response()->json(null, 500);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), 500);
         }
     }
-
 
     public function searchByParams(Request $request): JsonResponse
     {
@@ -111,7 +172,9 @@ class ModuleController extends Controller
     {
         $menus = $module->menus()->active()->orderBy('id')->get();
 
-        return response()->json(MenuResource::collection($menus), 200);
+        $collection = new MenuResourceCollection($menus);
+
+        return response()->json($collection->response()->getData(true), 200);
     }
 
     private function findByName($name){

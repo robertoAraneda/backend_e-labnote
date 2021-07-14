@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Laboratory extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $perPage = '10';
     protected $table = 'laboratories';
@@ -24,7 +27,14 @@ class Laboratory extends Model
         'email',
         'phone',
         'redirect',
-        'status'
+        'technical_director',
+        'active',
+        'created_user_id',
+        'updated_user_id',
+        'deleted_user_id',
+        'created_user_ip',
+        'updated_user_ip',
+        'deleted_user_ip'
     ];
 
     /**
@@ -59,18 +69,40 @@ class Laboratory extends Model
     {
         return $this->belongsToMany(Module::class, 'laboratory_modules')
             ->withPivot('user_id', 'created_at', 'updated_at')
-            ->withTimestamps();;
+            ->withTimestamps();
     }
 
     /**
-     * Scope a query to only include active users.
+     * Scope a query to only include active laboratories.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $query
+     * @return Builder
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
-        return $query->where('status', 1);
+        return $query->where('active', true);
+    }
+
+    public function createdUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_user_id');
+    }
+
+    public function updatedUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_user_id');
+    }
+
+    public function deletedUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_user_id');
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'laboratory_users')
+            ->withPivot('user_id', 'created_at', 'updated_at')
+            ->withTimestamps();
     }
 
 }

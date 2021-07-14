@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthRequest;
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -215,8 +217,14 @@ class AuthController extends Controller
 
         $searchUser = User::find($user->id);
 
+        $nameRol = $searchUser->getRoleNames()[0];
+
+        $role = Role::where('name', $nameRol)->first();
+
         return response()->json([
-      'user' => $searchUser
+            'user' => $searchUser,
+            'role' => $role,
+            'permissions' => $searchUser->getAllPermissions()
     ], 200);
     }
 }

@@ -14,11 +14,11 @@ class MenuPolicy
      * Determine whether the user can view any models.
      *
      * @param User $user
-     * @return mixed
+     * @return bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return in_array('menu.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
@@ -26,11 +26,11 @@ class MenuPolicy
      *
      * @param User $user
      * @param Menu $menu
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, Menu $menu)
+    public function view(User $user, Menu $menu): bool
     {
-        //
+        return in_array('menu.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**

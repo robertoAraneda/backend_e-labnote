@@ -18,7 +18,7 @@ class ModulePolicy
      */
     public function viewAny(User $user)
     {
-        //
+        return in_array('module.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
@@ -30,7 +30,7 @@ class ModulePolicy
      */
     public function view(User $user, Module $module)
     {
-        //
+        return in_array('module.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
