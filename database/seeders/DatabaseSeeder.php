@@ -23,7 +23,9 @@ class DatabaseSeeder extends Seeder
             RolePermissionsSeeder::class,
             RelModuleMenuPermissionsSeeder::class,
             RelModulePermissionPermissionsSeeder::class,
-            UserPermissionSeeder::class
+            UserPermissionSeeder::class,
+            WorkareaPermissionsSeeder::class,
+            WorkareaSeeder::class
         ]);
     }
 }

@@ -55,7 +55,7 @@ Route::group([
     Route::apiResource('laboratories', LaboratoryController::class)->whereNumber('laboratory')->names('api.laboratories');
     Route::apiResource('modules', ModuleController::class)->whereNumber('module')->names('api.modules');
     Route::apiResource('menus', MenuController::class)->whereNumber('menu')->names('api.menus');
-    Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea');
+    Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea')->names('api.workareas');
     Route::apiResource('disponibilities', DisponibilityController::class)->whereNumber('disponibility');
     Route::apiResource('process-times', ProcessTimeController::class)->whereNumber('process_time');
     Route::apiResource('response-times', ResponseTimeController::class)->whereNumber('response_time');
@@ -82,18 +82,17 @@ Route::group([
     Route::get('modules/search', [ModuleController::class, 'searchByParams']);
 
 
-
-    Route::get('roles/assign/super-admin', [RoleController::class, 'assignSuperUser']);
-
-
-
     //change active attribute mode
     Route::put('roles/{role}/status', [RoleController::class, 'changeActiveAttribute']);
     Route::put('users/{user}/status', [UserController::class, 'changeActiveAttribute']);
     Route::put('laboratories/{laboratory}/status', [LaboratoryController::class, 'changeActiveAttribute']);
+    Route::put('workareas/{workarea}/status', [WorkareaController::class, 'changeActiveAttribute']);
 
 
 
+
+
+    Route::get('roles/assign/super-admin', [RoleController::class, 'assignSuperUser']);
     Route::get('/tests/{id}', [ModuleController::class, 'findById']);
 
 

@@ -157,7 +157,7 @@ class ModuleController extends Controller
             return response()->json($ex->getMessage(), 500);
         }
     }
-    
+
     public function searchByParams(Request $request): JsonResponse
     {
         if($request->input('slug')){

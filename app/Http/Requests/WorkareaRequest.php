@@ -11,7 +11,7 @@ class WorkareaRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         switch ($this->getMethod()){
             case 'PUT':
@@ -22,7 +22,7 @@ class WorkareaRequest extends FormRequest
             case 'POST':
                 return [
                     'name' => 'required|string',
-                    'active' => 'boolean'
+                    'active' => 'required|boolean'
                 ];
             default:
                 return [];
@@ -33,4 +33,15 @@ class WorkareaRequest extends FormRequest
     {
         return $this->get('paginate', (new Workarea())->getPerPage());
     }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => $this->getRequiredMessage(),
+            'name.string' => $this->getStringMessage(),
+            'active.boolean' => $this->getBooleanMessage(),
+            'active.required' => $this->getRequiredMessage()
+        ];
+    }
+
 }

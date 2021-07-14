@@ -14,11 +14,11 @@ class WorkareaPolicy
      * Determine whether the user can view any models.
      *
      * @param User $user
-     * @return mixed
+     * @return bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return in_array('workarea.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
@@ -26,11 +26,11 @@ class WorkareaPolicy
      *
      * @param User $user
      * @param Workarea $workarea
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, Workarea $workarea)
+    public function view(User $user, Workarea $workarea): bool
     {
-        //
+        return in_array('workarea.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
@@ -61,9 +61,9 @@ class WorkareaPolicy
      *
      * @param User $user
      * @param Workarea $workarea
-     * @return mixed
+     * @return bool
      */
-    public function delete(User $user, Workarea $workarea)
+    public function delete(User $user, Workarea $workarea): bool
     {
         return in_array('workarea.delete', $user->getAllPermissions()->pluck('name')->toArray());
     }
@@ -73,7 +73,7 @@ class WorkareaPolicy
      *
      * @param User $user
      * @param Workarea $workarea
-     * @return mixed
+     * @return void
      */
     public function restore(User $user, Workarea $workarea)
     {
