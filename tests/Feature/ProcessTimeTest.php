@@ -56,7 +56,6 @@ class ProcessTimeTest extends TestCase
         $this->table = $modelClass->getTable();
         $this->base_url = '/api/v1/process-times';
 
-
     }
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void

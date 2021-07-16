@@ -261,7 +261,7 @@ class ContainerTest extends TestCase
     {
 
         $uri = sprintf('/api/v1/%s/%s', $this->table, -5);
-        $response = $this->actingAs($this->user, 'api')
+        $this->actingAs($this->user, 'api')
             ->getJson($uri)
             ->assertStatus(Response::HTTP_NOT_FOUND);
 
@@ -271,7 +271,7 @@ class ContainerTest extends TestCase
     {
         $uri = sprintf('/api/v1/%s/%s', $this->table, -5);
 
-        $response = $this->actingAs($this->user, 'api')
+        $this->actingAs($this->user, 'api')
             ->putJson($uri)
             ->assertStatus(Response::HTTP_NOT_FOUND);
     }
@@ -280,10 +280,9 @@ class ContainerTest extends TestCase
     {
         $uri = sprintf('/api/v1/%s/%s', $this->table, -5);
 
-        $response = $this->actingAs($this->user, 'api')
+        $this->actingAs($this->user, 'api')
             ->deleteJson($uri)
             ->assertStatus(Response::HTTP_NOT_FOUND);
-
 
     }
 

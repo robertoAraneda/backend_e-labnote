@@ -15,6 +15,7 @@ use App\Http\Controllers\RelModulePermissionController;
 use App\Http\Controllers\ResponseTimeController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\SampleQuantityController;
+use App\Http\Controllers\SampleTypeController;
 use App\Http\Controllers\SamplingConditionController;
 use App\Http\Controllers\WorkareaController;
 use Illuminate\Support\Facades\Route;
@@ -69,7 +70,7 @@ Route::group([
     Route::apiResource('analytes', AnalyteController::class)->whereNumber('analyte')->names('api.analytes');
     Route::apiResource('loincs', LoincController::class)->names('api.loincs');
     Route::apiResource('containers', ContainerController::class)->whereNumber('container')->names('api.containers');
-    Route::apiResource('sample-types', ContainerController::class)->whereNumber('sample_type')->names('api.sample-types');
+    Route::apiResource('sample-types', SampleTypeController::class)->whereNumber('sample_type')->names('api.sample-types');
 
 
 
