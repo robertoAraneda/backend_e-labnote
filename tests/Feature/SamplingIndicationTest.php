@@ -2,25 +2,25 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\SampleTypeController;
+use App\Http\Controllers\SamplingIndicationController;
 use App\Models\Role;
-use App\Models\SampleType;
+use App\Models\SamplingIndication;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
-use Database\Seeders\SampleTypePermissionSeeder;
+use Database\Seeders\SamplingIndicationPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class SampleTypeTest extends TestCase
+class SamplingIndicationTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
     private $role;
     private $user, $model;
-    private SampleTypeController $sampleTypeController;
+    private SamplingIndicationController $samplingIndicationController;
     private string $perPage;
     private string $table;
     private string $BASE_URI;
@@ -34,28 +34,28 @@ class SampleTypeTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(SampleTypePermissionSeeder::class);
+        $this->seed(SamplingIndicationPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('sampleType.create');
-        $role->givePermissionTo('sampleType.update');
-        $role->givePermissionTo('sampleType.delete');
-        $role->givePermissionTo('sampleType.index');
-        $role->givePermissionTo('sampleType.show');
+        $role->givePermissionTo('samplingIndication.create');
+        $role->givePermissionTo('samplingIndication.update');
+        $role->givePermissionTo('samplingIndication.delete');
+        $role->givePermissionTo('samplingIndication.index');
+        $role->givePermissionTo('samplingIndication.show');
 
         $user->assignRole($role);
 
-        $modelClass = new SampleType();
-        $this->sampleTypeController = new SampleTypeController();
+        $modelClass = new SamplingIndication();
+        $this->samplingIndicationController = new SamplingIndicationController();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = SampleType::factory()->create();
+        $this->model = SamplingIndication::factory()->create();
         $this->perPage = $modelClass->getPerPage();
         $this->table = $modelClass->getTable();
-        $this->BASE_URI = "/api/v1/sample-types";
+        $this->BASE_URI = "/api/v1/sampling-indications";
     }
 
     public function test_se_obtiene_el_valor_por_pagina_por_defecto(): void
@@ -64,15 +64,17 @@ class SampleTypeTest extends TestCase
 
     }
 
-    public function test_se_puede_obtener_una_lista_del_recurso(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_del_recurso(): void
     {
 
-        SampleType::factory()->count(20)->create();
+        SamplingIndication::factory()->count(20)->create();
 
         $uri = $this->BASE_URI;
 
-        echo $uri;
-        $countModels = SampleType::count();
+        $countModels = SamplingIndication::count();
 
         $this->actingAs($this->user, 'api')
             ->getJson($uri)
@@ -92,10 +94,13 @@ class SampleTypeTest extends TestCase
             });
     }
 
-    public function test_se_puede_obtener_una_lista_paginada_del_recurso(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
 
-        SampleType::factory()->count(20)->create();
+        SamplingIndication::factory()->count(20)->create();
 
         $uri = sprintf('/%s?page=1', $this->BASE_URI);
         $page = $this->perPage;
@@ -118,7 +123,10 @@ class SampleTypeTest extends TestCase
             });
     }
 
-    public function test_se_puede_obtener_el_detalle_del_recurso(): void //show
+    /**
+     * @test
+     */
+    public function se_puede_obtener_el_detalle_del_recurso(): void //show
     {
         $this->withoutExceptionHandling();
         $uri = sprintf("%s/%s", $this->BASE_URI, $this->model->id);
@@ -133,7 +141,10 @@ class SampleTypeTest extends TestCase
             );
     }
 
-    public function test_se_puede_crear_un_recurso(): void //store
+    /**
+     * @test
+     */
+    public function se_puede_crear_un_recurso(): void //store
     {
         $factoryModel = [
             'name' => $this->faker->name,
@@ -157,8 +168,10 @@ class SampleTypeTest extends TestCase
         ]);
     }
 
-
-    public function test_se_puede_modificar_un_recurso(): void // update
+    /**
+     * @test
+     */
+    public function se_puede_modificar_un_recurso(): void // update
     {
 
         $uri = sprintf('%s/%s', $this->BASE_URI, $this->model->id);
@@ -180,7 +193,10 @@ class SampleTypeTest extends TestCase
         ]);
     }
 
-    public function test_se_puede_eliminar_un_recurso(): void //destroy
+    /**
+     * @test
+     */
+    public function se_puede_eliminar_un_recurso(): void //destroy
     {
 
         $uri = sprintf('%s/%s', $this->BASE_URI, $this->model->id);
@@ -195,7 +211,10 @@ class SampleTypeTest extends TestCase
 
     }
 
-    public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
+    /**
+     * @test
+     */
+    public function se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
 
         $factoryModel = [
@@ -203,7 +222,7 @@ class SampleTypeTest extends TestCase
             'active' => $this->faker->boolean
         ];
 
-        $this->role->revokePermissionTo('sampleType.create');
+        $this->role->revokePermissionTo('samplingIndication.create');
 
         $uri = $this->BASE_URI;
 
@@ -218,9 +237,13 @@ class SampleTypeTest extends TestCase
 
     }
 
-    public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
+    /**
+     * @test
+     */
+
+    public function se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('sampleType.update');
+        $this->role->revokePermissionTo('samplingIndication.update');
 
         $uri = sprintf('%s/%s', $this->BASE_URI, $this->model->id);
 
@@ -236,9 +259,12 @@ class SampleTypeTest extends TestCase
         ]);
     }
 
-    public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
+    /**
+     * @test
+     */
+    public function se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('sampleType.delete');
+        $this->role->revokePermissionTo('samplingIndication.delete');
 
         $uri = sprintf('%s/%s', $this->BASE_URI, $this->model->id);
 
@@ -252,7 +278,10 @@ class SampleTypeTest extends TestCase
         ]);
     }
 
-    public function test_se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
 
         $uri = sprintf('%s/%s', $this->BASE_URI, -5);
@@ -262,7 +291,10 @@ class SampleTypeTest extends TestCase
 
     }
 
-    public function test_se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
     {
         $uri = sprintf('%s/%s', $this->BASE_URI, -5);
 
@@ -271,7 +303,10 @@ class SampleTypeTest extends TestCase
             ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
-    public function test_se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
     {
         $uri = sprintf('%s/%s', $this->BASE_URI, -5);
 
@@ -281,10 +316,13 @@ class SampleTypeTest extends TestCase
 
     }
 
-    public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
-        SampleType::factory()->count(20)->create();
-        $list = SampleType::count();
+        SamplingIndication::factory()->count(20)->create();
+        $list = SamplingIndication::count();
         $DEFAULT_PAGINATE = 5;
         $mod = $list % $DEFAULT_PAGINATE;
         $pages = intval(ceil($list / $DEFAULT_PAGINATE));
@@ -322,12 +360,13 @@ class SampleTypeTest extends TestCase
         $this->assertDatabaseCount($this->table, $list);
     }
 
-    public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
     {
-        SampleType::factory()->count(20)->create();
-
-        $list = SampleType::count();
-
+        SamplingIndication::factory()->count(20)->create();
+        $list = SamplingIndication::count();
         $pages = intval(ceil($list / $this->perPage));
         $mod = $list % $this->perPage;
 
@@ -366,5 +405,6 @@ class SampleTypeTest extends TestCase
 
         $this->assertDatabaseCount($this->table, $list);
     }
+
 
 }

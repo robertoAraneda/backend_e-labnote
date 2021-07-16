@@ -2,30 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SampleTypeRequest;
-use App\Http\Resources\collections\SampleTypeResourceCollection;
-use App\Http\Resources\SampleTypeResource;
-use App\Models\SampleType;
+use App\Http\Requests\SamplingIndicationRequest;
+use App\Http\Resources\collections\SamplingIndicationResourceCollection;
+use App\Http\Resources\SamplingIndicationResource;
+use App\Models\SamplingIndication;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class SampleTypeController extends Controller
+class SamplingIndicationController extends Controller
 {
+
+
     /**
-     * @param SampleTypeRequest $request
+     * @param SamplingIndicationRequest $request
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function index(SampleTypeRequest $request): JsonResponse
+    public function index(SamplingIndicationRequest $request): JsonResponse
     {
-        $this->authorize('viewAny', SampleType::class);
+        $this->authorize('viewAny', SamplingIndication::class);
 
         $page = $request->input('page');
 
         if(isset($page)){
-            $items = SampleType::select(
+            $items = SamplingIndication::select(
                 'id',
                 'name',
                 'active',
@@ -33,7 +34,7 @@ class SampleTypeController extends Controller
                 ->orderBy('id')
                 ->paginate($request->getPaginate());
         }else{
-            $items = SampleType::select(
+            $items = SamplingIndication::select(
                 'id',
                 'name',
                 'active',
@@ -41,22 +42,21 @@ class SampleTypeController extends Controller
                 ->orderBy('id')
                 ->get();
         }
-        $collection = new SampleTypeResourceCollection($items);
+        $collection = new SamplingIndicationResourceCollection($items);
         return
             response()
                 ->json($collection->response()->getData(true), Response::HTTP_OK);
     }
 
     /**
-     * @param Request $request
+     * @param SamplingIndicationRequest $request
      * @return JsonResponse
      * @throws AuthorizationException
-     *
      * @author ELABNOTE
      */
-    public function store(SampleTypeRequest $request): JsonResponse
+    public function store(SamplingIndicationRequest $request): JsonResponse
     {
-        $this->authorize('create', SampleType::class);
+        $this->authorize('create', SamplingIndication::class);
 
         $data = array_merge($request->validated(),
             [
@@ -65,35 +65,35 @@ class SampleTypeController extends Controller
             ]);
         try {
 
-            $model = SampleType::create($data);
+            $model = SamplingIndication::create($data);
 
-            return response()->json(new SampleTypeResource($model) , Response::HTTP_CREATED);
+            return response()->json(new SamplingIndicationResource($model) , Response::HTTP_CREATED);
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * @param SampleType $sampleType
+     * @param SamplingIndication $samplingIndication
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function show(SampleType $sampleType): JsonResponse
+    public function show(SamplingIndication $samplingIndication): JsonResponse
     {
-        $this->authorize('view', $sampleType);
+        $this->authorize('view', $samplingIndication);
 
-        return response()->json(new SampleTypeResource($sampleType), Response::HTTP_OK);
+        return response()->json(new SamplingIndicationResource($samplingIndication), Response::HTTP_OK);
     }
 
     /**
-     * @param SampleTypeRequest $request
-     * @param SampleType $sampleType
+     * @param SamplingIndicationRequest $request
+     * @param SamplingIndication $samplingIndication
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function update(SampleTypeRequest $request, SampleType $sampleType): JsonResponse
+    public function update(SamplingIndicationRequest $request, SamplingIndication $samplingIndication): JsonResponse
     {
-        $this->authorize('update', $sampleType);
+        $this->authorize('update', $samplingIndication);
 
         $data = array_merge($request->validated(),
             [
@@ -102,32 +102,32 @@ class SampleTypeController extends Controller
             ]);
 
         try {
-            $sampleType->update($data);
+            $samplingIndication->update($data);
 
-            return response()->json(new SampleTypeResource($sampleType) , Response::HTTP_OK);
+            return response()->json(new SamplingIndicationResource($samplingIndication) , Response::HTTP_OK);
         }catch (\Exception $ex){
             return response()->json($ex->getMessage() , Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * @param SampleTypeRequest $request
-     * @param SampleType $sampleType
+     * @param SamplingIndicationRequest $request
+     * @param SamplingIndication $samplingIndication
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(SampleTypeRequest $request, SampleType $sampleType): JsonResponse
+    public function destroy(SamplingIndicationRequest $request, SamplingIndication $samplingIndication): JsonResponse
     {
-        $this->authorize('delete', $sampleType);
+        $this->authorize('delete', $samplingIndication);
 
         try {
 
-            $sampleType->update([
+            $samplingIndication->update([
                 'deleted_user_id' => auth()->id(),
                 'deleted_user_ip' => $request->ip()
             ]);
 
-            $sampleType->delete();
+            $samplingIndication->delete();
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
 
