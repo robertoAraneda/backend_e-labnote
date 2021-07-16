@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProcessTimesTable extends Migration
+class CreateSampleTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateProcessTimesTable extends Migration
      */
     public function up()
     {
-        Schema::create('process_times', function (Blueprint $table) {
+        Schema::create('sample_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->boolean('active')->default(true);
@@ -24,7 +24,7 @@ class CreateProcessTimesTable extends Migration
             $table->string('updated_user_ip', 15)->nullable();
             $table->string('deleted_user_ip', 15)->nullable();
             $table->timestamps();
-            $table->softDeletes();
+            $table->softDeletes();;
         });
     }
 
@@ -35,6 +35,6 @@ class CreateProcessTimesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('process_times');
+        Schema::dropIfExists('sample_types');
     }
 }

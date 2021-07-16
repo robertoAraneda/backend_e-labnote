@@ -8,14 +8,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Workarea extends Model
+class Container extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * The number of models to return for pagination.
+     *
+     * @var int
+     */
     protected $perPage = 10;
 
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var string[]
+     */
     protected  $fillable = [
         'name',
+        'shortname',
+        'color',
         'active',
         'created_user_id',
         'updated_user_id',
@@ -24,21 +37,6 @@ class Workarea extends Model
         'updated_user_ip',
         'deleted_user_ip'
     ];
-
-
-    public static function getListJsonStructure(): array
-    {
-        return [
-            'data' => [self::getObjectJsonStructure()],
-            'links',
-            'meta',
-        ];
-    }
-
-    public static function getObjectJsonStructure(): array
-    {
-        return ['id', 'name', 'active'];
-    }
 
     /**
      * Scope a query to only include active users.
@@ -49,6 +47,15 @@ class Workarea extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
+    }
+
+    /**
+     * @return string
+     */
+    public function getPerPage(): string
+    {
+        $this->perPage = env('DEFAULT_PER_PAGE');
+        return $this->perPage;
     }
 
     /**
@@ -74,4 +81,6 @@ class Workarea extends Model
     {
         return $this->belongsTo(User::class, 'deleted_user_id');
     }
+
+
 }

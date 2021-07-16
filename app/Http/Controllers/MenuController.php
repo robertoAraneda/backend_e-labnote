@@ -36,7 +36,7 @@ class MenuController extends Controller
                 'active'
             )
                 ->with(['module', 'permission'])
-                ->orderBy('order')
+                ->orderBy('order', 'ASC')
                 ->paginate($request->getPaginate());
         }else{
             $items = Menu::select(
@@ -49,7 +49,7 @@ class MenuController extends Controller
                 'active'
             )
                 ->with(['module', 'permission'])
-                ->orderBy('order')
+                ->orderBy('order', 'ASC')
                 ->get();
         }
         $collection = new MenuResourceCollection($items);

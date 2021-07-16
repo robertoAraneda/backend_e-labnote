@@ -25,7 +25,25 @@ class DatabaseSeeder extends Seeder
             RelModulePermissionPermissionsSeeder::class,
             UserPermissionSeeder::class,
             WorkareaPermissionsSeeder::class,
-            WorkareaSeeder::class
+            WorkareaSeeder::class,
+            AnalytePermissionSeeder::class,
+            AnalyteSeeder::class,
+            SamplingConditionPermissionsSeeder::class,
+            SamplingConditionSeeder::class,
+            SampleQuantityPermissionsSeeder::class,
+            SampleQuantitySeeder::class,
+            ResponseTimePermissionsSeeder::class,
+            ResponseTimeSeeder::class,
+            ProcessTimePermissionsSeeder::class,
+            ProcessTimeSeeder::class,
+            MedicalRequestTypePermissionsSeeder::class,
+            MedicalRequestTypeSeeder::class,
+            DisponibilityPermissionsSeeder::class,
+            AvailabilitySeeder::class,
+            ContainerSeeder::class,
+            ContainerPermissionSeeder::class,
+            SampleTypeSeeder::class,
+            SampleTypePermissionSeeder::class
         ]);
     }
 }

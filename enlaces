@@ -1,0 +1,14 @@
+https://dev.to/instantwebtoolsnet/datatables-with-vuejs-vuetify-pagination-rest-api-3jji
+
+        $m = 'Container';
+        $this->artisan("make:model {$m} -m");
+        $this->artisan("make:controller {$m}Controller --api");
+        $this->artisan("make:resource {$m}Resource");
+        $this->artisan("make:resource collections/{$m}Resource");
+        $this->artisan("make:resource collections/{$m}ResourceCollection --collection");
+        $this->artisan("make:policy {$m}Policy --model={$m}");
+        $this->artisan("make:factory {$m}Factory");
+        $this->artisan("make:request {$m}Request");
+        $this->artisan("make:seeder {$m}Seeder");
+        $this->artisan("make:seeder {$m}PermissionSeeder");
+

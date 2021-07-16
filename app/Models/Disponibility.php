@@ -10,6 +10,8 @@ class Disponibility extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'availabilities';
+
     protected $perPage = 10;
 
     protected  $fillable = [

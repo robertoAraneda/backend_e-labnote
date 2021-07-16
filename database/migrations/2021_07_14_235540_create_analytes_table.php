@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProcessTimesTable extends Migration
+class CreateAnalytesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,17 @@ class CreateProcessTimesTable extends Migration
      */
     public function up()
     {
-        Schema::create('process_times', function (Blueprint $table) {
+        Schema::create('analytes', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('slug');
+            $table->text('clinical_information');
+            $table->string('loinc_id');
+            $table->unsignedBigInteger('workarea_id');
+            $table->unsignedBigInteger('availability_id');
+            $table->unsignedBigInteger('process_time_id');
+            $table->unsignedBigInteger('medical_request_type_id');
+            $table->boolean('is_patient_codable')->default(false);
             $table->boolean('active')->default(true);
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
@@ -35,6 +43,6 @@ class CreateProcessTimesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('process_times');
+        Schema::dropIfExists('analytes');
     }
 }

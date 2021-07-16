@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProcessTimesTable extends Migration
+class CreateContainersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,11 @@ class CreateProcessTimesTable extends Migration
      */
     public function up()
     {
-        Schema::create('process_times', function (Blueprint $table) {
+        Schema::create('containers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('shortname')->nullable();
+            $table->string('color')->nullable();
             $table->boolean('active')->default(true);
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
@@ -35,6 +37,6 @@ class CreateProcessTimesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('process_times');
+        Schema::dropIfExists('containers');
     }
 }

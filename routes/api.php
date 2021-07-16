@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\AnalyteController;
+use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\DisponibilityController;
 use App\Http\Controllers\FonasaController;
 use App\Http\Controllers\LaboratoryController;
+use App\Http\Controllers\LoincController;
 use App\Http\Controllers\MedicalRequestTypeController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleController;
@@ -51,18 +54,24 @@ Route::group([
 ], function () {
     Route::apiResource('permissions', PermissionController::class)->whereNumber('permission')->names('api.permissions');
     Route::apiResource('users', UserController::class)->whereNumber('user')->names('api.users');
-    Route::apiResource('roles', RoleController::class)->whereNumber('role');
+    Route::apiResource('roles', RoleController::class)->whereNumber('role')->names('api.roles');
     Route::apiResource('laboratories', LaboratoryController::class)->whereNumber('laboratory')->names('api.laboratories');
     Route::apiResource('modules', ModuleController::class)->whereNumber('module')->names('api.modules');
     Route::apiResource('menus', MenuController::class)->whereNumber('menu')->names('api.menus');
     Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea')->names('api.workareas');
-    Route::apiResource('disponibilities', DisponibilityController::class)->whereNumber('disponibility');
-    Route::apiResource('process-times', ProcessTimeController::class)->whereNumber('process_time');
+    Route::apiResource('disponibilities', DisponibilityController::class)->whereNumber('disponibility')->names('api.availabilities');
+    Route::apiResource('process-times', ProcessTimeController::class)->whereNumber('process_time')->names('api.process-times');
     Route::apiResource('response-times', ResponseTimeController::class)->whereNumber('response_time');
-    Route::apiResource('medical-request-types', MedicalRequestTypeController::class)->whereNumber('medical_request_type');
+    Route::apiResource('medical-request-types', MedicalRequestTypeController::class)->whereNumber('medical_request_type')->names('api.medical-request-types');
     Route::apiResource('fonasas', FonasaController::class)->whereNumber('fonasa');
     Route::apiResource('sample-quantities', SampleQuantityController::class)->whereNumber('sample_quantity');
     Route::apiResource('sampling-conditions', SamplingConditionController::class)->whereNumber('sampling_condition');
+    Route::apiResource('analytes', AnalyteController::class)->whereNumber('analyte')->names('api.analytes');
+    Route::apiResource('loincs', LoincController::class)->names('api.loincs');
+    Route::apiResource('containers', ContainerController::class)->whereNumber('container')->names('api.containers');
+    Route::apiResource('sample-types', ContainerController::class)->whereNumber('sample_type')->names('api.sample-types');
+
+
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);

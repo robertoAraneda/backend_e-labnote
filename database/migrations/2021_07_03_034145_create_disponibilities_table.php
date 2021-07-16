@@ -13,10 +13,16 @@ class CreateDisponibilitiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('disponibilities', function (Blueprint $table) {
+        Schema::create('availabilities', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->boolean('active')->default(true);
+            $table->unsignedBigInteger('created_user_id')->nullable();
+            $table->unsignedBigInteger('updated_user_id')->nullable();
+            $table->unsignedBigInteger('deleted_user_id')->nullable();
+            $table->string('created_user_ip', 15)->nullable();
+            $table->string('updated_user_ip', 15)->nullable();
+            $table->string('deleted_user_ip', 15)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -8,14 +8,33 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Workarea extends Model
+class Analyte extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * The number of models to return for pagination.
+     *
+     * @var int
+     */
     protected $perPage = 10;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var string[]
+     */
     protected  $fillable = [
         'name',
+        'slug',
+        'clinical_information',
+        'loinc_id',
+        'process_time_id',
+        'workarea_id',
+        'availability_id',
+        'process_time_id',
+        'medical_request_type_id',
+        'is_patient_codable',
         'active',
         'created_user_id',
         'updated_user_id',
@@ -24,21 +43,6 @@ class Workarea extends Model
         'updated_user_ip',
         'deleted_user_ip'
     ];
-
-
-    public static function getListJsonStructure(): array
-    {
-        return [
-            'data' => [self::getObjectJsonStructure()],
-            'links',
-            'meta',
-        ];
-    }
-
-    public static function getObjectJsonStructure(): array
-    {
-        return ['id', 'name', 'active'];
-    }
 
     /**
      * Scope a query to only include active users.
@@ -73,5 +77,37 @@ class Workarea extends Model
     public function deletedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_user_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function availability(): BelongsTo
+    {
+        return $this->belongsTo(Disponibility::class);
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function processTime(): BelongsTo
+    {
+        return $this->belongsTo(ProcessTime::class);
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function workarea(): BelongsTo
+    {
+        return $this->belongsTo(Workarea::class);
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function medicalRequestType(): BelongsTo
+    {
+        return $this->belongsTo(MedicalRequestType::class);
     }
 }
