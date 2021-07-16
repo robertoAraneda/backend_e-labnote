@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\Disponibility;
+use App\Models\Availability;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class DisponibilityPolicy
+class AvailabilityPolicy
 {
     use HandlesAuthorization;
 
@@ -25,10 +25,10 @@ class DisponibilityPolicy
      * Determine whether the user can view the model.
      *
      * @param User $user
-     * @param Disponibility $disponibility
+     * @param Availability $availability
      * @return mixed
      */
-    public function view(User $user, Disponibility $disponibility)
+    public function view(User $user, Availability $availability)
     {
         //
     }
@@ -41,7 +41,7 @@ class DisponibilityPolicy
      */
     public function create(User $user): bool
     {
-        return in_array('disponibility.create', $user->getAllPermissions()->pluck('name')->toArray());
+        return in_array('availability.create', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
 
@@ -49,34 +49,34 @@ class DisponibilityPolicy
      * Determine whether the user can update the model.
      *
      * @param User $user
-     * @param Disponibility $disponibility
+     * @param Availability $availability
      * @return bool
      */
-    public function update(User $user, Disponibility $disponibility): bool
+    public function update(User $user, Availability $availability): bool
     {
-        return in_array('disponibility.update', $user->getAllPermissions()->pluck('name')->toArray());
+        return in_array('availability.update', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
      * Determine whether the user can delete the model.
      *
      * @param User $user
-     * @param Disponibility $disponibility
+     * @param Availability $availability
      * @return mixed
      */
-    public function delete(User $user, Disponibility $disponibility)
+    public function delete(User $user, Availability $availability)
     {
-        return in_array('disponibility.delete', $user->getAllPermissions()->pluck('name')->toArray());
+        return in_array('availability.delete', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
      * Determine whether the user can restore the model.
      *
      * @param User $user
-     * @param Disponibility $disponibility
+     * @param Availability $availability
      * @return mixed
      */
-    public function restore(User $user, Disponibility $disponibility)
+    public function restore(User $user, Availability $availability)
     {
         //
     }
@@ -85,10 +85,10 @@ class DisponibilityPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param User $user
-     * @param Disponibility $disponibility
+     * @param Availability $availability
      * @return mixed
      */
-    public function forceDelete(User $user, Disponibility $disponibility)
+    public function forceDelete(User $user, Availability $availability)
     {
         //
     }

@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\DisponibilityController;
-use App\Models\Disponibility;
+use App\Http\Controllers\AvailabilityController;
+use App\Models\Availability;
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\DisponibilityPermissionsSeeder;
+use Database\Seeders\AvailabilityPermissionsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -14,7 +14,7 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class DisponibilityTest extends TestCase
+class AvailabilityTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -23,7 +23,7 @@ class DisponibilityTest extends TestCase
      */
     private $role;
     private $user, $model;
-    private DisponibilityController $disponibilityController;
+    private AvailabilityController $availabilityController;
     private string $perPage;
     private string $table;
 
@@ -34,32 +34,32 @@ class DisponibilityTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(DisponibilityPermissionsSeeder::class);
+        $this->seed(AvailabilityPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('disponibility.create');
-        $role->givePermissionTo('disponibility.update');
-        $role->givePermissionTo('disponibility.delete');
-        $role->givePermissionTo('disponibility.index');
-        $role->givePermissionTo('disponibility.show');
+        $role->givePermissionTo('availability.create');
+        $role->givePermissionTo('availability.update');
+        $role->givePermissionTo('availability.delete');
+        $role->givePermissionTo('availability.index');
+        $role->givePermissionTo('availability.show');
 
         $user->assignRole($role);
 
-        $modelClass = new Disponibility();
-        $this->disponibilityController = new DisponibilityController();
+        $modelClass = new Availability();
+        $this->availabilityController = new AvailabilityController();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = Disponibility::factory()->create();
+        $this->model = Availability::factory()->create();
         $this->table = $modelClass->getTable();
 
     }
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        Disponibility::factory()->count(20)->create();
+        Availability::factory()->count(20)->create();
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson(sprintf('/api/v1/%s', $this->table));
@@ -85,7 +85,7 @@ class DisponibilityTest extends TestCase
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(Disponibility::getObjectJsonStructure());
+        $response->assertJsonStructure(Availability::getObjectJsonStructure());
 
         $response->assertExactJson([
             'id' => $this->model->id,
@@ -96,7 +96,7 @@ class DisponibilityTest extends TestCase
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
-        $list = Disponibility::count();
+        $list = Availability::count();
 
         $factoryModel = [
             'name' => 'Disponibilidad 1',
@@ -122,14 +122,14 @@ class DisponibilityTest extends TestCase
     {
         $response = $this->actingAs($this->user, 'api')
             ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id),  [
-                'name' => 'new disponibility modificado'
+                'name' => 'new availability modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertExactJson([
             'id' => $this->model->id,
-            'name' => 'new disponibility modificado',
+            'name' => 'new availability modificado',
             'active' => $this->model->active
         ]);
     }
@@ -147,14 +147,14 @@ class DisponibilityTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = Disponibility::count();
+        $list = Availability::count();
 
         $factoryModel = [
             'name' => $this->faker->name,
             'active' => true
         ];
 
-        $this->role->revokePermissionTo('disponibility.create');
+        $this->role->revokePermissionTo('availability.create');
 
         $response = $this->actingAs($this->user, 'api')
             ->postJson("/api/v1/{$this->table}",  $factoryModel);
@@ -167,25 +167,25 @@ class DisponibilityTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('disponibility.update');
+        $this->role->revokePermissionTo('availability.update');
 
         $url = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($url,  [
-                'name' => 'disponibility name modificado'
+                'name' => 'availability name modificado'
             ]);
 
-        $this->assertNotEquals($this->model->name, 'disponibility name modificado');
+        $this->assertNotEquals($this->model->name, 'availability name modificado');
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('disponibility.delete');
+        $this->role->revokePermissionTo('availability.delete');
 
-        $list = Disponibility::count();
+        $list = Availability::count();
 
         $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
 

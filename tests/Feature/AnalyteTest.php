@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Http\Controllers\AnalyteController;
 use App\Models\Analyte;
-use App\Models\Disponibility;
+use App\Models\Availability;
 use App\Models\MedicalRequestType;
 use App\Models\ProcessTime;
 use App\Models\Role;
@@ -143,7 +143,7 @@ class AnalyteTest extends TestCase
     public function test_se_puede_crear_un_recurso(): void //store
     {
 
-        $availability = Disponibility::factory()->create();
+        $availability = Availability::factory()->create();
         $workarea = Workarea::factory()->create();
         $processTime = ProcessTime::factory()->create();
         $medicalRequestType = MedicalRequestType::factory()->create();
@@ -222,7 +222,7 @@ class AnalyteTest extends TestCase
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
 
-        $availability = Disponibility::factory()->create();
+        $availability = Availability::factory()->create();
         $workarea = Workarea::factory()->create();
         $processTime = ProcessTime::factory()->create();
         $medicalRequestType = MedicalRequestType::factory()->create();

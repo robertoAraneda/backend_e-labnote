@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Permission;
 use Illuminate\Database\Seeder;
 
-class DisponibilityPermissionsSeeder extends Seeder
+class AvailabilityPermissionsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,11 +15,11 @@ class DisponibilityPermissionsSeeder extends Seeder
     public function run()
     {
         $permissions = [
-            'disponibility.create',
-            'disponibility.update',
-            'disponibility.delete',
-            'disponibility.show',
-            'disponibility.index'
+            'availability.create',
+            'availability.update',
+            'availability.delete',
+            'availability.show',
+            'availability.index'
         ];
 
         foreach ($permissions as $permission){

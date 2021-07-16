@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Disponibility;
+use App\Models\Availability;
 
-class DisponibilityRequest extends FormRequest
+class AvailabilityRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.

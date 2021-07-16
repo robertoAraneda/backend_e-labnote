@@ -55,23 +55,5 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'laboratoryModule.delete', 'guard_name' => 'api']);
         Permission::create(['name' => 'laboratoryModule.index', 'guard_name' => 'api']);
         Permission::create(['name' => 'laboratoryModule.show', 'guard_name' => 'api']);
-
-        Permission::create(['name' => 'workarea.create', 'guard_name' => 'api']);
-        Permission::create(['name' => 'workarea.update', 'guard_name' => 'api']);
-        Permission::create(['name' => 'workarea.delete', 'guard_name' => 'api']);
-        Permission::create(['name' => 'workarea.index', 'guard_name' => 'api']);
-        Permission::create(['name' => 'workarea.show', 'guard_name' => 'api']);
-
-        Permission::create(['name' => 'disponibility.create', 'guard_name' => 'api']);
-        Permission::create(['name' => 'disponibility.update', 'guard_name' => 'api']);
-        Permission::create(['name' => 'disponibility.delete', 'guard_name' => 'api']);
-        Permission::create(['name' => 'disponibility.index', 'guard_name' => 'api']);
-        Permission::create(['name' => 'disponibility.show', 'guard_name' => 'api']);
-
-        Permission::create(['name' => 'processTime.create', 'guard_name' => 'api']);
-        Permission::create(['name' => 'processTime.update', 'guard_name' => 'api']);
-        Permission::create(['name' => 'processTime.delete', 'guard_name' => 'api']);
-        Permission::create(['name' => 'processTime.index', 'guard_name' => 'api']);
-        Permission::create(['name' => 'processTime.show', 'guard_name' => 'api']);
     }
 }

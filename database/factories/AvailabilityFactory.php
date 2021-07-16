@@ -2,17 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Models\Disponibility;
+use App\Models\Availability;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class DisponibilityFactory extends Factory
+class AvailabilityFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Disponibility::class;
+    protected $model = Availability::class;
 
     /**
      * Define the model's default state.

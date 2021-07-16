@@ -84,7 +84,7 @@ class Analyte extends Model
      */
     public function availability(): BelongsTo
     {
-        return $this->belongsTo(Disponibility::class);
+        return $this->belongsTo(Availability::class);
     }
 
     /**
