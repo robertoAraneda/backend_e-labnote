@@ -29,10 +29,10 @@ class RelAnalyteSamplingConditionController extends Controller
 
             $analyteSamplingConditions = $analyte->samplingConditions()->orderBy('id')->get()->pluck('id');
 
-            $samplingConditions = $allSamplingConditions->map(function ($samplingIndication) use ($analyteSamplingConditions){
+            $samplingConditions = $allSamplingConditions->map(function ($samplingCondition) use ($analyteSamplingConditions){
 
-                $samplingIndication->checkbox = in_array($samplingIndication->id, $analyteSamplingConditions->all());
-                return $samplingIndication;
+                $samplingCondition->checkbox = in_array($samplingCondition->id, $analyteSamplingConditions->all());
+                return $samplingCondition;
             });
 
 
@@ -47,6 +47,7 @@ class RelAnalyteSamplingConditionController extends Controller
      * Store a newly created resource in storage.
      *
      * @param Request $request
+     * @param Analyte $analyte
      * @return JsonResponse
      */
     public function store(Request $request, Analyte $analyte): JsonResponse

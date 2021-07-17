@@ -38,8 +38,5 @@ class SamplingConditionResource extends JsonResource
             ],
         ];
 
-
-
-
     }
 }

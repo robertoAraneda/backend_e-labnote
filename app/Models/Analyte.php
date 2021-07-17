@@ -56,6 +56,9 @@ class Analyte extends Model
         return $query->where('active', true);
     }
 
+    /**
+     * @return BelongsToMany
+     */
     public function samplingConditions(): BelongsToMany
     {
         return $this->belongsToMany(SamplingCondition::class, 'analyte_sampling_condition')

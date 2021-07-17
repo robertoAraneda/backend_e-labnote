@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\collections\SamplingIndicationResource;
+use App\Models\SampleType;
+use App\Models\SamplingIndication;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class RelSampleTypeSamplingIndicationController extends Controller
@@ -9,55 +14,49 @@ class RelSampleTypeSamplingIndicationController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param SampleType $sampleType
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
-    public function index()
+    public function index(Request $request, SampleType $sampleType): JsonResponse
     {
-        //
+        $this->authorize('view', $sampleType);
+
+        if($request->input('cross')){
+
+            $allSamplingIndications = SamplingIndication::active()->orderBy('id')->get();
+
+            $sampleTypeSamplingConditions = $sampleType->samplingIndications()->orderBy('id')->get()->pluck('id');
+
+            $samplingIndications = $allSamplingIndications->map(function ($samplingIndication) use ($sampleTypeSamplingConditions){
+
+                $samplingIndication->checkbox = in_array($samplingIndication->id, $sampleTypeSamplingConditions->all());
+                return $samplingIndication;
+            });
+
+
+        }else{
+            $samplingIndications = $sampleType->samplingIndications()->active()->orderBy('id')->get();
+        }
+
+        return response()->json(SamplingIndicationResource::collection($samplingIndications), 200);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param SampleType $sampleType
+     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request, SampleType $sampleType): JsonResponse
     {
-        //
+        $sampleType->samplingIndications()->syncWithPivotValues($request->all(), ['user_id' => auth()->id()]);
+
+        $collection = $sampleType->samplingIndications()->orderBy('id')->get();
+
+        return response()->json(SamplingIndicationResource::collection($collection), 200);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

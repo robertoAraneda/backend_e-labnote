@@ -13,7 +13,7 @@ class SampleTypeSamplingIndicationTable extends Migration
      */
     public function up()
     {
-        Schema::create('sample_type_sampling_condition', function (Blueprint $table) {
+        Schema::create('sample_type_sampling_indication', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sample_type_id');
             $table->unsignedBigInteger('sampling_indication_id');
@@ -29,6 +29,6 @@ class SampleTypeSamplingIndicationTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sample_type_sampling_condition');
+        Schema::dropIfExists('sample_type_sampling_indication');
     }
 }
