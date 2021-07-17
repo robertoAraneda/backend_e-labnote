@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SampleType extends Model
@@ -45,6 +46,16 @@ class SampleType extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function samplingIndications(): BelongsToMany
+    {
+        return $this->belongsToMany(SamplingIndication::class, 'sample_type_sampling_indication')
+            ->withPivot('user_id', 'created_at', 'updated_at')
+            ->withTimestamps();
     }
 
     /**

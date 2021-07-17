@@ -10,8 +10,10 @@ use App\Http\Controllers\MedicalRequestTypeController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ProcessTimeController;
+use App\Http\Controllers\RelAnalyteSamplingConditionController;
 use App\Http\Controllers\RelLaboratoryModuleController;
 use App\Http\Controllers\RelModulePermissionController;
+use App\Http\Controllers\RelSampleTypeSamplingIndicationController;
 use App\Http\Controllers\ResponseTimeController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\SampleQuantityController;
@@ -67,7 +69,7 @@ Route::group([
     Route::apiResource('medical-request-types', MedicalRequestTypeController::class)->whereNumber('medical_request_type')->names('api.medical-request-types');
     Route::apiResource('fonasas', FonasaController::class)->whereNumber('fonasa');
     Route::apiResource('sample-quantities', SampleQuantityController::class)->whereNumber('sample_quantity');
-    Route::apiResource('sampling-conditions', SamplingConditionController::class)->whereNumber('sampling_condition');
+    Route::apiResource('sampling-conditions', SamplingConditionController::class)->whereNumber('sampling_condition')->names('api.sampling-conditions');
     Route::apiResource('analytes', AnalyteController::class)->whereNumber('analyte')->names('api.analytes');
     Route::apiResource('loincs', LoincController::class)->names('api.loincs');
     Route::apiResource('containers', ContainerController::class)->whereNumber('container')->names('api.containers');
@@ -89,6 +91,8 @@ Route::group([
     //rels
     Route::apiResource('modules.permissions', RelModulePermissionController::class)->only('index', 'store')->whereNumber('module')->names('api.modules.permissions');
     Route::apiResource('laboratories.modules', RelLaboratoryModuleController::class)->only('index', 'store')->whereNumber('laboratory')->names('api.laboratories.modules');
+    Route::apiResource('analytes.sampling-conditions', RelAnalyteSamplingConditionController::class)->only('index', 'store')->whereNumber('analyte')->names('api.analytes.sampling-conditions');
+    Route::apiResource('sample-types.sampling-indications', RelSampleTypeSamplingIndicationController::class)->only('index', 'store')->whereNumber('sample_type')->names('api.sample-types.sampling-indications');
 
     //search queries
     Route::get('modules/search', [ModuleController::class, 'searchByParams']);

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Analyte extends Model
@@ -53,6 +54,16 @@ class Analyte extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function samplingConditions(): BelongsToMany
+    {
+        return $this->belongsToMany(SamplingCondition::class, 'analyte_sampling_condition')
+            ->withPivot('user_id', 'created_at', 'updated_at')
+            ->withTimestamps();
     }
 
     /**

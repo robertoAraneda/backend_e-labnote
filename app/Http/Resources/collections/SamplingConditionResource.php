@@ -2,15 +2,14 @@
 
 namespace App\Http\Resources\collections;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SamplingIndicationResource extends JsonResource
+class SamplingConditionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function toArray($request): array
@@ -23,7 +22,7 @@ class SamplingIndicationResource extends JsonResource
                 'checkbox' =>(bool) $this->checkbox,
                 '_links' => [
                     'self' => [
-                        'href' => route('api.sampling-indications.show', ['sampling_indication' => $this->id], false),
+                        'href' => route('api.sampling-conditions.show', ['sampling_condition' => $this->id], false),
                     ],
                 ],
             ];
@@ -34,11 +33,10 @@ class SamplingIndicationResource extends JsonResource
             'active' => (bool)$this->active,
             '_links' => [
                 'self' => [
-                    'href' => route('api.sampling-indications.show', ['sampling_indication' => $this->id], false),
+                    'href' => route('api.sampling-conditions.show', ['sampling_condition' => $this->id], false),
                 ],
             ],
         ];
-
 
     }
 }

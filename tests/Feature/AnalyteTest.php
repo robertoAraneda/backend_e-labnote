@@ -8,6 +8,7 @@ use App\Models\Disponibility;
 use App\Models\MedicalRequestType;
 use App\Models\ProcessTime;
 use App\Models\Role;
+use App\Models\SamplingCondition;
 use App\Models\User;
 use App\Models\Workarea;
 use Database\Seeders\AnalytePermissionSeeder;
@@ -28,7 +29,7 @@ class AnalyteTest extends TestCase
     private string $perPage;
     private string $table;
 
-    public function setUp():void
+    public function setUp(): void
     {
         parent::setUp();
         $this->artisan('passport:install');
@@ -53,7 +54,9 @@ class AnalyteTest extends TestCase
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = Analyte::factory()->create();
+        $this->model = Analyte::factory()
+            ->hasAttached(SamplingCondition::factory()->count(5), ['user_id' => $user->id])
+            ->create();
         $this->perPage = $modelClass->getPerPage();
         $this->table = $modelClass->getTable();
 
@@ -77,11 +80,11 @@ class AnalyteTest extends TestCase
 
         $countModels = Analyte::count();
 
-        $response->assertJson(function(AssertableJson $json) use ( $countModels ){
+        $response->assertJson(function (AssertableJson $json) use ($countModels) {
             return $json
                 ->has('_links')
                 ->has('count')
-                ->has('collection', $countModels ,function($json) {
+                ->has('collection', $countModels, function ($json) {
                     $json->whereAllType([
                         'id' => 'integer',
                         'slug' => 'string',
@@ -103,13 +106,13 @@ class AnalyteTest extends TestCase
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $page =  $this->perPage;
+        $page = $this->perPage;
 
-        $response->assertJson(function(AssertableJson $json) use ( $page ){
+        $response->assertJson(function (AssertableJson $json) use ($page) {
             return $json
                 ->has('links')
                 ->has('meta')
-                ->has('data.collection', $page ,function($json) {
+                ->has('data.collection', $page, function ($json) {
                     $json->whereAllType([
                         'id' => 'integer',
                         'slug' => 'string',
@@ -125,13 +128,14 @@ class AnalyteTest extends TestCase
     {
 
         $response = $this->actingAs($this->user, 'api')
-            ->getJson("/api/v1/{$this->table}/{$this->model->id}" );
+            ->getJson("/api/v1/{$this->table}/{$this->model->id}");
 
         $response->assertStatus(Response::HTTP_OK);
 
+        $response->dump();
+
         $response
-            ->assertJson(fn (AssertableJson $json) =>
-            $json->where('id', $this->model->id)
+            ->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
                 ->where('name', $this->model->name)
                 ->where('clinical_information', $this->model->clinical_information)
                 ->where('is_patient_codable', $this->model->is_patient_codable)
@@ -156,21 +160,20 @@ class AnalyteTest extends TestCase
             'loinc_id' => $this->faker->slug,
             'workarea_id' => $availability->id,
             'availability_id' => $workarea->id,
-            'process_time_id' =>  $processTime->id,
-            'medical_request_type_id' =>   $medicalRequestType->id,
+            'process_time_id' => $processTime->id,
+            'medical_request_type_id' => $medicalRequestType->id,
             'created_user_id' => $user->id,
             'is_patient_codable' => $this->faker->boolean,
             'active' => $this->faker->boolean
         ];
 
         $response = $this->actingAs($this->user, 'api')
-            ->postJson("/api/v1/{$this->table}",  $factoryModel);
+            ->postJson("/api/v1/{$this->table}", $factoryModel);
 
         $response->assertStatus(Response::HTTP_CREATED);
 
         $response
-            ->assertJson(fn (AssertableJson $json) =>
-            $json->where('name', $factoryModel['name'])
+            ->assertJson(fn(AssertableJson $json) => $json->where('name', $factoryModel['name'])
                 ->where('clinical_information', $factoryModel['clinical_information'])
                 ->where('is_patient_codable', $factoryModel['is_patient_codable'])
                 ->where('active', $factoryModel['active'])
@@ -185,16 +188,15 @@ class AnalyteTest extends TestCase
     public function test_se_puede_modificar_un_recurso(): void // update
     {
         $response = $this->actingAs($this->user, 'api')
-            ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id),  [
+            ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id), [
                 'name' => 'new analyte modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response
-            ->assertJson(fn (AssertableJson $json) =>
-            $json->where('name', 'new analyte modificado')
-                ->where('clinical_information',$this->model->clinical_information)
+            ->assertJson(fn(AssertableJson $json) => $json->where('name', 'new analyte modificado')
+                ->where('clinical_information', $this->model->clinical_information)
                 ->where('is_patient_codable', $this->model->is_patient_codable)
                 ->where('active', $this->model->active)
                 ->etc()
@@ -213,7 +215,7 @@ class AnalyteTest extends TestCase
 
         $response->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertDatabaseHas($this->table, ['id'=> $this->model->id]);
+        $this->assertDatabaseHas($this->table, ['id' => $this->model->id]);
         $this->assertSoftDeleted($this->model);
 
     }
@@ -235,8 +237,8 @@ class AnalyteTest extends TestCase
             'loinc_id' => $this->faker->slug,
             'workarea_id' => $availability->id,
             'availability_id' => $workarea->id,
-            'process_time_id' =>  $processTime->id,
-            'medical_request_type_id' =>   $medicalRequestType->id,
+            'process_time_id' => $processTime->id,
+            'medical_request_type_id' => $medicalRequestType->id,
             'created_user_id' => $user->id,
             'is_patient_codable' => $this->faker->boolean,
             'active' => $this->faker->boolean
@@ -245,7 +247,7 @@ class AnalyteTest extends TestCase
         $this->role->revokePermissionTo('analyte.create');
 
         $response = $this->actingAs($this->user, 'api')
-            ->postJson("/api/v1/{$this->table}",  $factoryModel);
+            ->postJson("/api/v1/{$this->table}", $factoryModel);
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
 
@@ -259,15 +261,15 @@ class AnalyteTest extends TestCase
     {
         $this->role->revokePermissionTo('analyte.update');
 
-        $url = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
+        $url = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
-            ->putJson($url,  [
+            ->putJson($url, [
                 'name' => 'laboratory name modificado'
             ]);
 
         $this->assertDatabaseMissing($this->table, [
-            'name' =>  'laboratory name modificado',
+            'name' => 'laboratory name modificado',
         ]);
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
@@ -277,7 +279,7 @@ class AnalyteTest extends TestCase
     {
         $this->role->revokePermissionTo('analyte.delete');
 
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
@@ -293,7 +295,7 @@ class AnalyteTest extends TestCase
     public function test_se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
 
-        $uri = sprintf('/api/v1/%s/%s',$this->table , -5);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, -5);
         $response = $this->actingAs($this->user, 'api')
             ->getJson($uri);
 
@@ -303,7 +305,7 @@ class AnalyteTest extends TestCase
 
     public function test_se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, -5);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($uri);
@@ -315,7 +317,7 @@ class AnalyteTest extends TestCase
 
     public function test_se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, -5);
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
@@ -326,7 +328,7 @@ class AnalyteTest extends TestCase
 
     public function test_se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,'string');
+        $uri = sprintf('/api/v1/%s/%s', $this->table, 'string');
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
@@ -347,29 +349,29 @@ class AnalyteTest extends TestCase
 
         $pages = intval(ceil($list / $DEFAULT_PAGINATE));
 
-        for($i = 1; $i <= $pages; $i++){
+        for ($i = 1; $i <= $pages; $i++) {
             $response = $this->actingAs($this->user, 'api')
-                ->getJson(sprintf('/api/v1/%s?page=%s&paginate=%s',$this->table , $i, $DEFAULT_PAGINATE ))
+                ->getJson(sprintf('/api/v1/%s?page=%s&paginate=%s', $this->table, $i, $DEFAULT_PAGINATE))
                 ->assertStatus(Response::HTTP_OK);
 
-            if($i < $pages){
-                $this->assertEquals($DEFAULT_PAGINATE ,  collect($response['data']['collection'])->count());
-            }else{
-                if($mod == 0){
-                    $this->assertEquals($DEFAULT_PAGINATE ,  collect($response['data']['collection'])->count());
-                }else{
-                    $this->assertEquals($mod ,  collect($response['data']['collection'])->count());
+            if ($i < $pages) {
+                $this->assertEquals($DEFAULT_PAGINATE, collect($response['data']['collection'])->count());
+            } else {
+                if ($mod == 0) {
+                    $this->assertEquals($DEFAULT_PAGINATE, collect($response['data']['collection'])->count());
+                } else {
+                    $this->assertEquals($mod, collect($response['data']['collection'])->count());
                 }
 
             }
-            $response->assertJson(function(AssertableJson $json){
+            $response->assertJson(function (AssertableJson $json) {
                 return $json
                     ->has('links')
                     ->has('meta')
-                    ->has('data.collection.0',function($json) {
+                    ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'slug'=> 'string',
+                            'slug' => 'string',
                             'name' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
@@ -388,30 +390,30 @@ class AnalyteTest extends TestCase
 
         $list = Analyte::count();
 
-        $pages = intval(ceil($list / $this->perPage ));
-        $mod = $list % $this->perPage ;
+        $pages = intval(ceil($list / $this->perPage));
+        $mod = $list % $this->perPage;
 
-        for($i = 1; $i <= $pages; $i++){
+        for ($i = 1; $i <= $pages; $i++) {
 
             $response = $this->actingAs($this->user, 'api')
-                ->getJson(sprintf('/api/v1/%s?page=%s',$this->table ,$i))
+                ->getJson(sprintf('/api/v1/%s?page=%s', $this->table, $i))
                 ->assertStatus(Response::HTTP_OK);
 
-            if($i < $pages){
-                $this->assertEquals($this->perPage ,  collect($response['data']['collection'])->count());
-            }else{
-                if($mod == 0){
-                    $this->assertEquals($this->perPage ,  collect($response['data']['collection'])->count());
-                }else{
-                    $this->assertEquals($mod ,  collect($response['data']['collection'])->count());
+            if ($i < $pages) {
+                $this->assertEquals($this->perPage, collect($response['data']['collection'])->count());
+            } else {
+                if ($mod == 0) {
+                    $this->assertEquals($this->perPage, collect($response['data']['collection'])->count());
+                } else {
+                    $this->assertEquals($mod, collect($response['data']['collection'])->count());
                 }
             }
 
-            $response->assertJson(function(AssertableJson $json){
+            $response->assertJson(function (AssertableJson $json) {
                 return $json
                     ->has('links')
                     ->has('meta')
-                    ->has('data.collection.0',function($json) {
+                    ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
                             'slug' => 'string',
