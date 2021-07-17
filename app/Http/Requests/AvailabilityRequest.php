@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Disponibility;
+use App\Models\Availability;
 
-class DisponibilityRequest extends FormRequest
+class AvailabilityRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -27,5 +27,13 @@ class DisponibilityRequest extends FormRequest
             default:
                 return [];
         }
+    }
+
+    /**
+     * @return int
+     */
+    public function getPaginate(): int
+    {
+        return $this->get('paginate', (new Availability())->getPerPage());
     }
 }
