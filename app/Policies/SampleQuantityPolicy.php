@@ -11,26 +11,22 @@ class SampleQuantityPolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any models.
-     *
      * @param User $user
-     * @return mixed
+     * @return bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return in_array('sampleQuantity.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
-     * Determine whether the user can view the model.
-     *
      * @param User $user
      * @param SampleQuantity $sampleQuantity
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, SampleQuantity $sampleQuantity)
+    public function view(User $user, SampleQuantity $sampleQuantity): bool
     {
-        //
+        return in_array('sampleQuantity.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**

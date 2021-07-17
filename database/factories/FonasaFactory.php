@@ -23,6 +23,8 @@ class FonasaFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
+            'mai_code' => $this->faker->languageCode,
+            'rem_code' => $this->faker->languageCode,
             'active' => $this->faker->boolean
         ];
     }

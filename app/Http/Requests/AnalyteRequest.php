@@ -25,7 +25,6 @@ class AnalyteRequest extends FormRequest
             case 'POST':
                 return [
                     'name' => 'required|string',
-                    'slug' => 'required',
                     'is_patient_codable' => 'required|boolean',
                     'active' => 'required|boolean'
                 ];

@@ -11,26 +11,22 @@ class MedicalRequestTypePolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any models.
-     *
      * @param User $user
-     * @return mixed
+     * @return bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return in_array('medicalRequestType.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
-     * Determine whether the user can view the model.
-     *
      * @param User $user
      * @param MedicalRequestType $medicalRequestType
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, MedicalRequestType $medicalRequestType)
+    public function view(User $user, MedicalRequestType $medicalRequestType): bool
     {
-        //
+        return in_array('medicalRequestType.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**

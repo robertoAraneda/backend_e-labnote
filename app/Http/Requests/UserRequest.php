@@ -92,15 +92,4 @@ class UserRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array
-    {
-        return  [
-            'rut' => 'RUT (rut)',
-            'names' => 'Nombres (names)',
-            'lastname' => 'Apellido Paterno (lastname)',
-            'mother_lastname' => 'Apellido Materno (mother_lastname)',
-            'email' => 'Correo electrónico (email)',
-            'password' => 'Contraseña (password)'
-        ];
-    }
 }

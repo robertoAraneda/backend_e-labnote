@@ -19,30 +19,19 @@ class Permission extends \Spatie\Permission\Models\Permission
         'action',
         'description'
     ];
-    public static function getListJsonStructure(): array
-    {
-        return [
-            'data' => [self::getObjectJsonStructure()],
-            'links',
-            'meta',
-        ];
-    }
-
-    public static function getObjectJsonStructure(): array
-    {
-        return
-            ['id', 'name', 'action', 'description', 'model']
-        ;
-    }
 
     public function getTable()
     {
         return $this->table;
     }
 
-    public function getPerPage()
+    /**
+     * @return string
+     */
+    public function getPerPage(): string
     {
-        return $this->perPage;
+        return env('DEFAULT_PER_PAGE');
+
     }
 
 }

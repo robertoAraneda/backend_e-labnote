@@ -14,12 +14,13 @@ class CreateFonasasTable extends Migration
     public function up()
     {
         Schema::create('fonasas', function (Blueprint $table) {
-            $table->string('codigo_mai', 15);
-            $table->string('codigo_rem', 15);
+            $table->string('mai_code', 15);
+            $table->string('rem_code', 15);
             $table->string('name', 400);
             $table->boolean('active')->default(true);
             $table->timestamps();
             $table->softDeletes();
+            $table->primary('mai_code');
         });
     }
 

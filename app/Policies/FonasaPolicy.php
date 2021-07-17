@@ -11,26 +11,22 @@ class FonasaPolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any models.
-     *
      * @param User $user
-     * @return mixed
+     * @return bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return in_array('fonasa.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
-     * Determine whether the user can view the model.
-     *
      * @param User $user
      * @param Fonasa $fonasa
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, Fonasa $fonasa)
+    public function view(User $user, Fonasa $fonasa): bool
     {
-        //
+        return in_array('fonasa.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**

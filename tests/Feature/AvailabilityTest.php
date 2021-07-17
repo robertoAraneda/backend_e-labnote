@@ -23,9 +23,10 @@ class AvailabilityTest extends TestCase
      */
     private $role;
     private $user, $model;
-    private AvailabilityController $availabilityController;
     private string $perPage;
     private string $table;
+
+    private string $BASE_URI;
 
     public function setUp():void
     {
@@ -48,13 +49,14 @@ class AvailabilityTest extends TestCase
         $user->assignRole($role);
 
         $modelClass = new Availability();
-        $this->availabilityController = new AvailabilityController();
 
         $this->user = $user;
         $this->role = $role;
         $this->model = Availability::factory()->create();
         $this->table = $modelClass->getTable();
         $this->perPage = $modelClass->getPerPage();
+
+        $this->BASE_URI = '/api/v1/availabilities';
 
     }
 
@@ -405,6 +407,34 @@ class AvailabilityTest extends TestCase
         }
 
         $this->assertDatabaseCount($this->table, $list);
+    }
+
+    /**
+     * @test
+     */
+    public function se_puede_modificar_el_estado_de_un_recurso()
+    {
+
+        $uri = sprintf('%s/%s/status', $this->BASE_URI, $this->model->id);
+
+
+
+        if($this->model->active){
+            $response = $this->actingAs($this->user, 'api')
+                ->putJson($uri, [
+                    'active' => false
+                ]);
+        }else{
+            $response = $this->actingAs($this->user, 'api')
+                ->putJson($uri, [
+                    'active' => true
+                ]);
+        }
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $this->assertNotEquals($response['active'], $this->model->active);
+
     }
 
 }

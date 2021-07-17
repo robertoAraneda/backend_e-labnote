@@ -25,6 +25,7 @@ class FonasaTest extends TestCase
     private $user, $model;
     private FonasaController $fonasaController;
     private string $table;
+    private string $perPage;
     private string $base_url;
 
     public function setUp():void
@@ -48,19 +49,24 @@ class FonasaTest extends TestCase
         $user->assignRole($role);
 
         $modelClass = new Fonasa();
-        $this->fonasaController = new FonasaController();
 
         $this->user = $user;
         $this->role = $role;
         $this->model = Fonasa::factory()->create();
         $this->table = $modelClass->getTable();
         $this->base_url = '/api/v1/fonasas';
+        $this->perPage = $modelClass->getPerPage();
 
+    }
+
+    public function test_se_obtiene_el_valor_por_pagina_por_defecto(): void
+    {
+        $this->assertEquals(10, $this->perPage);
     }
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        Fonasa::factory()->count(20)->create();
+        Fonasa::factory()->count(20) ->sequence(fn ($sequence) => ['mai_code' => 'Name '.$sequence->index])->create();
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson($this->base_url);

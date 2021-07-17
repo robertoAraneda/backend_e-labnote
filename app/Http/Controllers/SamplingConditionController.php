@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SamplingConditionRequest;
+use App\Http\Resources\collections\SamplingConditionResourceCollection;
 use App\Http\Resources\SamplingConditionResource;
 use App\Models\SamplingCondition;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -18,12 +19,35 @@ class SamplingConditionController extends Controller
      *
      * @param SamplingConditionRequest $request
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function index(SamplingConditionRequest $request): JsonResponse
     {
-        $items = SamplingCondition::orderBy('id')->get();
+        $this->authorize('viewAny', SamplingCondition::class);
 
-        return response()->json(SamplingConditionResource::collection($items), Response::HTTP_OK);
+        $page = $request->input('page');
+
+        if (isset($page)) {
+            $items = SamplingCondition::select(
+                'id',
+                'name',
+                'active',
+            )
+                ->orderBy('id')
+                ->paginate($request->getPaginate());
+        } else {
+            $items = SamplingCondition::select(
+                'id',
+                'name',
+                'active',
+            )
+                ->orderBy('id')
+                ->get();
+        }
+        $collection = new SamplingConditionResourceCollection($items);
+        return
+            response()
+                ->json($collection->response()->getData(true), Response::HTTP_OK);
     }
 
     /**
@@ -37,9 +61,19 @@ class SamplingConditionController extends Controller
     {
         $this->authorize('create', SamplingCondition::class);
 
-        $model = SamplingCondition::create($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'created_user_id' => auth()->id(),
+                'created_user_ip' => $request->ip(),
+            ]);
+        try {
 
-        return response()->json(new SamplingConditionResource($model->fresh()), Response::HTTP_CREATED);
+            $model = SamplingCondition::create($data);
+
+            return response()->json(new SamplingConditionResource($model), Response::HTTP_CREATED);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -47,46 +81,88 @@ class SamplingConditionController extends Controller
      *
      * @param SamplingCondition $samplingCondition
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function show(SamplingCondition $samplingCondition): JsonResponse
     {
+        $this->authorize('view', $samplingCondition);
+
         return response()->json(new SamplingConditionResource($samplingCondition), Response::HTTP_OK);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param SamplingConditionRequest $request
+     * @param SamplingCondition $samplingCondition
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function update(SamplingConditionRequest $request, SamplingCondition $samplingCondition): JsonResponse
     {
         $this->authorize('update', $samplingCondition);
 
-        $samplingCondition->update($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'updated_user_id' => auth()->id(),
+                'updated_user_ip' => $request->ip(),
+            ]);
 
-        return response()->json(new SamplingConditionResource($samplingCondition), Response::HTTP_OK);
+        try {
+            $samplingCondition->update($data);
+
+            return response()->json(new SamplingConditionResource($samplingCondition), Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
+     * @param SamplingConditionRequest $request
      * @param SamplingCondition $samplingCondition
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(SamplingCondition $samplingCondition): JsonResponse
+    public function destroy(SamplingConditionRequest $request, SamplingCondition $samplingCondition): JsonResponse
     {
         $this->authorize('delete', $samplingCondition);
 
         try {
+
+            $samplingCondition->update([
+                'deleted_user_id' => auth()->id(),
+                'deleted_user_ip' => $request->ip()
+            ]);
+
             $samplingCondition->delete();
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
-        }catch (\Exception $exception){
 
-            return response()->json(null, Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @param SamplingConditionRequest $request
+     * @param SamplingCondition $samplingCondition
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function changeActiveAttribute(SamplingConditionRequest $request, SamplingCondition $samplingCondition): JsonResponse
+    {
+        $this->authorize('update', $samplingCondition);
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        try {
+            $samplingCondition->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+            return response()->json(new SamplingConditionResource($samplingCondition), Response::HTTP_OK);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

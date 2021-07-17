@@ -40,23 +40,10 @@ class Module extends Model
      */
     public function getPerPage(): string
     {
-        $this->perPage = env('DEFAULT_PER_PAGE');
-        return $this->perPage;
+       return env('DEFAULT_PER_PAGE');
+
     }
 
-    public static function getListJsonStructure(): array
-    {
-        return [
-            'data' => [self::getObjectJsonStructure()],
-            'links',
-            'meta',
-        ];
-    }
-
-    public static function getObjectJsonStructure(): array
-    {
-        return ['id', 'name','icon', 'url', 'slug', 'active'];
-    }
 
     public function getTable():string
     {

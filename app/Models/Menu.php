@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,23 +39,9 @@ class Menu extends Model
      */
     public function getPerPage(): string
     {
-        $this->perPage = env('DEFAULT_PER_PAGE');
-        return $this->perPage;
+        return env('DEFAULT_PER_PAGE');
     }
 
-    public static function getListJsonStructure(): array
-    {
-        return [
-            'data' => [self::getObjectJsonStructure()],
-            'links',
-            'meta',
-        ];
-    }
-
-    public static function getObjectJsonStructure(): array
-    {
-        return ['id', 'name','icon', 'url','active'];
-    }
 
     public function getTable():string
     {
@@ -74,11 +61,35 @@ class Menu extends Model
     /**
      * Scope a query to only include active users.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $query
+     * @return Builder
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function createdUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_user_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function updatedUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_user_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function deletedUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_user_id');
     }
 }

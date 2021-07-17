@@ -14,7 +14,6 @@ class Laboratory extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $perPage = '10';
     protected $table = 'laboratories';
     /**
      * The attributes that are mass assignable.
@@ -42,23 +41,9 @@ class Laboratory extends Model
      */
     public function getPerPage(): string
     {
-        $this->perPage = env('DEFAULT_PER_PAGE');
-        return $this->perPage;
+       return  env('DEFAULT_PER_PAGE');
     }
 
-    public static function getListJsonStructure(): array
-    {
-        return [
-            'data' => [self::getObjectJsonStructure()],
-            'links',
-            'meta',
-        ];
-    }
-
-    public static function getObjectJsonStructure(): array
-    {
-        return ['id', 'name', 'address', 'email', 'phone', 'status', 'redirect'];
-    }
 
     public function getTable():string
     {

@@ -74,6 +74,7 @@ class LaboratoryRequest extends FormRequest
      *
      * @return void
      */
+    //TODO agregar prepare validación para obligar a uppercase
     protected function prepareForValidation()
     {
         $this->merge([

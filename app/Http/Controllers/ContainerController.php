@@ -142,4 +142,25 @@ class ContainerController extends Controller
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * @param ContainerRequest $request
+     * @param Container $container
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function changeActiveAttribute(ContainerRequest $request, Container $container): JsonResponse
+    {
+        $this->authorize('update', $container);
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        try {
+            $container->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+            return response()->json(new ContainerResource($container), Response::HTTP_OK);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -55,14 +55,4 @@ class MenuRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array
-    {
-        return  [
-            'name' => 'name',
-            'icon' => 'icon',
-            'url' => 'url',
-            'module_id' => 'module_id',
-            'active' => 'active'
-        ];
-    }
 }

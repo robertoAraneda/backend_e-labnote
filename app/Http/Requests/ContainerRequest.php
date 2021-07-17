@@ -39,4 +39,21 @@ class ContainerRequest extends FormRequest
     {
         return $this->get('paginate', (new Container())->getPerPage());
     }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => $this->getRequiredMessage(),
+            'shortname.required' => $this->getRequiredMessage(),
+            'active.required' => $this->getRequiredMessage(),
+            'name.string' => $this->getStringMessage(),
+            'shortname.string' => $this->getStringMessage(),
+            'active.boolean' => $this->getBooleanMessage(),
+        ];
+    }
 }

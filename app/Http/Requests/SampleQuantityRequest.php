@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\SampleQuantity;
+
 class SampleQuantityRequest extends FormRequest
 {
     /**
@@ -25,5 +27,29 @@ class SampleQuantityRequest extends FormRequest
             default:
                 return [];
         }
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getPaginate(): int
+    {
+        return $this->get('paginate', (new SampleQuantity())->getPerPage());
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => $this->getRequiredMessage(),
+            'active.required' => $this->getRequiredMessage(),
+            'name.string' => $this->getStringMessage(),
+            'active.boolean' => $this->getBooleanMessage(),
+        ];
     }
 }

@@ -11,26 +11,22 @@ class ResponseTimePolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any models.
-     *
      * @param User $user
-     * @return mixed
+     * @return bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return in_array('responseTime.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
-     * Determine whether the user can view the model.
-     *
      * @param User $user
      * @param ResponseTime $responseTime
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, ResponseTime $responseTime)
+    public function view(User $user, ResponseTime $responseTime): bool
     {
-        //
+        return in_array('responseTime.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**

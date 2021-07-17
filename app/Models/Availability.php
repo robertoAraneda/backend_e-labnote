@@ -18,7 +18,13 @@ class Availability extends Model
      */
     protected  $fillable = [
         'name',
-        'active'
+        'active',
+        'created_user_id',
+        'updated_user_id',
+        'deleted_user_id',
+        'created_user_ip',
+        'updated_user_ip',
+        'deleted_user_ip'
     ];
 
     /**

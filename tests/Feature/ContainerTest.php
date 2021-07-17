@@ -20,9 +20,10 @@ class ContainerTest extends TestCase
 
     private $role;
     private $user, $model;
-    private ContainerController $loincController;
     private string $perPage;
     private string $table;
+
+    const BASE_URI = '/api/v1/containers';
 
     public function setUp(): void
     {
@@ -47,7 +48,6 @@ class ContainerTest extends TestCase
         $user->assignRole($role);
 
         $modelClass = new Container();
-        $this->loincController = new ContainerController();
 
         $this->user = $user;
         $this->role = $role;
@@ -378,6 +378,35 @@ class ContainerTest extends TestCase
         }
 
         $this->assertDatabaseCount($this->table, $list);
+    }
+
+
+    /**
+     * @test
+     */
+    public function se_puede_modificar_el_estado_de_un_recurso()
+    {
+
+        $uri = sprintf('%s/%s/status', self::BASE_URI, $this->model->id);
+
+
+
+        if($this->model->active){
+            $response = $this->actingAs($this->user, 'api')
+                ->putJson($uri, [
+                    'active' => false
+                ]);
+        }else{
+            $response = $this->actingAs($this->user, 'api')
+                ->putJson($uri, [
+                    'active' => true
+                ]);
+        }
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $this->assertNotEquals($response['active'], $this->model->active);
+
     }
 
 }

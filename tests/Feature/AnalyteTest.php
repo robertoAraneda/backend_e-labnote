@@ -25,9 +25,9 @@ class AnalyteTest extends TestCase
 
     private $role;
     private $user, $model;
-    private AnalyteController $analyteController;
     private string $perPage;
     private string $table;
+    private string $BASE_URI;
 
     public function setUp(): void
     {
@@ -50,15 +50,13 @@ class AnalyteTest extends TestCase
         $user->assignRole($role);
 
         $modelClass = new Analyte();
-        $this->analyteController = new AnalyteController();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = Analyte::factory()
-            ->hasAttached(SamplingCondition::factory()->count(5), ['user_id' => $user->id])
-            ->create();
+        $this->model = Analyte::factory()->create();
         $this->perPage = $modelClass->getPerPage();
         $this->table = $modelClass->getTable();
+        $this->BASE_URI = "/api/v1/analytes";
 
     }
 
@@ -88,6 +86,7 @@ class AnalyteTest extends TestCase
                     $json->whereAllType([
                         'id' => 'integer',
                         'name' => 'string',
+                        'is_patient_codable' => 'boolean',
                         'active' => 'boolean',
                         '_links' => 'array'
                     ]);
@@ -130,8 +129,6 @@ class AnalyteTest extends TestCase
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->dump();
-
         $response
             ->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
                 ->where('name', $this->model->name)
@@ -144,6 +141,7 @@ class AnalyteTest extends TestCase
     public function test_se_puede_crear_un_recurso(): void //store
     {
 
+        $this->withoutExceptionHandling();
         $factoryModel = [
             'name' => $this->faker->name,
             'is_patient_codable' => $this->faker->boolean,
@@ -339,6 +337,7 @@ class AnalyteTest extends TestCase
                         $json->whereAllType([
                             'id' => 'integer',
                             'name' => 'string',
+                            'is_patient_codable' => 'boolean',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);
@@ -383,6 +382,7 @@ class AnalyteTest extends TestCase
                         $json->whereAllType([
                             'id' => 'integer',
                             'name' => 'string',
+                            'is_patient_codable' => 'boolean',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);
@@ -393,4 +393,31 @@ class AnalyteTest extends TestCase
         $this->assertDatabaseCount($this->table, $list);
     }
 
+    /**
+     * @test
+     */
+    public function se_puede_modificar_el_estado_de_un_recurso()
+    {
+
+        $uri = sprintf('%s/%s/status', $this->BASE_URI, $this->model->id);
+
+
+
+        if($this->model->active){
+            $response = $this->actingAs($this->user, 'api')
+                ->putJson($uri, [
+                    'active' => false
+                ]);
+        }else{
+            $response = $this->actingAs($this->user, 'api')
+                ->putJson($uri, [
+                    'active' => true
+                ]);
+        }
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $this->assertNotEquals($response['active'], $this->model->active);
+
+    }
 }

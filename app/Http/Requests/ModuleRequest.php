@@ -52,13 +52,4 @@ class ModuleRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array
-    {
-        return  [
-            'name' => 'Nombre',
-            'icon' => 'Icono',
-            'url' => 'url',
-            'slug' => 'slug'
-        ];
-    }
 }

@@ -43,16 +43,4 @@ class RoleRequest extends FormRequest
             'active.boolean' => $this->getBooleanMessage()
         ];
     }
-
-    /**
-     * @return string[]
-     */
-    public function attributes(): array
-    {
-        return  [
-            'name' => 'Nombre',
-            'guard_name' => 'Puerta',
-            'active' => 'Estado'
-        ];
-    }
 }

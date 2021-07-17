@@ -56,7 +56,7 @@ class ModuleController extends Controller
         $collection = new ModuleResourceCollection($items);
         return
             response()
-                ->json($collection->response()->getData(true), 200);
+                ->json($collection->response()->getData(true), Response::HTTP_OK);
 
     }
 
@@ -81,9 +81,9 @@ class ModuleController extends Controller
 
             $model = Module::create($data);
 
-            return response()->json(new ModuleResource($model) , 201);
+            return response()->json(new ModuleResource($model) , Response::HTTP_CREATED);
         } catch (\Exception $ex) {
-            return response()->json($ex->getMessage(), 500);
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -98,7 +98,7 @@ class ModuleController extends Controller
     {
         $this->authorize('view', $module);
 
-        return response()->json(new ModuleResource($module), 200);
+        return response()->json(new ModuleResource($module), Response::HTTP_OK);
     }
 
     /**
@@ -123,9 +123,9 @@ class ModuleController extends Controller
         try {
             $module->update($data);
 
-            return response()->json(new ModuleResource($module) , 200);
+            return response()->json(new ModuleResource($module) , Response::HTTP_OK);
         }catch (\Exception $ex){
-            return response()->json($ex->getMessage() , 500);
+            return response()->json($ex->getMessage() , Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -151,10 +151,10 @@ class ModuleController extends Controller
         try {
             $module->delete();
 
-            return response()->json(null, 204);
+            return response()->json(null, Response::HTTP_NO_CONTENT);
 
         }catch (\Exception $ex){
-            return response()->json($ex->getMessage(), 500);
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

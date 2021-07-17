@@ -69,30 +69,21 @@ class User extends Authenticatable
 
 
     protected $table = 'users';
-    protected $perPage = '10';
 
-    public static function getListJsonStructure(): array
-    {
-        return [
-            'data' => [self::getObjectJsonStructure()],
-            'links',
-            'meta',
-        ];
-    }
-
-    public static function getObjectJsonStructure(): array
-    {
-        return ['id', 'rut', 'names', 'lastname', 'mother_lastname', 'email'];
-    }
 
     public function getTable(): string
     {
         return $this->table;
     }
 
-    public function getPerPage() : string
+
+    /**
+     * @return string
+     */
+    public function getPerPage(): string
     {
-        return $this->perPage;
+        return env('DEFAULT_PER_PAGE');
+
     }
 
     /**

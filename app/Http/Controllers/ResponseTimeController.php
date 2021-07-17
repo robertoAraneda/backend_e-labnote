@@ -16,12 +16,35 @@ class ResponseTimeController extends Controller
      *
      * @param ResponseTimeRequest $request
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function index(ResponseTimeRequest $request): JsonResponse
     {
-        $items = ResponseTime::orderBy('id')->get();
+        $this->authorize('viewAny', ResponseTime::class);
 
-        return response()->json(ResponseTimeResource::collection($items), Response::HTTP_OK);
+        $page = $request->input('page');
+
+        if (isset($page)) {
+            $items = ResponseTime::select(
+                'id',
+                'name',
+                'active',
+            )
+                ->orderBy('id')
+                ->paginate($request->getPaginate());
+        } else {
+            $items = ResponseTime::select(
+                'id',
+                'name',
+                'active',
+            )
+                ->orderBy('id')
+                ->get();
+        }
+        $collection = new ResponseTimeResourceCollection($items);
+        return
+            response()
+                ->json($collection->response()->getData(true), Response::HTTP_OK);
     }
 
     /**
@@ -35,9 +58,19 @@ class ResponseTimeController extends Controller
     {
         $this->authorize('create', ResponseTime::class);
 
-        $model = ResponseTime::create($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'created_user_id' => auth()->id(),
+                'created_user_ip' => $request->ip(),
+            ]);
+        try {
 
-        return response()->json(new ResponseTimeResource($model->fresh()), Response::HTTP_CREATED);
+            $model = ResponseTime::create($data);
+
+            return response()->json(new ResponseTimeResource($model), Response::HTTP_CREATED);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -45,9 +78,12 @@ class ResponseTimeController extends Controller
      *
      * @param ResponseTime $responseTime
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function show(ResponseTime $responseTime): JsonResponse
     {
+        $this->authorize('view', $responseTime);
+
         return response()->json(new ResponseTimeResource($responseTime), Response::HTTP_OK);
     }
 
@@ -63,29 +99,68 @@ class ResponseTimeController extends Controller
     {
         $this->authorize('update', $responseTime);
 
-        $responseTime->update($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'updated_user_id' => auth()->id(),
+                'updated_user_ip' => $request->ip(),
+            ]);
 
-        return response()->json(new ResponseTimeResource($responseTime), Response::HTTP_OK);
+        try {
+            $responseTime->update($data);
+
+            return response()->json(new ResponseTimeResource($responseTime), Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
+     * @param ResponseTimeRequest $request
      * @param ResponseTime $responseTime
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(ResponseTime $responseTime): JsonResponse
+    public function destroy(ResponseTimeRequest $request, ResponseTime $responseTime): JsonResponse
     {
         $this->authorize('delete', $responseTime);
 
         try {
+
+            $responseTime->update([
+                'deleted_user_id' => auth()->id(),
+                'deleted_user_ip' => $request->ip()
+            ]);
+
             $responseTime->delete();
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
-        }catch (\Exception $exception){
 
-            return response()->json(null, Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * @param ResponseTimeRequest $request
+     * @param ResponseTime $responseTime
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function changeActiveAttribute(ResponseTimeRequest $request, ResponseTime $responseTime): JsonResponse
+    {
+        $this->authorize('update', $responseTime);
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        try {
+            $responseTime->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+            return response()->json(new ResponseTimeResource($responseTime), Response::HTTP_OK);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

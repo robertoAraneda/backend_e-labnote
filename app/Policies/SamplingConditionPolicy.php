@@ -11,26 +11,22 @@ class SamplingConditionPolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any models.
-     *
      * @param User $user
-     * @return mixed
+     * @return bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return in_array('samplingCondition.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
-     * Determine whether the user can view the model.
-     *
      * @param User $user
      * @param SamplingCondition $samplingCondition
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, SamplingCondition $samplingCondition)
+    public function view(User $user, SamplingCondition $samplingCondition): bool
     {
-        //
+        return in_array('samplingCondition.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**

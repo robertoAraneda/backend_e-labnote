@@ -136,4 +136,26 @@ class ObservationServiceRequestController extends Controller
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    /**
+     * @param ObservationServiceRequestRequest $request
+     * @param ObservationServiceRequest $observationServiceRequest
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function changeActiveAttribute(ObservationServiceRequestRequest $request, ObservationServiceRequest $observationServiceRequest): JsonResponse
+    {
+        $this->authorize('update', $observationServiceRequest);
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        try {
+            $observationServiceRequest->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+            return response()->json(new ObservationServiceRequestResource($observationServiceRequest), Response::HTTP_OK);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

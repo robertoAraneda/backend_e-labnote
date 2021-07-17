@@ -37,4 +37,19 @@ class SamplingIndicationRequest extends FormRequest
     {
         return $this->get('paginate', (new SamplingIndication())->getPerPage());
     }
+    
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => $this->getRequiredMessage(),
+            'active.required' => $this->getRequiredMessage(),
+            'name.string' => $this->getStringMessage(),
+            'active.boolean' => $this->getBooleanMessage(),
+        ];
+    }
 }

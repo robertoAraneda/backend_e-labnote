@@ -12,8 +12,6 @@ class Workarea extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $perPage = 10;
-
     protected  $fillable = [
         'name',
         'active',
@@ -26,18 +24,14 @@ class Workarea extends Model
     ];
 
 
-    public static function getListJsonStructure(): array
-    {
-        return [
-            'data' => [self::getObjectJsonStructure()],
-            'links',
-            'meta',
-        ];
-    }
 
-    public static function getObjectJsonStructure(): array
+    /**
+     * @return string
+     */
+    public function getPerPage(): string
     {
-        return ['id', 'name', 'active'];
+        return env('DEFAULT_PER_PAGE');
+
     }
 
     /**

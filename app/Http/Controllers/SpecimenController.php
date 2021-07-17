@@ -134,4 +134,25 @@ class SpecimenController extends Controller
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * @param SpecimenRequest $request
+     * @param Specimen $specimen
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function changeActiveAttribute(SpecimenRequest $request, Specimen $specimen): JsonResponse
+    {
+        $this->authorize('update', $specimen);
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        try {
+            $specimen->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+            return response()->json(new SpecimenResource($specimen), Response::HTTP_OK);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

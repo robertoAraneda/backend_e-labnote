@@ -145,4 +145,26 @@ class ProcessTimeController extends Controller
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    /**
+     * @param ProcessTimeRequest $request
+     * @param ProcessTime $processTime
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function changeActiveAttribute(ProcessTimeRequest $request, ProcessTime $processTime): JsonResponse
+    {
+        $this->authorize('update', $processTime);
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        try {
+            $processTime->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+            return response()->json(new ProcessTimeResource($processTime), Response::HTTP_OK);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

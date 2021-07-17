@@ -9,6 +9,7 @@ use App\Models\Menu;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Symfony\Component\HttpFoundation\Response;
 
 class MenuController extends Controller
 {
@@ -78,9 +79,9 @@ class MenuController extends Controller
 
             $model = Menu::create($data);
 
-            return response()->json(new MenuResource($model) , 201);
+            return response()->json(new MenuResource($model) , Response::HTTP_CREATED);
         } catch (\Exception $ex) {
-            return response()->json($ex->getMessage(), 500);
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -96,7 +97,7 @@ class MenuController extends Controller
     {
         $this->authorize('view', $menu);
 
-        return response()->json(new MenuResource($menu), 200);
+        return response()->json(new MenuResource($menu), Response::HTTP_OK);
     }
 
     /**
@@ -121,9 +122,9 @@ class MenuController extends Controller
         try {
             $menu->update($data);
 
-            return response()->json(new MenuResource($menu) , 200);
+            return response()->json(new MenuResource($menu) , Response::HTTP_OK);
         }catch (\Exception $ex){
-            return response()->json($ex->getMessage() , 500);
+            return response()->json($ex->getMessage() , Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -147,13 +148,33 @@ class MenuController extends Controller
         try {
             $menu->delete();
 
-            return response()->json(null, 204);
+            return response()->json(null, Response::HTTP_NO_CONTENT);
 
         }catch (\Exception $ex){
-            return response()->json($ex->getMessage(), 500);
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
 
+    /**
+     * @param MenuRequest $request
+     * @param Menu $menu
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function changeActiveAttribute(MenuRequest $request, Menu $menu): JsonResponse
+    {
+        $this->authorize('update', $menu);
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        try {
+            $menu->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+            return response()->json(new MenuResource($menu), Response::HTTP_OK);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }

@@ -40,8 +40,7 @@ class SamplingCondition extends Model
      */
     public function getPerPage(): string
     {
-        $this->perPage = env('DEFAULT_PER_PAGE');
-        return $this->perPage;
+       return env('DEFAULT_PER_PAGE');
     }
 
     /**

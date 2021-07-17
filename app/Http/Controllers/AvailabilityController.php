@@ -145,4 +145,25 @@ class AvailabilityController extends Controller
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * @param AvailabilityRequest $request
+     * @param Availability $availability
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function changeActiveAttribute(AvailabilityRequest $request, Availability $availability): JsonResponse
+    {
+        $this->authorize('update', $availability);
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        try {
+            $availability->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+            return response()->json(new AvailabilityResource($availability), Response::HTTP_OK);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

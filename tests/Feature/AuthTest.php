@@ -50,9 +50,7 @@ class AuthTest extends TestCase
     {
         User::factory()->create();
 
-        $response = $this->withHeaders([
-            'Content-Type' => 'Value',
-        ])->post('/api/v1/auth/login',[]);
+        $response = $this->postJson('/api/v1/auth/login',[]);
 
         $response->assertJsonStructure([
             'success',
@@ -61,7 +59,7 @@ class AuthTest extends TestCase
             'errors'
         ]);
 
-        $response->assertStatus(Response::HTTP_NOT_ACCEPTABLE);
+        $response->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
     public function test_se_genera_mensages_error_al_validar_request(): void
@@ -77,7 +75,7 @@ class AuthTest extends TestCase
             'errors'
         ]);
 
-        $response->assertStatus(Response::HTTP_OK);
+        $response->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
 

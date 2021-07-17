@@ -25,7 +25,7 @@ class SamplingIndication extends Model
      *
      * @var string[]
      */
-    protected  $fillable = [
+    protected $fillable = [
         'name',
         'active',
         'created_user_id',
@@ -52,8 +52,8 @@ class SamplingIndication extends Model
      */
     public function getPerPage(): string
     {
-        $this->perPage = env('DEFAULT_PER_PAGE');
-        return $this->perPage;
+        return env('DEFAULT_PER_PAGE');
+
     }
 
     /**
