@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Disponibility;
+use App\Models\Availability;
 use Illuminate\Database\Seeder;
 
 class AvailabilitySeeder extends Seeder
@@ -24,7 +24,7 @@ class AvailabilitySeeder extends Seeder
         ];
 
         foreach ($availabilities as $availability)
-            Disponibility::create([
+            Availability::create([
                 'name' => 	$availability,
                 'active' => true,
                 'created_user_id' => 1,

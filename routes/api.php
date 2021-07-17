@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\AnalyteController;
 use App\Http\Controllers\ContainerController;
-use App\Http\Controllers\DisponibilityController;
+use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\FonasaController;
 use App\Http\Controllers\LaboratoryController;
 use App\Http\Controllers\LoincController;
@@ -61,7 +61,7 @@ Route::group([
     Route::apiResource('modules', ModuleController::class)->whereNumber('module')->names('api.modules');
     Route::apiResource('menus', MenuController::class)->whereNumber('menu')->names('api.menus');
     Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea')->names('api.workareas');
-    Route::apiResource('disponibilities', DisponibilityController::class)->whereNumber('disponibility')->names('api.availabilities');
+    Route::apiResource('availabilities', AvailabilityController::class)->whereNumber('availability')->names('api.availabilities');
     Route::apiResource('process-times', ProcessTimeController::class)->whereNumber('process_time')->names('api.process-times');
     Route::apiResource('response-times', ResponseTimeController::class)->whereNumber('response_time');
     Route::apiResource('medical-request-types', MedicalRequestTypeController::class)->whereNumber('medical_request_type')->names('api.medical-request-types');

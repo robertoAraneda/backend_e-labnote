@@ -91,7 +91,7 @@ class AnalyteResource extends JsonResource
             'name' => $availability->name,
             '_links' => [
                 'self' => [
-                    'href' => route('api.availabilities.show', ['disponibility' => $availability->id], false)
+                    'href' => route('api.availabilities.show', ['availability' => $availability->id], false)
                 ]
             ]
         ];

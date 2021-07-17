@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Analyte;
-use App\Models\Disponibility;
+use App\Models\Availability;
 use App\Models\MedicalRequestType;
 use App\Models\ProcessTime;
 use App\Models\User;
@@ -32,7 +32,7 @@ class AnalyteFactory extends Factory
             'clinical_information' => $this->faker->text,
             'loinc_id' => $this->faker->slug,
             'workarea_id' => Workarea::factory(),
-            'availability_id' => Disponibility::factory(),
+            'availability_id' => Availability::factory(),
             'process_time_id' => ProcessTime::factory(),
             'medical_request_type_id' => MedicalRequestType::factory(),
             'created_user_id' => User::factory(),
