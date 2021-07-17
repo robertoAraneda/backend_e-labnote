@@ -14,11 +14,11 @@ class ProcessTimePolicy
      * Determine whether the user can view any models.
      *
      * @param User $user
-     * @return mixed
+     * @return bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return in_array('processTime.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
@@ -26,11 +26,11 @@ class ProcessTimePolicy
      *
      * @param User $user
      * @param ProcessTime $processTime
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, ProcessTime $processTime)
+    public function view(User $user, ProcessTime $processTime): bool
     {
-        //
+        return in_array('processTime.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**

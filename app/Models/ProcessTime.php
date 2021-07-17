@@ -4,28 +4,53 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProcessTime extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var string[]
+     */
     protected  $fillable = [
         'name',
         'active'
     ];
 
-    public static function getListJsonStructure(): array
+    /**
+     * @return string
+     */
+    public function getPerPage(): string
     {
-        return [
-            'data' => [self::getObjectJsonStructure()],
-            'links',
-            'meta',
-        ];
+        return env('DEFAULT_PER_PAGE');
     }
 
-    public static function getObjectJsonStructure(): array
+    /**
+     * @return BelongsTo
+     */
+    public function createdUser(): BelongsTo
     {
-        return ['id', 'name', 'active'];
+        return $this->belongsTo(User::class, 'created_user_id');
     }
+
+    /**
+     * @return BelongsTo
+     */
+    public function updatedUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_user_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function deletedUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_user_id');
+    }
+
 }

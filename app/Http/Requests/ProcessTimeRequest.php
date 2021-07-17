@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\ProcessTime;
+use Illuminate\Database\Eloquent\Model;
+
 class ProcessTimeRequest extends FormRequest
 {
     /**
@@ -25,5 +28,13 @@ class ProcessTimeRequest extends FormRequest
             default:
                 return [];
         }
+    }
+
+    /**
+     * @return int
+     */
+    public function getPaginate(): int
+    {
+        return $this->get('paginate', (new ProcessTime())->getPerPage());
     }
 }

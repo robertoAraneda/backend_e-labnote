@@ -33,7 +33,7 @@ class AvailabilityPermissionsSeeder extends Seeder
             [
                 'name' => 'availability.show',
                 'action' => 'show',
-                'description' => 'Ver detalle disponibilidad'
+                'description' => 'Ver detalle de una disponibilidad'
             ],
             [
                 'name' => 'availability.index',

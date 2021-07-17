@@ -13,14 +13,6 @@ class Container extends Model
     use HasFactory, SoftDeletes;
 
     /**
-     * The number of models to return for pagination.
-     *
-     * @var int
-     */
-    protected $perPage = 10;
-
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var string[]
@@ -54,8 +46,7 @@ class Container extends Model
      */
     public function getPerPage(): string
     {
-        $this->perPage = env('DEFAULT_PER_PAGE');
-        return $this->perPage;
+        return env('DEFAULT_PER_PAGE');
     }
 
     /**
@@ -81,6 +72,5 @@ class Container extends Model
     {
         return $this->belongsTo(User::class, 'deleted_user_id');
     }
-
 
 }

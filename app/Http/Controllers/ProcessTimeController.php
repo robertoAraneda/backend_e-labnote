@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProcessTimeRequest;
+use App\Http\Resources\collections\ProcessTimeResourceCollection;
 use App\Http\Resources\ProcessTimeResource;
 use App\Models\ProcessTime;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProcessTimeController extends Controller
@@ -17,12 +20,35 @@ class ProcessTimeController extends Controller
      *
      * @param ProcessTimeRequest $request
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function index(ProcessTimeRequest $request): JsonResponse
     {
-        $items = ProcessTime::orderBy('id')->get();
+        $this->authorize('viewAny', ProcessTime::class);
 
-        return response()->json(ProcessTimeResource::collection($items), Response::HTTP_OK);
+        $page = $request->input('page');
+
+        if (isset($page)) {
+            $items = ProcessTime::select(
+                'id',
+                'name',
+                'active',
+            )
+                ->orderBy('id')
+                ->paginate($request->getPaginate());
+        } else {
+            $items = ProcessTime::select(
+                'id',
+                'name',
+                'active',
+            )
+                ->orderBy('id')
+                ->get();
+        }
+        $collection = new ProcessTimeResourceCollection($items);
+        return
+            response()
+                ->json($collection->response()->getData(true), Response::HTTP_OK);
     }
 
     /**
@@ -36,19 +62,31 @@ class ProcessTimeController extends Controller
     {
         $this->authorize('create', ProcessTime::class);
 
-        $model = ProcessTime::create($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'created_user_id' => auth()->id(),
+                'created_user_ip' => $request->ip(),
+            ]);
+        try {
 
-        return response()->json(new ProcessTimeResource($model->fresh()), Response::HTTP_CREATED);
+            $model = ProcessTime::create($data);
+
+            return response()->json(new ProcessTimeResource($model), Response::HTTP_CREATED);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
-
     /**
      * Display the specified resource.
      *
      * @param ProcessTime $processTime
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function show(ProcessTime $processTime): JsonResponse
     {
+        $this->authorize('view', $processTime);
+
         return response()->json(new ProcessTimeResource($processTime), Response::HTTP_OK);
     }
 
@@ -65,30 +103,46 @@ class ProcessTimeController extends Controller
     {
         $this->authorize('update', $processTime);
 
-        $processTime->update($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'updated_user_id' => auth()->id(),
+                'updated_user_ip' => $request->ip(),
+            ]);
 
-        return response()->json(new ProcessTimeResource($processTime), Response::HTTP_OK);
+        try {
+            $processTime->update($data);
+
+            return response()->json(new ProcessTimeResource($processTime), Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
 
     /**
      * Remove the specified resource from storage.
      *
+     * @param ProcessTimeRequest $request
      * @param ProcessTime $processTime
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(ProcessTime $processTime): JsonResponse
+    public function destroy(ProcessTimeRequest $request, ProcessTime $processTime): JsonResponse
     {
         $this->authorize('delete', $processTime);
 
         try {
+            $processTime->update([
+                'deleted_user_id' => auth()->id(),
+                'deleted_user_ip' => $request->ip()
+            ]);
+
             $processTime->delete();
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
-        }catch (\Exception $exception){
 
-            return response()->json(null, Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

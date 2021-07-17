@@ -58,7 +58,6 @@ class AvailabilityTest extends TestCase
 
     }
 
-
     /**
      * @test
      */
@@ -72,7 +71,6 @@ class AvailabilityTest extends TestCase
      */
     public function se_puede_obtener_una_lista_del_recurso(): void
     {
-
         Availability::factory()->count(20)->create();
 
         $uri = sprintf('/api/v1/%s', $this->table);
@@ -101,7 +99,6 @@ class AvailabilityTest extends TestCase
      */
     public function se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
-
         Availability::factory()->count(20)->create();
 
         $uri = sprintf('/api/v1/%s?page=1', $this->table);
@@ -141,7 +138,10 @@ class AvailabilityTest extends TestCase
             );
     }
 
-    public function test_se_puede_crear_un_recurso(): void //store
+    /**
+     * @test
+     */
+    public function se_puede_crear_un_recurso(): void //store
     {
         $factoryModel = [
             'name' => $this->faker->name,
@@ -166,9 +166,11 @@ class AvailabilityTest extends TestCase
 
     }
 
-    public function test_se_puede_modificar_un_recurso(): void // update
+    /**
+     * @test
+     */
+    public function se_puede_modificar_un_recurso(): void // update
     {
-
         $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
         $this->actingAs($this->user, 'api')
@@ -183,13 +185,15 @@ class AvailabilityTest extends TestCase
                 ->etc()
             );
 
-
         $this->assertDatabaseHas($this->table, [
             'name' => 'name modificado'
         ]);
     }
 
-    public function test_se_puede_eliminar_un_recurso(): void //destroy
+    /**
+     * @test
+     */
+    public function se_puede_eliminar_un_recurso(): void //destroy
     {
         $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
@@ -202,7 +206,10 @@ class AvailabilityTest extends TestCase
         $this->assertSoftDeleted($this->model);
     }
 
-    public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
+    /**
+     * @test
+     */
+    public function se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
         $list = Availability::count();
 
@@ -222,7 +229,10 @@ class AvailabilityTest extends TestCase
 
     }
 
-    public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
+    /**
+     * @test
+     */
+    public function se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
         $this->role->revokePermissionTo('availability.update');
 
@@ -238,7 +248,10 @@ class AvailabilityTest extends TestCase
         $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
-    public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
+    /**
+     * @test
+     */
+    public function se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
         $this->role->revokePermissionTo('availability.delete');
 
@@ -255,7 +268,10 @@ class AvailabilityTest extends TestCase
 
     }
 
-    public function test_se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
         $uri = sprintf('/api/v1/%s/%s',$this->table , -5);
         $response = $this->actingAs($this->user, 'api')
@@ -265,7 +281,10 @@ class AvailabilityTest extends TestCase
 
     }
 
-    public function test_se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
     {
         $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
 
@@ -276,7 +295,10 @@ class AvailabilityTest extends TestCase
 
     }
 
-    public function test_se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
     {
         $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
 
@@ -287,9 +309,11 @@ class AvailabilityTest extends TestCase
 
     }
 
-    public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
-
         Availability::factory()->count(20)->create();
 
         $list = Availability::count();
@@ -334,8 +358,10 @@ class AvailabilityTest extends TestCase
 
     }
 
-
-    public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
     {
         Availability::factory()->count(20)->create();
 
