@@ -28,9 +28,9 @@ class ObservationServiceRequestResource extends JsonResource
                 'self' => [
                     'href' => route('api.observation-service-requests.show', ['observation_service_request' => $this->id], false),
                 ],
-              /*  'samplingConditions' => [
-                    'href' => route('api.analytes.sampling-conditions.index', ['analyte' => $this->id], false)
-                ]*/
+                'samplingConditions' => [
+                    'href' => route('api.observation-service-request.sampling-conditions.index', ['observation_service_request' => $this->id], false)
+                ]
             ],
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),
@@ -42,7 +42,7 @@ class ObservationServiceRequestResource extends JsonResource
                 'specimen' => $this->specimen($this->specimen),
                 'loinc' => $this->loinc($this->loinc),
                 'analyte' => $this->analyte($this->analyte),
-               // 'samplingConditions' => $this->samplingConditions($this->samplingConditions)
+                'samplingConditions' => $this->samplingConditions($this->samplingConditions)
             ],
         ];
     }
@@ -55,7 +55,7 @@ class ObservationServiceRequestResource extends JsonResource
      */
     private function name($analyte, $specimen): string
     {
-        if(isset($analyte) && isset($specimen)) return $analyte->name.", ".$specimen->name;
+        if (isset($analyte) && isset($specimen)) return $analyte->name . ", " . $specimen->name;
         return '';
     }
 

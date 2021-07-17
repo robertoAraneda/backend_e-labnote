@@ -13,9 +13,9 @@ class AnalyteSamplingConditionTable extends Migration
      */
     public function up()
     {
-        Schema::create('analyte_sampling_condition', function (Blueprint $table) {
+        Schema::create('observation_sampling_condition', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('analyte_id');
+            $table->unsignedBigInteger('observation_service_request_id');
             $table->unsignedBigInteger('sampling_condition_id');
             $table->unsignedBigInteger('user_id');
             $table->timestamps();

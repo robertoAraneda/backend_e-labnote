@@ -11,7 +11,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ObservationServiceRequestController;
 use App\Http\Controllers\ProcessTimeController;
-use App\Http\Controllers\RelAnalyteSamplingConditionController;
+use App\Http\Controllers\RelObservationServiceRequestSamplingConditionController;
 use App\Http\Controllers\RelLaboratoryModuleController;
 use App\Http\Controllers\RelModulePermissionController;
 use App\Http\Controllers\RelSpecimenSamplingIndicationController;
@@ -93,7 +93,7 @@ Route::group([
     //rels
     Route::apiResource('modules.permissions', RelModulePermissionController::class)->only('index', 'store')->whereNumber('module')->names('api.modules.permissions');
     Route::apiResource('laboratories.modules', RelLaboratoryModuleController::class)->only('index', 'store')->whereNumber('laboratory')->names('api.laboratories.modules');
-    Route::apiResource('analytes.sampling-conditions', RelAnalyteSamplingConditionController::class)->only('index', 'store')->whereNumber('analyte')->names('api.analytes.sampling-conditions');
+    Route::apiResource('observation-service-requests.sampling-conditions', RelObservationServiceRequestSamplingConditionController::class)->only('index', 'store')->whereNumber('observation_service_request')->names('api.observation-service-request.sampling-conditions');
     Route::apiResource('specimens.sampling-indications', RelSpecimenSamplingIndicationController::class)->only('index', 'store')->whereNumber('specimen')->names('api.specimens.sampling-indications');
 
     //search queries
@@ -105,8 +105,7 @@ Route::group([
     Route::put('users/{user}/status', [UserController::class, 'changeActiveAttribute']);
     Route::put('laboratories/{laboratory}/status', [LaboratoryController::class, 'changeActiveAttribute']);
     Route::put('workareas/{workarea}/status', [WorkareaController::class, 'changeActiveAttribute']);
-
-
+    Route::put('analytes/{analyte}/status', [AnalyteController::class, 'changeActiveAttribute']);
 
 
 

@@ -49,16 +49,6 @@ class Analyte extends Model
     }
 
     /**
-     * @return BelongsToMany
-     */
-    public function samplingConditions(): BelongsToMany
-    {
-        return $this->belongsToMany(SamplingCondition::class, 'analyte_sampling_condition')
-            ->withPivot('user_id', 'created_at', 'updated_at')
-            ->withTimestamps();
-    }
-
-    /**
      * @return BelongsTo
      */
     public function createdUser(): BelongsTo

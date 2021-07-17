@@ -65,7 +65,7 @@ class ObservationServiceRequest extends Model
      */
     public function samplingConditions(): BelongsToMany
     {
-        return $this->belongsToMany(SamplingCondition::class, 'analyte_sampling_condition')
+        return $this->belongsToMany(SamplingCondition::class, 'observation_sampling_condition')
             ->withPivot('user_id', 'created_at', 'updated_at')
             ->withTimestamps();
     }

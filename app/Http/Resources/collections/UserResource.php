@@ -22,7 +22,7 @@ class UserResource extends JsonResource
             'mother_lastname' => $this->mother_lastname,
             'email' => $this->email,
             'active' => (bool) $this->active,
-            '_link' => [
+            '_links' => [
                 'self' =>[
                     'href' => route('api.users.show', ['user' => $this->id], false),
                 ] ,

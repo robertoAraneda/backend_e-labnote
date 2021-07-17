@@ -31,7 +31,7 @@ class AnalyteController extends Controller
             $items = Analyte::select(
                 'id',
                 'name',
-                'slug',
+                'is_patient_codable',
                 'active',
             )
                 ->orderBy('id')
@@ -39,7 +39,7 @@ class AnalyteController extends Controller
         }else{
             $items = Analyte::select(
                 'id',
-                'slug',
+                'is_patient_codable',
                 'name',
                 'active',
             )
@@ -145,6 +145,29 @@ class AnalyteController extends Controller
 
         }catch (\Exception $ex){
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Change status for specified resource.
+     *
+     * @param Request $request
+     * @param Analyte $analyte
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function changeActiveAttribute(Request $request, Analyte $analyte): JsonResponse
+    {
+        $this->authorize('update', $analyte);
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        try {
+            $analyte->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+            return response()->json(new AnalyteResource($analyte), 200);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), 500);
         }
     }
 

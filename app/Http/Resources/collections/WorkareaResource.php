@@ -19,7 +19,7 @@ class WorkareaResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'active' => (bool) $this->active,
-            '_link' => [
+            '_links' => [
                 'self' =>[
                     'href' => route('api.workareas.show', ['workarea' => $this->id], false),
                 ] ,

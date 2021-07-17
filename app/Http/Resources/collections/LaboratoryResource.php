@@ -20,7 +20,7 @@ class LaboratoryResource extends JsonResource
             'name' => $this->name,
             'phone' => $this->phone,
             'active' => (bool) $this->active,
-            '_link' => [
+            '_links' => [
                 'self' =>[
                     'href' => route('api.laboratories.show', ['laboratory' => $this->id], false),
                 ] ,

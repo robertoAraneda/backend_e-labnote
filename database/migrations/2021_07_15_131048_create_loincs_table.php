@@ -13,7 +13,7 @@ class CreateLoincsTable extends Migration
      */
     public function up()
     {
-        Schema::create('loinc', function (Blueprint $table) {
+        Schema::create('loincs', function (Blueprint $table) {
             $table->string('loinc_num', 10);
             $table->string('component', 255)->nullable();
             $table->string('property', 255)->nullable();
@@ -70,6 +70,6 @@ class CreateLoincsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('loinc');
+        Schema::dropIfExists('loincs');
     }
 }

@@ -22,7 +22,7 @@ class ModuleResource extends JsonResource
             'slug' => $this->slug,
             'icon' => $this->icon,
             'active' => (bool) $this->active,
-            '_link' => [
+            '_links' => [
                 'self' =>[
                     'href' => route('api.modules.show', ['module' => $this->id], false),
                 ] ,

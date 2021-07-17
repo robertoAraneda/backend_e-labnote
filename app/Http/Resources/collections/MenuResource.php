@@ -23,7 +23,7 @@ class MenuResource extends JsonResource
             'permission_id' => $this->permission->id,
             'permission' => $this->permission,
             'active' => (bool) $this->active,
-            '_link' => [
+            '_links' => [
                 'self' =>[
                     'href' => route('api.menus.show', ['menu' => $this->id], false),
                 ] ,
