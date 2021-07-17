@@ -15,17 +15,40 @@ class AvailabilityPermissionsSeeder extends Seeder
     public function run()
     {
         $permissions = [
-            'availability.create',
-            'availability.update',
-            'availability.delete',
-            'availability.show',
-            'availability.index'
+            [
+                'name' => 'availability.create',
+                'action' => 'create',
+                'description' => 'Crear disponibilidad'
+            ],
+            [
+                'name' => 'availability.update',
+                'action' => 'update',
+                'description' => 'Modificar disponibilidad'
+            ],
+            [
+                'name' => 'availability.delete',
+                'action' => 'delete',
+                'description' => 'Eliminar disponibilidad'
+            ],
+            [
+                'name' => 'availability.show',
+                'action' => 'show',
+                'description' => 'Ver detalle disponibilidad'
+            ],
+            [
+                'name' => 'availability.index',
+                'action' => 'index',
+                'description' => 'Ver todas las disponibilidades'
+            ],
         ];
 
         foreach ($permissions as $permission){
             Permission::create([
-                'name' => $permission,
-                'guard_name' => 'api'
+                'name' => $permission['name'],
+                'guard_name' => 'api',
+                'model' => 'Availability',
+                'action' => $permission['action'],
+                'description' => $permission['description'],
             ]);
 
         }

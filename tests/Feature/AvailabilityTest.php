@@ -54,94 +54,151 @@ class AvailabilityTest extends TestCase
         $this->role = $role;
         $this->model = Availability::factory()->create();
         $this->table = $modelClass->getTable();
+        $this->perPage = $modelClass->getPerPage();
 
     }
 
-    public function test_se_puede_obtener_una_lista_del_recurso(): void
+
+    /**
+     * @test
+     */
+    public function se_obtiene_el_valor_por_pagina_por_defecto(): void
     {
+        $this->assertEquals(10, $this->perPage);
+    }
+
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_del_recurso(): void
+    {
+
         Availability::factory()->count(20)->create();
 
-        $response = $this->actingAs($this->user, 'api')
-            ->getJson(sprintf('/api/v1/%s', $this->table));
+        $uri = sprintf('/api/v1/%s', $this->table);
+        $countModels = Availability::count();
 
-        $response->assertStatus(Response::HTTP_OK);
-
-        $response->assertJson(function(AssertableJson $json) {
-            return $json
-                ->has('0',function($json) {
-                    $json->whereAllType([
-                        'id' => 'integer',
-                        'name' => 'string',
-                        'active' => 'boolean'
-                    ]);
-                });
-        });
+        $this->actingAs($this->user, 'api')
+            ->getJson($uri)
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson(function (AssertableJson $json) use ($countModels) {
+                return $json
+                    ->has('_links')
+                    ->has('count')
+                    ->has('collection', $countModels, function ($json) {
+                        $json->whereAllType([
+                            'id' => 'integer',
+                            'name' => 'string',
+                            'active' => 'boolean',
+                            '_links' => 'array'
+                        ]);
+                    });
+            });
     }
 
-    public function test_se_puede_obtener_el_detalle_del_recurso(): void //show
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
-        $response = $this->actingAs($this->user, 'api')
-            ->getJson("/api/v1/{$this->table}/{$this->model->id}" );
 
-        $response->assertStatus(Response::HTTP_OK);
+        Availability::factory()->count(20)->create();
 
-        $response->assertJsonStructure(Availability::getObjectJsonStructure());
+        $uri = sprintf('/api/v1/%s?page=1', $this->table);
+        $page = $this->perPage;
 
-        $response->assertExactJson([
-            'id' => $this->model->id,
-            'name' => $this->model->name,
-            'active' => $this->model->active
-        ]);
+        $this->actingAs($this->user, 'api')
+            ->getJson($uri)
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson(function (AssertableJson $json) use ($page) {
+                return $json
+                    ->has('links')
+                    ->has('meta')
+                    ->has('data.collection', $page, function ($json) {
+                        $json->whereAllType([
+                            'id' => 'integer',
+                            'name' => 'string',
+                            'active' => 'boolean',
+                            '_links' => 'array'
+                        ]);
+                    });
+            });
+    }
+
+    /**
+     * @test
+     */
+    public function se_puede_obtener_el_detalle_del_recurso(): void //show
+    {
+        $uri = sprintf("/api/v1/%s/%s", $this->table, $this->model->id);
+
+        $this->actingAs($this->user, 'api')
+            ->getJson($uri)
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
+                ->where('name', $this->model->name)
+                ->etc()
+            );
     }
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
-        $list = Availability::count();
-
         $factoryModel = [
-            'name' => 'Disponibilidad 1',
-            'active' => true
+            'name' => $this->faker->name,
+            'active' => $this->faker->boolean
         ];
 
-        $response = $this->actingAs($this->user, 'api')
-            ->postJson("/api/v1/{$this->table}",  $factoryModel);
+        $uri = sprintf("/api/v1/%s", $this->table);
 
-        $response->assertStatus(Response::HTTP_CREATED);
+        $this
+            ->actingAs($this->user, 'api')
+            ->postJson($uri, $factoryModel)
+            ->assertStatus(Response::HTTP_CREATED)
+            ->assertJson(fn(AssertableJson $json) => $json
+                ->where('name', $factoryModel['name'])
+                ->where('active', $factoryModel['active'])
+                ->etc()
+            );
 
-        $response->assertExactJson([
-            'id' => $response->json()['id'],
+        $this->assertDatabaseHas($this->table, [
             'name' => $factoryModel['name'],
-            'active' => $factoryModel['active']
         ]);
-
-        $this->assertDatabaseCount($this->table, ($list + 1));
 
     }
 
     public function test_se_puede_modificar_un_recurso(): void // update
     {
-        $response = $this->actingAs($this->user, 'api')
-            ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id),  [
-                'name' => 'new availability modificado'
-            ]);
 
-        $response->assertStatus(Response::HTTP_OK);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
-        $response->assertExactJson([
-            'id' => $this->model->id,
-            'name' => 'new availability modificado',
-            'active' => $this->model->active
+        $this->actingAs($this->user, 'api')
+            ->putJson($uri, [
+                'name' => 'name modificado'
+            ])
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson(fn(AssertableJson $json) => $json
+                ->where('id', $this->model->id)
+                ->where('name', 'name modificado')
+                ->where('active', $this->model->active)
+                ->etc()
+            );
+
+
+        $this->assertDatabaseHas($this->table, [
+            'name' => 'name modificado'
         ]);
     }
 
     public function test_se_puede_eliminar_un_recurso(): void //destroy
     {
-        $response = $this->actingAs($this->user, 'api')
-            ->deleteJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id));
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
-        $response->assertStatus(Response::HTTP_NO_CONTENT);
+        $this
+            ->actingAs($this->user, 'api')
+            ->deleteJson($uri)
+            ->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertDatabaseHas($this->table, ['id'=> $this->model->id]);
+        $this->assertDatabaseHas($this->table, ['id' => $this->model->id]);
         $this->assertSoftDeleted($this->model);
     }
 
@@ -230,14 +287,98 @@ class AvailabilityTest extends TestCase
 
     }
 
-    public function test_se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
+    public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,'string');
 
-        $response = $this->actingAs($this->user, 'api')
-            ->deleteJson($uri);
+        Availability::factory()->count(20)->create();
 
-        $response->assertStatus(Response::HTTP_NOT_FOUND);
+        $list = Availability::count();
+
+        $DEFAULT_PAGINATE = 5;
+
+        $mod = $list % $DEFAULT_PAGINATE;
+
+        $pages = intval(ceil($list / $DEFAULT_PAGINATE));
+
+        for ($i = 1; $i <= $pages; $i++) {
+            $response = $this->actingAs($this->user, 'api')
+                ->getJson(sprintf('/api/v1/%s?page=%s&paginate=%s', $this->table, $i, $DEFAULT_PAGINATE))
+                ->assertStatus(Response::HTTP_OK);
+
+            if ($i < $pages) {
+                $this->assertEquals($DEFAULT_PAGINATE, collect($response['data']['collection'])->count());
+            } else {
+                if ($mod == 0) {
+                    $this->assertEquals($DEFAULT_PAGINATE, collect($response['data']['collection'])->count());
+                } else {
+                    $this->assertEquals($mod, collect($response['data']['collection'])->count());
+                }
+
+            }
+            $response->assertJson(function (AssertableJson $json) {
+                return $json
+                    ->has('links')
+                    ->has('meta')
+                    ->has('data.collection.0', function ($json) {
+                        $json->whereAllType([
+                            'id' => 'integer',
+                            'name' => 'string',
+                            'active' => 'boolean',
+                            '_links' => 'array'
+                        ]);
+                    });
+            });
+        }
+
+        $this->assertDatabaseCount($this->table, $list);
+
+    }
+
+
+    public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
+    {
+        Availability::factory()->count(20)->create();
+
+        $list = Availability::count();
+
+        $pages = intval(ceil($list / $this->perPage));
+        $mod = $list % $this->perPage;
+
+        for ($i = 1; $i <= $pages; $i++) {
+
+            $uri = sprintf('/api/v1/%s?page=%s', $this->table, $i);
+
+            $response = $this
+                ->actingAs($this->user, 'api')
+                ->getJson($uri)
+                ->assertStatus(Response::HTTP_OK);
+
+            if ($i < $pages) {
+                $this->assertEquals($this->perPage, collect($response['data']['collection'])->count());
+            } else {
+                if ($mod == 0) {
+                    $this->assertEquals($this->perPage, collect($response['data']['collection'])->count());
+                } else {
+                    $this->assertEquals($mod, collect($response['data']['collection'])->count());
+                }
+            }
+
+            $response->assertJson(function (AssertableJson $json) {
+                return $json
+                    ->has('links')
+                    ->has('meta')
+                    ->has('data.collection.0', function ($json) {
+                        $json->whereAllType([
+                            'id' => 'integer',
+                            'name' => 'string',
+                            'active' => 'boolean',
+                            '_links' => 'array'
+                        ]);
+                    });
+            });
+        }
+
+        $this->assertDatabaseCount($this->table, $list);
     }
 
 }

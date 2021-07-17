@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AvailabilityRequest;
 use App\Http\Resources\AvailabilityResource;
+use App\Http\Resources\collections\AvailabilityResourceCollection;
 use App\Http\Resources\WorkareaResource;
 use App\Models\Availability;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Symfony\Component\HttpFoundation\Response;
 
 class AvailabilityController extends Controller
@@ -18,12 +20,35 @@ class AvailabilityController extends Controller
      *
      * @param AvailabilityRequest $request
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function index(AvailabilityRequest $request): JsonResponse
     {
-        $items = Availability::orderBy('id')->get();
+        $this->authorize('viewAny', Availability::class);
 
-        return response()->json(AvailabilityResource::collection($items), Response::HTTP_OK);
+        $page = $request->input('page');
+
+        if (isset($page)) {
+            $items = Availability::select(
+                'id',
+                'name',
+                'active',
+            )
+                ->orderBy('id')
+                ->paginate($request->getPaginate());
+        } else {
+            $items = Availability::select(
+                'id',
+                'name',
+                'active',
+            )
+                ->orderBy('id')
+                ->get();
+        }
+        $collection = new AvailabilityResourceCollection($items);
+        return
+            response()
+                ->json($collection->response()->getData(true), Response::HTTP_OK);
     }
 
     /**
@@ -37,9 +62,19 @@ class AvailabilityController extends Controller
     {
         $this->authorize('create', Availability::class);
 
-        $model = Availability::create($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'created_user_id' => auth()->id(),
+                'created_user_ip' => $request->ip(),
+            ]);
+        try {
 
-        return response()->json(new AvailabilityResource($model->fresh()), Response::HTTP_CREATED);
+            $model = Availability::create($data);
+
+            return response()->json(new AvailabilityResource($model), Response::HTTP_CREATED);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -47,9 +82,12 @@ class AvailabilityController extends Controller
      *
      * @param Availability $availability
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function show(Availability $availability): JsonResponse
     {
+        $this->authorize('view', $availability);
+
         return response()->json(new AvailabilityResource($availability), Response::HTTP_OK);
     }
 
@@ -65,29 +103,46 @@ class AvailabilityController extends Controller
     {
         $this->authorize('update', $availability);
 
-        $availability->update($request->validated());
+        $data = array_merge($request->validated(),
+            [
+                'updated_user_id' => auth()->id(),
+                'updated_user_ip' => $request->ip(),
+            ]);
 
-        return response()->json(new WorkareaResource($availability), Response::HTTP_OK);
+        try {
+            $availability->update($data);
+
+            return response()->json(new AvailabilityResource($availability), Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
+     * @param AvailabilityRequest $request
      * @param Availability $availability
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(Availability $availability): JsonResponse
+    public function destroy(AvailabilityRequest $request, Availability $availability): JsonResponse
     {
         $this->authorize('delete', $availability);
 
         try {
+
+            $availability->update([
+                'deleted_user_id' => auth()->id(),
+                'deleted_user_ip' => $request->ip()
+            ]);
+
             $availability->delete();
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
-        }catch (\Exception $exception){
 
-            return response()->json(null, Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

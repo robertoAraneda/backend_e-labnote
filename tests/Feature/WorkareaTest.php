@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Workarea;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
+use Database\Seeders\WorkareaPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -34,7 +35,7 @@ class WorkareaTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(PermissionSeeder::class);
+        $this->seed(WorkareaPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();

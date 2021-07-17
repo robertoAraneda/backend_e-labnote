@@ -11,26 +11,22 @@ class AvailabilityPolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any models.
-     *
      * @param User $user
-     * @return mixed
+     * @return bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return in_array('availability.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
-     * Determine whether the user can view the model.
-     *
      * @param User $user
      * @param Availability $availability
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, Availability $availability)
+    public function view(User $user, Availability $availability): bool
     {
-        //
+        return in_array('availability.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**

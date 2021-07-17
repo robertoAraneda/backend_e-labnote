@@ -23,7 +23,6 @@ class WorkareaController extends Controller
      */
     public function index(WorkareaRequest $request): JsonResponse
     {
-
         $this->authorize('viewAny', Workarea::class);
 
         $page = $request->input('page');

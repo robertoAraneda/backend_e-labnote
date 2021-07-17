@@ -28,4 +28,12 @@ class AvailabilityRequest extends FormRequest
                 return [];
         }
     }
+
+    /**
+     * @return int
+     */
+    public function getPaginate(): int
+    {
+        return $this->get('paginate', (new Availability())->getPerPage());
+    }
 }

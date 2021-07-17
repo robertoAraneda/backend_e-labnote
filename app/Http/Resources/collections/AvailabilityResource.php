@@ -5,7 +5,7 @@ namespace App\Http\Resources\collections;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ContainerResource extends JsonResource
+class AvailabilityResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -21,7 +21,7 @@ class ContainerResource extends JsonResource
             'active' => (bool) $this->active,
             '_links' => [
                 'self' =>[
-                    'href' => route('api.containers.show', ['container' => $this->id], false),
+                    'href' => route('api.availabilities.show', ['availability' => $this->id], false),
                 ] ,
             ],
         ];
