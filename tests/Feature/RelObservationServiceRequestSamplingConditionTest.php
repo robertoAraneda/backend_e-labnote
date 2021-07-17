@@ -2,20 +2,21 @@
 
 namespace Tests\Feature;
 
+use App\Models\Analyte;
+use App\Models\ObservationServiceRequest;
 use App\Models\Role;
-use App\Models\SampleType;
-use App\Models\SamplingIndication;
+use App\Models\SamplingCondition;
 use App\Models\User;
+use Database\Seeders\AnalytePermissionSeeder;
+use Database\Seeders\ObservationServiceRequestPermissionSeeder;
 use Database\Seeders\RoleSeeder;
-use Database\Seeders\SampleTypePermissionSeeder;
-use Database\Seeders\SampleTypeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class RelSampleTypeSamplingIndicationTest extends TestCase
+class RelObservationServiceRequestSamplingConditionTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -32,21 +33,21 @@ class RelSampleTypeSamplingIndicationTest extends TestCase
         $user = User::factory()->create();
 
 
-        $this->seed(SampleTypePermissionSeeder::class);
+        $this->seed(ObservationServiceRequestPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('sampleType.create');
-        $role->givePermissionTo('sampleType.index');
-        $role->givePermissionTo('sampleType.show');
+        $role->givePermissionTo('observationServiceRequest.create');
+        $role->givePermissionTo('observationServiceRequest.index');
+        $role->givePermissionTo('observationServiceRequest.show');
 
         $user->assignRole($role);
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = SampleType::factory()
-            ->hasAttached(SamplingIndication::factory()->count(5), ['user_id' => $user->id])
+        $this->model = ObservationServiceRequest::factory()
+            ->hasAttached(SamplingCondition::factory()->count(5), ['user_id' => $user->id])
             ->create();
     }
 
@@ -56,7 +57,7 @@ class RelSampleTypeSamplingIndicationTest extends TestCase
     public function se_puede_obtener_una_lista_de_indicaciones_toma_muestra_de_un_examen(): void
     {
 
-        $url = "/api/v1/sample-types/{$this->model->id}/sampling-indications";
+        $url = "/api/v1/observation-service-requests/{$this->model->id}/sampling-conditions";
 
 
         $response = $this->actingAs($this->user, 'api')
@@ -77,12 +78,12 @@ class RelSampleTypeSamplingIndicationTest extends TestCase
      */
     public function se_puede_obtener_las_indicationes_toma_muestra_asociados_a_un_exameno_del_total_de_indicaciones(): void
     {
-        SamplingIndication::factory()->count(5)->create();
-        SampleType::factory()
-            ->hasAttached(SamplingIndication::factory()->count(10), ['user_id' => $this->user->id])
+        SamplingCondition::factory()->count(5)->create();
+        ObservationServiceRequest::factory()
+            ->hasAttached(SamplingCondition::factory()->count(10), ['user_id' => $this->user->id])
             ->create();
 
-        $url = "/api/v1/sample-types/{$this->model->id}/sampling-indications?cross=true";
+        $url = "/api/v1/observation-service-requests/{$this->model->id}/sampling-conditions?cross=true";
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson($url);
@@ -106,13 +107,13 @@ class RelSampleTypeSamplingIndicationTest extends TestCase
     public function se_puede_crear_un_recurso(): void
     {
 
-        $analyte = SampleType::factory()->create();
-        $samplingIndications = SamplingIndication::factory()->count(6)->create()->pluck('id');
+        $analyte = Analyte::factory()->create();
+        $samplingCondition = SamplingCondition::factory()->count(6)->create()->pluck('id');
 
-        $stored = $samplingIndications->splice(3);
+        $stored = $samplingCondition->splice(3);
 
         $response = $this->actingAs($this->user, 'api')
-            ->postJson("/api/v1/sample-types/{$analyte->id}/sampling-indications",
+            ->postJson("/api/v1/analytes/{$analyte->id}/sampling-conditions",
                 $stored->all());
 
         $response->assertStatus(Response::HTTP_OK);
@@ -124,4 +125,5 @@ class RelSampleTypeSamplingIndicationTest extends TestCase
         ]))
         );
     }
+
 }

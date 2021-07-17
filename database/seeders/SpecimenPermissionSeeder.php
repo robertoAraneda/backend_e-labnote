@@ -5,9 +5,9 @@ namespace Database\Seeders;
 use App\Models\Permission;
 use Illuminate\Database\Seeder;
 
-class SamplingIndicationPermissionSeeder extends Seeder
+class SpecimenPermissionSeeder extends Seeder
 {
-    private string $model = 'samplingIndication';
+    private string $model = 'specimen';
 
 
     /**
@@ -21,31 +21,31 @@ class SamplingIndicationPermissionSeeder extends Seeder
             [
                 'name' => "{$this->model}.create",
                 'action' => 'create',
-                'description' => 'Crear indicación toma muestra'
+                'description' => 'Crear tipo muestra'
             ],
             [
                 'name' => "{$this->model}.update",
                 'action' => 'update',
-                'description' => 'Modificar indicación toma muestra'
+                'description' => 'Modificar tipo muestra'
             ],
             [
                 'name' => "{$this->model}.delete",
                 'action' => 'delete',
-                'description' => 'Eliminar indicación toma muestra'
+                'description' => 'Eliminar tipo muestra'
             ],
             [
                 'name' => "{$this->model}.show",
                 'action' => 'show',
-                'description' => 'Ver detalle indicación toma muestra'
+                'description' => 'Ver detalle de un tipo muestra'
             ],
             [
                 'name' => "{$this->model}.index",
                 'action' => 'index',
-                'description' => 'Ver todos indicación toma muestra'
+                'description' => 'Ver todos los tipos de muestras'
             ],
         ];
 
-        foreach ($permissions as $key => $permission){
+        foreach ($permissions as $key => $permission) {
             Permission::create([
                 'name' => $permission['name'],
                 'guard_name' => 'api',

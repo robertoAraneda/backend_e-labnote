@@ -13,9 +13,9 @@ class SampleTypeSamplingIndicationTable extends Migration
      */
     public function up()
     {
-        Schema::create('sample_type_sampling_indication', function (Blueprint $table) {
+        Schema::create('specimen_sampling_indication', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('sample_type_id');
+            $table->unsignedBigInteger('specimen_id');
             $table->unsignedBigInteger('sampling_indication_id');
             $table->unsignedBigInteger('user_id');
             $table->timestamps();

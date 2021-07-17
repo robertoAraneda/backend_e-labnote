@@ -18,7 +18,7 @@ class AnalyteResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'slug' => $this->slug,
+            'is_patient_codable' => (bool) $this->is_patient_codable,
             'active' => (bool) $this->active,
             '_links' => [
                 'self' =>[

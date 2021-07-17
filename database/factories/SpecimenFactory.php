@@ -2,17 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Models\SampleType;
+use App\Models\Specimen;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class SampleTypeFactory extends Factory
+class SpecimenFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = SampleType::class;
+    protected $model = Specimen::class;
 
     /**
      * Define the model's default state.

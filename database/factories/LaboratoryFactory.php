@@ -27,7 +27,7 @@ class LaboratoryFactory extends Factory
             'phone' => $this->faker->phoneNumber,
             'email' => $this->faker->companyEmail,
             'redirect' => "http://".$this->faker->languageCode.".elabnote.cl",
-            'status' => 1
+            'active' => $this->faker->boolean,
         ];
     }
 }

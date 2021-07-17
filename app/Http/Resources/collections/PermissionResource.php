@@ -22,7 +22,7 @@ class PermissionResource extends JsonResource
             'guard_name' => $this->guard_name,
             'action' => $this->action,
             'description' => $this->description,
-            '_link' => [
+            '_links' => [
                 'self' =>[
                     'href' => route('api.permissions.show', ['permission' => $this->id], false),
                 ] ,

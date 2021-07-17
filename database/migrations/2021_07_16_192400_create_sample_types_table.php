@@ -13,7 +13,7 @@ class CreateSampleTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('sample_types', function (Blueprint $table) {
+        Schema::create('specimens', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->boolean('active')->default(true);
@@ -35,6 +35,6 @@ class CreateSampleTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sample_types');
+        Schema::dropIfExists('specimens');
     }
 }

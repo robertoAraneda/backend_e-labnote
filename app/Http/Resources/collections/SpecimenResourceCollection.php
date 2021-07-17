@@ -5,14 +5,14 @@ namespace App\Http\Resources\collections;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class SampleTypeResourceCollection extends ResourceCollection
+class SpecimenResourceCollection extends ResourceCollection
 {
     /**
      * The resource that this resource collects.
      *
      * @var string
      */
-    public $collects = 'App\Http\Resources\Collections\SampleTypeResource';
+    public $collects = 'App\Http\Resources\Collections\SpecimenResource';
 
 
     /**
@@ -26,7 +26,7 @@ class SampleTypeResourceCollection extends ResourceCollection
         return [
             '_links' => [
                 'self' => [
-                    'href' => route('api.sample-types.index', [], false),
+                    'href' => route('api.specimens.index', [], false),
                     'title' => 'Lista de tipos de muestras',
                 ]
             ],

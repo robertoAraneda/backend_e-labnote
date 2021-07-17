@@ -5,9 +5,9 @@ namespace Database\Seeders;
 use App\Models\Permission;
 use Illuminate\Database\Seeder;
 
-class SampleTypePermissionSeeder extends Seeder
+class ObservationServiceRequestPermissionSeeder extends Seeder
 {
-    private string $model = 'sampleType';
+    private string $model = 'observationServiceRequest';
 
 
     /**
@@ -21,27 +21,27 @@ class SampleTypePermissionSeeder extends Seeder
             [
                 'name' => "{$this->model}.create",
                 'action' => 'create',
-                'description' => 'Crear tipo muestra'
+                'description' => 'Crear examen para SMD'
             ],
             [
                 'name' => "{$this->model}.update",
                 'action' => 'update',
-                'description' => 'Modificar tipo muestra'
+                'description' => 'Modificar examen para SMD'
             ],
             [
                 'name' => "{$this->model}.delete",
                 'action' => 'delete',
-                'description' => 'Eliminar tipo muestra'
+                'description' => 'Eliminar examen para SMD'
             ],
             [
                 'name' => "{$this->model}.show",
                 'action' => 'show',
-                'description' => 'Ver detalle de un tipo muestra'
+                'description' => 'Ver detalle examen para SMD'
             ],
             [
                 'name' => "{$this->model}.index",
                 'action' => 'index',
-                'description' => 'Ver todos los tipos de muestras'
+                'description' => 'Ver todos examen para SMD'
             ],
         ];
 
@@ -49,7 +49,7 @@ class SampleTypePermissionSeeder extends Seeder
             Permission::create([
                 'name' => $permission['name'],
                 'guard_name' => 'api',
-                'model' => 'SampleType',
+                'model' => 'ObservationServiceRequest',
                 'action' => $permission['action'],
                 'description' => $permission['description']
             ]);

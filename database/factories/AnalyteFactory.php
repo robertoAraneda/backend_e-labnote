@@ -28,14 +28,6 @@ class AnalyteFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
-            'slug' => $this->faker->slug,
-            'clinical_information' => $this->faker->text,
-            'loinc_id' => $this->faker->slug,
-            'workarea_id' => Workarea::factory(),
-            'availability_id' => Availability::factory(),
-            'process_time_id' => ProcessTime::factory(),
-            'medical_request_type_id' => MedicalRequestType::factory(),
-            'created_user_id' => User::factory(),
             'is_patient_codable' => $this->faker->boolean,
             'active' => $this->faker->boolean
         ];

@@ -87,7 +87,6 @@ class AnalyteTest extends TestCase
                 ->has('collection', $countModels, function ($json) {
                     $json->whereAllType([
                         'id' => 'integer',
-                        'slug' => 'string',
                         'name' => 'string',
                         'active' => 'boolean',
                         '_links' => 'array'
@@ -115,7 +114,6 @@ class AnalyteTest extends TestCase
                 ->has('data.collection', $page, function ($json) {
                     $json->whereAllType([
                         'id' => 'integer',
-                        'slug' => 'string',
                         'name' => 'string',
                         'active' => 'boolean',
                         '_links' => 'array'
@@ -137,7 +135,6 @@ class AnalyteTest extends TestCase
         $response
             ->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
                 ->where('name', $this->model->name)
-                ->where('clinical_information', $this->model->clinical_information)
                 ->where('is_patient_codable', $this->model->is_patient_codable)
                 ->where('active', $this->model->active)
                 ->etc()
@@ -147,22 +144,8 @@ class AnalyteTest extends TestCase
     public function test_se_puede_crear_un_recurso(): void //store
     {
 
-        $availability = Availability::factory()->create();
-        $workarea = Workarea::factory()->create();
-        $processTime = ProcessTime::factory()->create();
-        $medicalRequestType = MedicalRequestType::factory()->create();
-        $user = User::factory()->create();
-
         $factoryModel = [
             'name' => $this->faker->name,
-            'slug' => $this->faker->slug,
-            'clinical_information' => $this->faker->text,
-            'loinc_id' => $this->faker->slug,
-            'workarea_id' => $availability->id,
-            'availability_id' => $workarea->id,
-            'process_time_id' => $processTime->id,
-            'medical_request_type_id' => $medicalRequestType->id,
-            'created_user_id' => $user->id,
             'is_patient_codable' => $this->faker->boolean,
             'active' => $this->faker->boolean
         ];
@@ -174,7 +157,6 @@ class AnalyteTest extends TestCase
 
         $response
             ->assertJson(fn(AssertableJson $json) => $json->where('name', $factoryModel['name'])
-                ->where('clinical_information', $factoryModel['clinical_information'])
                 ->where('is_patient_codable', $factoryModel['is_patient_codable'])
                 ->where('active', $factoryModel['active'])
                 ->etc()
@@ -196,7 +178,6 @@ class AnalyteTest extends TestCase
 
         $response
             ->assertJson(fn(AssertableJson $json) => $json->where('name', 'new analyte modificado')
-                ->where('clinical_information', $this->model->clinical_information)
                 ->where('is_patient_codable', $this->model->is_patient_codable)
                 ->where('active', $this->model->active)
                 ->etc()
@@ -224,22 +205,8 @@ class AnalyteTest extends TestCase
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
 
-        $availability = Availability::factory()->create();
-        $workarea = Workarea::factory()->create();
-        $processTime = ProcessTime::factory()->create();
-        $medicalRequestType = MedicalRequestType::factory()->create();
-        $user = User::factory()->create();
-
         $factoryModel = [
             'name' => $this->faker->name,
-            'slug' => $this->faker->slug,
-            'clinical_information' => $this->faker->text,
-            'loinc_id' => $this->faker->slug,
-            'workarea_id' => $availability->id,
-            'availability_id' => $workarea->id,
-            'process_time_id' => $processTime->id,
-            'medical_request_type_id' => $medicalRequestType->id,
-            'created_user_id' => $user->id,
             'is_patient_codable' => $this->faker->boolean,
             'active' => $this->faker->boolean
         ];
@@ -371,7 +338,6 @@ class AnalyteTest extends TestCase
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'slug' => 'string',
                             'name' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
@@ -416,7 +382,6 @@ class AnalyteTest extends TestCase
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'slug' => 'string',
                             'name' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
