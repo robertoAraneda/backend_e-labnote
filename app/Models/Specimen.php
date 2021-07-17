@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class SampleType extends Model
+class Specimen extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -26,7 +26,7 @@ class SampleType extends Model
      *
      * @var string[]
      */
-    protected  $fillable = [
+    protected $fillable = [
         'name',
         'active',
         'created_user_id',
@@ -53,7 +53,7 @@ class SampleType extends Model
      */
     public function samplingIndications(): BelongsToMany
     {
-        return $this->belongsToMany(SamplingIndication::class, 'sample_type_sampling_indication')
+        return $this->belongsToMany(SamplingIndication::class, 'specimen_sampling_indication')
             ->withPivot('user_id', 'created_at', 'updated_at')
             ->withTimestamps();
     }
@@ -63,8 +63,8 @@ class SampleType extends Model
      */
     public function getPerPage(): string
     {
-        $this->perPage = env('DEFAULT_PER_PAGE');
-        return $this->perPage;
+        return env('DEFAULT_PER_PAGE');
+
     }
 
     /**

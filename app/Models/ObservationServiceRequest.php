@@ -9,25 +9,29 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Analyte extends Model
+class ObservationServiceRequest extends Model
 {
     use HasFactory, SoftDeletes;
 
-    /**
-     * The number of models to return for pagination.
-     *
-     * @var int
-     */
-    protected $perPage = 10;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var string[]
      */
-    protected  $fillable = [
-        'name',
-        'is_patient_codable',
+    protected $fillable = [
+        'clinical_information',
+        'loinc_num',
+        'process_time_id',
+        'workarea_id',
+        'analyte_id',
+        'container_id',
+        'laboratory_id',
+        'availability_id',
+        'process_time_id',
+        'medical_request_type_id',
+        'specimen_id',
+        'medical_request_type_id',
         'active',
         'created_user_id',
         'updated_user_id',
@@ -36,6 +40,14 @@ class Analyte extends Model
         'updated_user_ip',
         'deleted_user_ip'
     ];
+
+    /**
+     * @return string
+     */
+    public function getPerPage(): string
+    {
+        return env('DEFAULT_PER_PAGE');
+    }
 
     /**
      * Scope a query to only include active users.
@@ -104,6 +116,31 @@ class Analyte extends Model
     public function workarea(): BelongsTo
     {
         return $this->belongsTo(Workarea::class);
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function specimen(): BelongsTo
+    {
+        return $this->belongsTo(Specimen::class);
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function analyte(): BelongsTo
+    {
+        return $this->belongsTo(Analyte::class);
+    }
+
+
+    /**
+     * @return BelongsTo
+     */
+    public function loinc(): BelongsTo
+    {
+        return $this->belongsTo(Loinc::class);
     }
 
     /**

@@ -2,30 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SampleTypeRequest;
-use App\Http\Resources\collections\SampleTypeResourceCollection;
-use App\Http\Resources\SampleTypeResource;
-use App\Models\SampleType;
+use App\Http\Requests\SpecimenRequest;
+use App\Http\Resources\collections\SpecimenResourceCollection;
+use App\Http\Resources\SpecimenResource;
+use App\Models\Specimen;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class SampleTypeController extends Controller
+class SpecimenController extends Controller
 {
     /**
-     * @param SampleTypeRequest $request
+     * @param SpecimenRequest $request
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function index(SampleTypeRequest $request): JsonResponse
+    public function index(SpecimenRequest $request): JsonResponse
     {
-        $this->authorize('viewAny', SampleType::class);
+        $this->authorize('viewAny', Specimen::class);
 
         $page = $request->input('page');
 
         if(isset($page)){
-            $items = SampleType::select(
+            $items = Specimen::select(
                 'id',
                 'name',
                 'active',
@@ -33,7 +33,7 @@ class SampleTypeController extends Controller
                 ->orderBy('id')
                 ->paginate($request->getPaginate());
         }else{
-            $items = SampleType::select(
+            $items = Specimen::select(
                 'id',
                 'name',
                 'active',
@@ -41,22 +41,21 @@ class SampleTypeController extends Controller
                 ->orderBy('id')
                 ->get();
         }
-        $collection = new SampleTypeResourceCollection($items);
+        $collection = new SpecimenResourceCollection($items);
         return
             response()
                 ->json($collection->response()->getData(true), Response::HTTP_OK);
     }
 
     /**
-     * @param Request $request
+     * @param SpecimenRequest $request
      * @return JsonResponse
      * @throws AuthorizationException
-     *
      * @author ELABNOTE
      */
-    public function store(SampleTypeRequest $request): JsonResponse
+    public function store(SpecimenRequest $request): JsonResponse
     {
-        $this->authorize('create', SampleType::class);
+        $this->authorize('create', Specimen::class);
 
         $data = array_merge($request->validated(),
             [
@@ -65,35 +64,35 @@ class SampleTypeController extends Controller
             ]);
         try {
 
-            $model = SampleType::create($data);
+            $model = Specimen::create($data);
 
-            return response()->json(new SampleTypeResource($model) , Response::HTTP_CREATED);
+            return response()->json(new SpecimenResource($model) , Response::HTTP_CREATED);
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * @param SampleType $sampleType
+     * @param Specimen $specimen
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function show(SampleType $sampleType): JsonResponse
+    public function show(Specimen $specimen): JsonResponse
     {
-        $this->authorize('view', $sampleType);
+        $this->authorize('view', $specimen);
 
-        return response()->json(new SampleTypeResource($sampleType), Response::HTTP_OK);
+        return response()->json(new SpecimenResource($specimen), Response::HTTP_OK);
     }
 
     /**
-     * @param SampleTypeRequest $request
-     * @param SampleType $sampleType
+     * @param SpecimenRequest $request
+     * @param Specimen $specimen
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function update(SampleTypeRequest $request, SampleType $sampleType): JsonResponse
+    public function update(SpecimenRequest $request, Specimen $specimen): JsonResponse
     {
-        $this->authorize('update', $sampleType);
+        $this->authorize('update', $specimen);
 
         $data = array_merge($request->validated(),
             [
@@ -102,32 +101,32 @@ class SampleTypeController extends Controller
             ]);
 
         try {
-            $sampleType->update($data);
+            $specimen->update($data);
 
-            return response()->json(new SampleTypeResource($sampleType) , Response::HTTP_OK);
+            return response()->json(new SpecimenResource($specimen) , Response::HTTP_OK);
         }catch (\Exception $ex){
             return response()->json($ex->getMessage() , Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * @param SampleTypeRequest $request
-     * @param SampleType $sampleType
+     * @param SpecimenRequest $request
+     * @param Specimen $specimen
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(SampleTypeRequest $request, SampleType $sampleType): JsonResponse
+    public function destroy(SpecimenRequest $request, Specimen $specimen): JsonResponse
     {
-        $this->authorize('delete', $sampleType);
+        $this->authorize('delete', $specimen);
 
         try {
 
-            $sampleType->update([
+            $specimen->update([
                 'deleted_user_id' => auth()->id(),
                 'deleted_user_ip' => $request->ip()
             ]);
 
-            $sampleType->delete();
+            $specimen->delete();
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
 

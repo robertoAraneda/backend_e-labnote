@@ -4,7 +4,7 @@ namespace App\Http\Resources\collections;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SampleTypeResource extends JsonResource
+class SpecimenResource extends JsonResource
 {
     /**
      * @param \Illuminate\Http\Request $request
@@ -18,7 +18,7 @@ class SampleTypeResource extends JsonResource
             'active' => (bool)$this->active,
             '_links' => [
                 'self' => [
-                    'href' => route('api.sample-types.show', ['sample_type' => $this->id], false),
+                    'href' => route('api.specimens.show', ['specimen' => $this->id], false),
                 ],
             ],
         ];

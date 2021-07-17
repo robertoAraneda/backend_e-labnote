@@ -2,29 +2,30 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SampleTypeResource extends JsonResource
+class SpecimenResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'active' => (bool) $this->active,
+            'active' => (bool)$this->active,
             'created_user_ip' => $this->created_user_ip,
             'updated_user_ip' => $this->updated_user_ip,
             'created_at' => $this->date($this->created_at),
             'updated_at' => $this->date($this->updated_at),
             '_links' => [
                 'self' => [
-                    'href' => route('api.sample-types.show', ['sample_type' => $this->id], false),
+                    'href' => route('api.specimens.show', ['specimen' => $this->id], false),
                 ],
             ],
             '_embedded' => [
@@ -41,7 +42,7 @@ class SampleTypeResource extends JsonResource
 
     private function date($date): ?string
     {
-        if(!isset($date)) return null;
+        if (!isset($date)) return null;
 
         return $date->format('d/m/Y h:i:s');
     }
@@ -54,7 +55,7 @@ class SampleTypeResource extends JsonResource
 
     private function user($user): ?array
     {
-        if(!isset($user)) return null;
+        if (!isset($user)) return null;
 
         return [
             'name' => $user->names,

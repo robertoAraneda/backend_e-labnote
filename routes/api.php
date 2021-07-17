@@ -9,15 +9,16 @@ use App\Http\Controllers\LoincController;
 use App\Http\Controllers\MedicalRequestTypeController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\ObservationServiceRequestController;
 use App\Http\Controllers\ProcessTimeController;
 use App\Http\Controllers\RelAnalyteSamplingConditionController;
 use App\Http\Controllers\RelLaboratoryModuleController;
 use App\Http\Controllers\RelModulePermissionController;
-use App\Http\Controllers\RelSampleTypeSamplingIndicationController;
+use App\Http\Controllers\RelSpecimenSamplingIndicationController;
 use App\Http\Controllers\ResponseTimeController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\SampleQuantityController;
-use App\Http\Controllers\SampleTypeController;
+use App\Http\Controllers\SpecimenController;
 use App\Http\Controllers\SamplingConditionController;
 use App\Http\Controllers\SamplingIndicationController;
 use App\Http\Controllers\WorkareaController;
@@ -73,8 +74,9 @@ Route::group([
     Route::apiResource('analytes', AnalyteController::class)->whereNumber('analyte')->names('api.analytes');
     Route::apiResource('loincs', LoincController::class)->names('api.loincs');
     Route::apiResource('containers', ContainerController::class)->whereNumber('container')->names('api.containers');
-    Route::apiResource('sample-types', SampleTypeController::class)->whereNumber('sample_type')->names('api.sample-types');
+    Route::apiResource('specimens', SpecimenController::class)->whereNumber('specimen')->names('api.specimens');
     Route::apiResource('sampling-indications', SamplingIndicationController::class)->whereNumber('sampling_indication')->names('api.sampling-indications');
+    Route::apiResource('observation-service-requests', ObservationServiceRequestController::class)->whereNumber('observation_service_request')->names('api.observation-service-requests');
 
 
 
@@ -92,7 +94,7 @@ Route::group([
     Route::apiResource('modules.permissions', RelModulePermissionController::class)->only('index', 'store')->whereNumber('module')->names('api.modules.permissions');
     Route::apiResource('laboratories.modules', RelLaboratoryModuleController::class)->only('index', 'store')->whereNumber('laboratory')->names('api.laboratories.modules');
     Route::apiResource('analytes.sampling-conditions', RelAnalyteSamplingConditionController::class)->only('index', 'store')->whereNumber('analyte')->names('api.analytes.sampling-conditions');
-    Route::apiResource('sample-types.sampling-indications', RelSampleTypeSamplingIndicationController::class)->only('index', 'store')->whereNumber('sample_type')->names('api.sample-types.sampling-indications');
+    Route::apiResource('specimens.sampling-indications', RelSpecimenSamplingIndicationController::class)->only('index', 'store')->whereNumber('specimen')->names('api.specimens.sampling-indications');
 
     //search queries
     Route::get('modules/search', [ModuleController::class, 'searchByParams']);

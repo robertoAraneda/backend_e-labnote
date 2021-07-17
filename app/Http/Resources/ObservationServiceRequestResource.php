@@ -2,12 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Models\User;
-use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class AnalyteResource extends JsonResource
+class ObservationServiceRequestResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,8 +17,8 @@ class AnalyteResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'is_patient_codable' => (bool)$this->is_patient_codable,
+            'name' => $this->name($this->analyte, $this->specimen),
+            'clinical_information' => $this->clinical_information,
             'active' => (bool)$this->active,
             'created_user_ip' => $this->created_user_ip,
             'updated_user_ip' => $this->updated_user_ip,
@@ -28,11 +26,11 @@ class AnalyteResource extends JsonResource
             'updated_at' => $this->date($this->updated_at),
             '_links' => [
                 'self' => [
-                    'href' => route('api.workareas.show', ['workarea' => $this->id], false),
+                    'href' => route('api.observation-service-requests.show', ['observation_service_request' => $this->id], false),
                 ],
-                'samplingConditions' => [
+              /*  'samplingConditions' => [
                     'href' => route('api.analytes.sampling-conditions.index', ['analyte' => $this->id], false)
-                ]
+                ]*/
             ],
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),
@@ -41,9 +39,24 @@ class AnalyteResource extends JsonResource
                 'workarea' => $this->workarea($this->workarea),
                 'medical_request_type' => $this->medicalRequestType($this->medicalRequestType),
                 'availability' => $this->availability($this->availability),
-                'samplingConditions' => $this->samplingConditions($this->samplingConditions)
+                'specimen' => $this->specimen($this->specimen),
+                'loinc' => $this->loinc($this->loinc),
+                'analyte' => $this->analyte($this->analyte),
+               // 'samplingConditions' => $this->samplingConditions($this->samplingConditions)
             ],
         ];
+    }
+
+
+    /**
+     * @param $analyte
+     * @param $specimen
+     * @return string
+     */
+    private function name($analyte, $specimen): string
+    {
+        if(isset($analyte) && isset($specimen)) return $analyte->name.", ".$specimen->name;
+        return '';
     }
 
     /**
@@ -93,6 +106,64 @@ class AnalyteResource extends JsonResource
             '_links' => [
                 'self' => [
                     'href' => route('api.availabilities.show', ['availability' => $availability->id], false)
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @param $analyte
+     * @return array|null
+     */
+
+    private function analyte($analyte): ?array
+    {
+        if (!isset($analyte)) return null;
+
+        return [
+            'name' => $analyte->name,
+            '_links' => [
+                'self' => [
+                    'href' => route('api.analytes.show', ['analyte' => $analyte->id], false)
+                ]
+            ]
+        ];
+    }
+
+
+    /**
+     * @param $loinc
+     * @return array|null
+     */
+
+    private function loinc($loinc): ?array
+    {
+        if (!isset($loinc)) return null;
+
+        return [
+            'name' => $loinc->long_common_name,
+            '_links' => [
+                'self' => [
+                    'href' => route('api.loincs.show', ['loinc' => $loinc->loinc_num], false)
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @param $specimen
+     * @return array|null
+     */
+
+    private function specimen($specimen): ?array
+    {
+        if (!isset($specimen)) return null;
+
+        return [
+            'name' => $specimen->name,
+            '_links' => [
+                'self' => [
+                    'href' => route('api.specimens.show', ['specimen' => $specimen->id], false)
                 ]
             ]
         ];

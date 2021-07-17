@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Models\SampleType;
+use App\Models\Specimen;
 
-class SampleTypeRequest extends FormRequest
+class SpecimenRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -35,6 +35,6 @@ class SampleTypeRequest extends FormRequest
      */
     public function getPaginate(): int
     {
-        return $this->get('paginate', (new SampleType())->getPerPage());
+        return $this->get('paginate', (new Specimen())->getPerPage());
     }
 }

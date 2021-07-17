@@ -2,17 +2,16 @@
 
 namespace App\Http\Resources\collections;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class SamplingIndicationResourceCollection extends ResourceCollection
+class ObservationServiceRequestResourceCollection extends ResourceCollection
 {
     /**
      * The resource that this resource collects.
      *
      * @var string
      */
-    public $collects = 'App\Http\Resources\Collections\SpecimenResource';
+    public $collects = 'App\Http\Resources\Collections\ObservationServiceRequestResource';
 
 
     /**
@@ -26,8 +25,8 @@ class SamplingIndicationResourceCollection extends ResourceCollection
         return [
             '_links' => [
                 'self' => [
-                    'href' => route('api.sampling-indications.index', [], false),
-                    'title' => 'Lista de indicaciones toma de muestra',
+                    'href' => route('api.observation-service-requests.index', [], false),
+                    'title' => 'Lista de exámenes para solicitud de medios',
                 ]
             ],
             'count' => $this->collection->count(),
