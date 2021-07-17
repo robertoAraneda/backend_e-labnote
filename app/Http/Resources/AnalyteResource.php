@@ -33,6 +33,9 @@ class AnalyteResource extends JsonResource
                 'self' => [
                     'href' => route('api.workareas.show', ['workarea' => $this->id], false),
                 ],
+                'samplingConditions'  => [
+                    'href' => route('api.analytes.sampling-conditions.index', ['analyte' => $this->id], false)
+                ]
             ],
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),
@@ -40,7 +43,8 @@ class AnalyteResource extends JsonResource
                 'process_time' => $this->processTime($this->processTime),
                 'workarea' => $this->workarea($this->workarea),
                 'medical_request_type' => $this->medicalRequestType($this->medicalRequestType),
-                'availability' => $this->availability($this->availability)
+                'availability' => $this->availability($this->availability),
+                'samplingConditions' => $this->samplingConditions($this->samplingConditions)
             ],
         ];
     }
@@ -152,5 +156,17 @@ class AnalyteResource extends JsonResource
                 ]
             ]
         ];
+    }
+    private function samplingConditions($samplingConditions){
+        if(!isset($samplingConditions)) return null;
+
+        return $samplingConditions->map(function($samplingCondition) {
+            return  [
+                'name' => $samplingCondition->name,
+                '_links' => [
+                    'self' => route('api.sampling-conditions.show', ['sampling_condition' => $samplingCondition->id], false),
+                ]
+            ];
+        });
     }
 }
