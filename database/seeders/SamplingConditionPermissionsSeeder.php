@@ -15,17 +15,40 @@ class SamplingConditionPermissionsSeeder extends Seeder
     public function run()
     {
         $permissions = [
-            'samplingCondition.create',
-            'samplingCondition.update',
-            'samplingCondition.delete',
-            'samplingCondition.show',
-            'samplingCondition.index'
+            [
+                'name' => 'samplingCondition.create',
+                'action' => 'create',
+                'description' => 'Crear condición toma de muestra'
+            ],
+            [
+                'name' => 'samplingCondition.update',
+                'action' => 'update',
+                'description' => 'Modificar condición toma de muestra'
+            ],
+            [
+                'name' => 'samplingCondition.delete',
+                'action' => 'delete',
+                'description' => 'Eliminar condición toma de muestra'
+            ],
+            [
+                'name' => 'samplingCondition.show',
+                'action' => 'show',
+                'description' => 'Ver detalle de una condición toma de muestra'
+            ],
+            [
+                'name' => 'samplingCondition.index',
+                'action' => 'index',
+                'description' => 'Ver todas las condiciones toma de muestra'
+            ],
         ];
 
         foreach ($permissions as $permission){
             Permission::create([
-                'name' => $permission,
-                'guard_name' => 'api'
+                'name' => $permission['name'],
+                'guard_name' => 'api',
+                'model' => 'SamplingCondition',
+                'action' => $permission['action'],
+                'description' => $permission['description'],
             ]);
 
         }

@@ -112,6 +112,7 @@ Route::group([
     Route::put('response-times/{response_time}/status', [ResponseTimeController::class, 'changeActiveAttribute']);
     Route::put('medical-request-types/{medical_request_type}/status', [MedicalRequestTypeController::class, 'changeActiveAttribute']);
     Route::put('sample-quantities/{sample_quantity}/status', [SampleQuantityController::class, 'changeActiveAttribute']);
+    Route::put('sampling-conditions/{sampling_condition}/status', [SamplingConditionController::class, 'changeActiveAttribute']);
 
 
     Route::get('roles/assign/super-admin', [RoleController::class, 'assignSuperUser']);
