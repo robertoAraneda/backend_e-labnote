@@ -212,8 +212,6 @@ class SampleQuantityTest extends TestCase
      */
     public function se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = SampleQuantity::count();
-
         $factoryModel = [
             'name' => $this->faker->name,
             'active' => true
@@ -221,12 +219,16 @@ class SampleQuantityTest extends TestCase
 
         $this->role->revokePermissionTo('sampleQuantity.create');
 
-        $response = $this->actingAs($this->user, 'api')
-            ->postJson($this->base_url, $factoryModel);
+        $uri = sprintf("%s", $this->base_url);
 
-        $response->assertStatus(Response::HTTP_FORBIDDEN);
+        $this
+            ->actingAs($this->user, 'api')
+            ->postJson($uri, $factoryModel)
+            ->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $this->assertDatabaseCount($this->table, $list);
+        $this->assertDatabaseMissing($this->table, [
+            'name' => $factoryModel['name'],
+        ]);
 
     }
 
@@ -237,16 +239,18 @@ class SampleQuantityTest extends TestCase
     {
         $this->role->revokePermissionTo('sampleQuantity.update');
 
-        $url = sprintf('%s/%s',$this->base_url, $this->model->id);
+        $uri = sprintf('%s/%s',$this->base_url, $this->model->id);
 
-        $response = $this->actingAs($this->user, 'api')
-            ->putJson($url,  [
-                'name' => 'sampleQuantity name modificado'
-            ]);
+        $this
+            ->actingAs($this->user, 'api')
+            ->putJson($uri, [
+                'name' => 'sampleQuantity modificado'
+            ])
+            ->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $this->assertNotEquals($this->model->name, 'sampleQuantity name modificado');
-
-        $response->assertStatus(Response::HTTP_FORBIDDEN);
+        $this->assertDatabaseMissing($this->table, [
+            'name' => 'sampleQuantity modificado'
+        ]);
     }
 
     /**
@@ -256,16 +260,16 @@ class SampleQuantityTest extends TestCase
     {
         $this->role->revokePermissionTo('sampleQuantity.delete');
 
-        $list = SampleQuantity::count();
-
         $uri = sprintf('%s/%s',$this->base_url ,$this->model->id);
 
-        $response = $this->actingAs($this->user, 'api')
-            ->deleteJson($uri);
+        $this
+            ->actingAs($this->user, 'api')
+            ->deleteJson($uri)
+            ->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $response->assertStatus(Response::HTTP_FORBIDDEN);
-
-        $this->assertDatabaseCount($this->table, $list);
+        $this->assertDatabaseHas($this->table, [
+            'name' => $this->model->name,
+        ]);
 
     }
 
@@ -275,10 +279,10 @@ class SampleQuantityTest extends TestCase
     public function se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
         $uri = sprintf('%s/%s',$this->base_url , -5);
-        $response = $this->actingAs($this->user, 'api')
-            ->getJson($uri);
 
-        $response->assertStatus(Response::HTTP_NOT_FOUND);
+        $this->actingAs($this->user, 'api')
+            ->getJson($uri)
+            ->assertStatus(Response::HTTP_NOT_FOUND);
 
     }
 
@@ -289,10 +293,9 @@ class SampleQuantityTest extends TestCase
     {
         $uri = sprintf('%s/%s',$this->base_url ,-5);
 
-        $response = $this->actingAs($this->user, 'api')
-            ->putJson($uri);
-
-        $response->assertStatus(Response::HTTP_NOT_FOUND);
+        $this->actingAs($this->user, 'api')
+            ->putJson($uri)
+            ->assertStatus(Response::HTTP_NOT_FOUND);
 
     }
 
@@ -303,10 +306,9 @@ class SampleQuantityTest extends TestCase
     {
         $uri = sprintf('%s/%s',$this->base_url ,-5);
 
-        $response = $this->actingAs($this->user, 'api')
-            ->deleteJson($uri);
-
-        $response->assertStatus(Response::HTTP_NOT_FOUND);
+        $this->actingAs($this->user, 'api')
+            ->deleteJson($uri)
+            ->assertStatus(Response::HTTP_NOT_FOUND);
 
     }
 
@@ -317,10 +319,9 @@ class SampleQuantityTest extends TestCase
     {
         $uri = sprintf('%s/%s',$this->base_url ,'string');
 
-        $response = $this->actingAs($this->user, 'api')
-            ->deleteJson($uri);
-
-        $response->assertStatus(Response::HTTP_NOT_FOUND);
+        $this->actingAs($this->user, 'api')
+            ->deleteJson($uri)
+            ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
     /**

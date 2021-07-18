@@ -213,8 +213,6 @@ class AvailabilityTest extends TestCase
      */
     public function se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = Availability::count();
-
         $factoryModel = [
             'name' => $this->faker->name,
             'active' => true
@@ -222,12 +220,16 @@ class AvailabilityTest extends TestCase
 
         $this->role->revokePermissionTo('availability.create');
 
-        $response = $this->actingAs($this->user, 'api')
-            ->postJson("/api/v1/{$this->table}",  $factoryModel);
+        $uri = sprintf("/api/v1/{$this->table}",  $factoryModel);
 
-        $response->assertStatus(Response::HTTP_FORBIDDEN);
+        $this
+            ->actingAs($this->user, 'api')
+            ->postJson($uri, $factoryModel)
+            ->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $this->assertDatabaseCount($this->table, $list);
+        $this->assertDatabaseMissing($this->table, [
+            'name' => $factoryModel['name'],
+        ]);
 
     }
 
@@ -238,16 +240,18 @@ class AvailabilityTest extends TestCase
     {
         $this->role->revokePermissionTo('availability.update');
 
-        $url = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
+        $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
 
-        $response = $this->actingAs($this->user, 'api')
-            ->putJson($url,  [
-                'name' => 'availability name modificado'
-            ]);
+        $this
+            ->actingAs($this->user, 'api')
+            ->putJson($uri, [
+                'name' => 'availability modificado'
+            ])
+            ->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $this->assertNotEquals($this->model->name, 'availability name modificado');
-
-        $response->assertStatus(Response::HTTP_FORBIDDEN);
+        $this->assertDatabaseMissing($this->table, [
+            'name' => 'availability modificado'
+        ]);
     }
 
     /**
@@ -257,16 +261,16 @@ class AvailabilityTest extends TestCase
     {
         $this->role->revokePermissionTo('availability.delete');
 
-        $list = Availability::count();
-
         $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
 
-        $response = $this->actingAs($this->user, 'api')
-            ->deleteJson($uri);
+        $this
+            ->actingAs($this->user, 'api')
+            ->deleteJson($uri)
+            ->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $response->assertStatus(Response::HTTP_FORBIDDEN);
-
-        $this->assertDatabaseCount($this->table, $list);
+        $this->assertDatabaseHas($this->table, [
+            'name' => $this->model->name,
+        ]);
 
     }
 
@@ -276,10 +280,10 @@ class AvailabilityTest extends TestCase
     public function se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
         $uri = sprintf('/api/v1/%s/%s',$this->table , -5);
-        $response = $this->actingAs($this->user, 'api')
-            ->getJson($uri);
 
-        $response->assertStatus(Response::HTTP_NOT_FOUND);
+        $this->actingAs($this->user, 'api')
+            ->getJson($uri)
+            ->assertStatus(Response::HTTP_NOT_FOUND);
 
     }
 
@@ -290,11 +294,10 @@ class AvailabilityTest extends TestCase
     {
         $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
 
-        $response = $this->actingAs($this->user, 'api')
-            ->putJson($uri);
 
-        $response->assertStatus(Response::HTTP_NOT_FOUND);
-
+        $this->actingAs($this->user, 'api')
+            ->putJson($uri)
+            ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -304,11 +307,21 @@ class AvailabilityTest extends TestCase
     {
         $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
 
-        $response = $this->actingAs($this->user, 'api')
-            ->deleteJson($uri);
+        $this->actingAs($this->user, 'api')
+            ->deleteJson($uri)
+            ->assertStatus(Response::HTTP_NOT_FOUND);
+    }
 
-        $response->assertStatus(Response::HTTP_NOT_FOUND);
+    /**
+     * @test
+     */
+    public function se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
+    {
+        $uri = sprintf('/api/v1/%s/%s',$this->table,'string');
 
+        $this->actingAs($this->user, 'api')
+            ->deleteJson($uri)
+            ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
     /**
