@@ -29,6 +29,14 @@ class ResponseTime extends Model
     ];
 
     /**
+     * @return string
+     */
+    public function getPerPage(): string
+    {
+        return env('DEFAULT_PER_PAGE');
+    }
+
+    /**
      * Scope a query to only include active users.
      *
      * @param Builder $query
@@ -37,14 +45,6 @@ class ResponseTime extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
-    }
-
-    /**
-     * @return string
-     */
-    public function getPerPage(): string
-    {
-        return env('DEFAULT_PER_PAGE');
     }
 
     /**

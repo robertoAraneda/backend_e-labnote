@@ -15,17 +15,40 @@ class MedicalRequestTypePermissionsSeeder extends Seeder
     public function run()
     {
         $permissions = [
-            'medicalRequestType.create',
-            'medicalRequestType.update',
-            'medicalRequestType.delete',
-            'medicalRequestType.show',
-            'medicalRequestType.index'
+            [
+                'name' => 'medicalRequestType.create',
+                'action' => 'create',
+                'description' => 'Crear tipo de solicitud médica'
+            ],
+            [
+                'name' => 'medicalRequestType.update',
+                'action' => 'update',
+                'description' => 'Modificar tipo de solicitud médica'
+            ],
+            [
+                'name' => 'medicalRequestType.delete',
+                'action' => 'delete',
+                'description' => 'Eliminar tipo de solicitud médica'
+            ],
+            [
+                'name' => 'medicalRequestType.show',
+                'action' => 'show',
+                'description' => 'Ver detalle de un tipo de solicitud médica'
+            ],
+            [
+                'name' => 'medicalRequestType.index',
+                'action' => 'index',
+                'description' => 'Ver todos los tipo de solicitud médica'
+            ],
         ];
 
         foreach ($permissions as $permission){
             Permission::create([
-                'name' => $permission,
-                'guard_name' => 'api'
+                'name' => $permission['name'],
+                'guard_name' => 'api',
+                'model' => 'MedicalRequestType',
+                'action' => $permission['action'],
+                'description' => $permission['description'],
             ]);
 
         }

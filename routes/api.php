@@ -110,6 +110,7 @@ Route::group([
     Route::put('containers/{container}/status', [ContainerController::class, 'changeActiveAttribute']);
     Route::put('process-times/{process_time}/status', [ProcessTimeController::class, 'changeActiveAttribute']);
     Route::put('response-times/{response_time}/status', [ResponseTimeController::class, 'changeActiveAttribute']);
+    Route::put('medical-request-types/{medical_request_type}/status', [MedicalRequestTypeController::class, 'changeActiveAttribute']);
 
 
 
