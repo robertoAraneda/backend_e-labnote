@@ -87,22 +87,24 @@ class ObservationServiceRequestTest extends TestCase
 
         $countModels = ObservationServiceRequest::count();
 
-        $this->actingAs($this->user, 'api')
-            ->getJson($uri)
-            ->assertStatus(Response::HTTP_OK)
-            ->assertJson(function (AssertableJson $json) use ($countModels) {
-                return $json
-                    ->has('_links')
-                    ->has('count')
-                    ->has('collection', $countModels, function ($json) {
-                        $json->whereAllType([
-                            'id' => 'integer',
-                            'name' => 'string',
-                            'active' => 'boolean',
-                            '_links' => 'array'
-                        ])->etc();
-                    });
-            });
+
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson($uri);
+        $response->assertStatus(Response::HTTP_OK);
+        $response->dump();
+        $response->assertJson(function (AssertableJson $json) use ($countModels) {
+            return $json
+                ->has('_links')
+                ->has('count')
+                ->has('collection', $countModels, function ($json) {
+                    $json->whereAllType([
+                        'id' => 'integer',
+                        'name' => 'string',
+                        'active' => 'boolean',
+                        '_links' => 'array'
+                    ])->etc();
+                });
+        });
     }
 
     /**

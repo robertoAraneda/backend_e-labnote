@@ -26,7 +26,6 @@ class ObservationServiceRequestController extends Controller
         if(isset($page)){
             $items = ObservationServiceRequest::select(
                 'id',
-                'name',
                 'active',
             )
                 ->with(['specimen', 'analyte'])
@@ -35,7 +34,8 @@ class ObservationServiceRequestController extends Controller
         }else{
             $items = ObservationServiceRequest::select(
                 'id',
-                'name',
+                'specimen_id',
+                'analyte_id',
                 'active',
             )
                 ->with(['specimen', 'analyte'])

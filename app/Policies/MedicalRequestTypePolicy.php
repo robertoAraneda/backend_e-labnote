@@ -16,7 +16,15 @@ class MedicalRequestTypePolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array('medicalRequestType.index', $user->getAllPermissions()->pluck('name')->toArray());
+        if (in_array('medicalRequestType.index', $user->getAllPermissions()->pluck('name')->toArray())) {
+            return true;
+        }
+        if (in_array('observationServiceRequest.create', $user->getAllPermissions()->pluck('name')->toArray())) {
+            return true;
+        }
+
+        return false;
+
     }
 
     /**

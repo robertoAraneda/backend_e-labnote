@@ -16,7 +16,12 @@ class SpecimenPolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array('specimen.index', $user->getAllPermissions()->pluck('name')->toArray());
+        if (in_array('specimen.index', $user->getAllPermissions()->pluck('name')->toArray())) {
+            return true;
+        }
+        if (in_array('observationServiceRequest.create', $user->getAllPermissions()->pluck('name')->toArray())) {
+            return true;
+        }
     }
 
     /**

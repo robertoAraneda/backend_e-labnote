@@ -16,7 +16,14 @@ class AvailabilityPolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array('availability.index', $user->getAllPermissions()->pluck('name')->toArray());
+        if (in_array('availability.index', $user->getAllPermissions()->pluck('name')->toArray())) {
+            return true;
+        }
+        if (in_array('observationServiceRequest.create', $user->getAllPermissions()->pluck('name')->toArray())) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -32,7 +39,7 @@ class AvailabilityPolicy
     /**
      * Determine whether the user can create models.
      *
-     * @param  User  $user
+     * @param User $user
      * @return bool
      */
     public function create(User $user): bool
