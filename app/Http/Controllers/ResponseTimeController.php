@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ResponseTimeRequest;
+use App\Http\Resources\collections\ResponseTimeResourceCollection;
 use App\Http\Resources\ResponseTimeResource;
 use App\Models\ResponseTime;
 use Illuminate\Auth\Access\AuthorizationException;

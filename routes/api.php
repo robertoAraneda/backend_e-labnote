@@ -66,7 +66,7 @@ Route::group([
     Route::apiResource('workareas', WorkareaController::class)->whereNumber('workarea')->names('api.workareas');
     Route::apiResource('availabilities', AvailabilityController::class)->whereNumber('availability')->names('api.availabilities');
     Route::apiResource('process-times', ProcessTimeController::class)->whereNumber('process_time')->names('api.process-times');
-    Route::apiResource('response-times', ResponseTimeController::class)->whereNumber('response_time');
+    Route::apiResource('response-times', ResponseTimeController::class)->whereNumber('response_time')->names('api.response-times');
     Route::apiResource('medical-request-types', MedicalRequestTypeController::class)->whereNumber('medical_request_type')->names('api.medical-request-types');
     Route::apiResource('fonasas', FonasaController::class)->names('api.fonasas');
     Route::apiResource('sample-quantities', SampleQuantityController::class)->whereNumber('sample_quantity');
@@ -108,6 +108,8 @@ Route::group([
     Route::put('analytes/{analyte}/status', [AnalyteController::class, 'changeActiveAttribute']);
     Route::put('availabilities/{availability}/status', [AvailabilityController::class, 'changeActiveAttribute']);
     Route::put('containers/{container}/status', [ContainerController::class, 'changeActiveAttribute']);
+    Route::put('process-times/{process_time}/status', [ProcessTimeController::class, 'changeActiveAttribute']);
+    Route::put('response-times/{response_time}/status', [ResponseTimeController::class, 'changeActiveAttribute']);
 
 
 

@@ -313,6 +313,19 @@ class ProcessTimeTest extends TestCase
     /**
      * @test
      */
+    public function se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
+    {
+        $uri = sprintf('%s/%s',$this->base_url,'string');
+
+        $response = $this->actingAs($this->user, 'api')
+            ->deleteJson($uri);
+
+        $response->assertStatus(Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * @test
+     */
     public function se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
         ProcessTime::factory()->count(20)->create();
@@ -408,4 +421,28 @@ class ProcessTimeTest extends TestCase
         $this->assertDatabaseCount($this->table, $list);
     }
 
+    /**
+     * @test
+     */
+    public function se_puede_modificar_el_estado_de_un_recurso()
+    {
+        $uri = sprintf('%s/%s/status', $this->base_url, $this->model->id);
+
+        if($this->model->active){
+            $response = $this->actingAs($this->user, 'api')
+                ->putJson($uri, [
+                    'active' => false
+                ]);
+        }else{
+            $response = $this->actingAs($this->user, 'api')
+                ->putJson($uri, [
+                    'active' => true
+                ]);
+        }
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $this->assertNotEquals($response['active'], $this->model->active);
+
+    }
 }

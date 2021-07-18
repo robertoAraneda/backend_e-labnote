@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\collections;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ResponseTimeResourceCollection extends ResourceCollection
@@ -9,11 +10,20 @@ class ResponseTimeResourceCollection extends ResourceCollection
     /**
      * Transform the resource collection into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
-        return parent::toArray($request);
+        return [
+            '_links' => [
+                'self' => [
+                    'href' => route('api.response-times.index', [], false),
+                    'title' => 'Lista de tipo tiempo de respuesta',
+                ]
+            ],
+            'count' => $this->collection->count(),
+            'collection' => $this->collection
+        ];
     }
 }
