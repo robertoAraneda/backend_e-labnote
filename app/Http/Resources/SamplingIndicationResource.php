@@ -25,7 +25,7 @@ class SamplingIndicationResource extends JsonResource
             'updated_at' => $this->date($this->updated_at),
             '_links' => [
                 'self' => [
-                    'href' => route('api.sample-types.show', ['sample_type' => $this->id], false),
+                    'href' => route('api.sampling-indications.show', ['sampling_indication' => $this->id], false),
                 ],
             ],
             '_embedded' => [

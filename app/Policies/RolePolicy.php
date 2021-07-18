@@ -21,7 +21,7 @@ class RolePolicy
 
     public function view(User $user, Role $role): bool
     {
-        return in_array('role.index', $user->getAllPermissions()->pluck('name')->toArray());
+        return in_array('role.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     public function create(User $user): bool

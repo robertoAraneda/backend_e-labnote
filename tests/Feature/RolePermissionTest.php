@@ -8,6 +8,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\PermissionSeeder;
+use Database\Seeders\RolePermissionsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -32,16 +33,14 @@ class RolePermissionTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(PermissionSeeder::class);
+        $this->seed(RolePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('rolePermission.create');
-        $role->givePermissionTo('rolePermission.update');
-        $role->givePermissionTo('rolePermission.delete');
-        $role->givePermissionTo('rolePermission.index');
-        $role->givePermissionTo('rolePermission.show');
+        $role->givePermissionTo('role.create');
+        $role->givePermissionTo('role.index');
+        $role->givePermissionTo('role.show');
 
         $this->controller = new RoleController();
 
@@ -56,6 +55,9 @@ class RolePermissionTest extends TestCase
      */
     public function se_puede_obtener_una_lista_del_recurso(): void
     {
+
+        $this->withoutExceptionHandling();
+
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson(sprintf('/api/v1/roles/%s/permissions', $this->role->id));
@@ -80,9 +82,9 @@ class RolePermissionTest extends TestCase
     public function test_se_puede_crear_un_recurso(): void
     {
         $role = Role::where('name', 'Secretaria')->first();
-        $permissionCreate = Permission::where('name', 'rolePermission.create')->first();
-        $permissionUpdate = Permission::where('name', 'rolePermission.update')->first();
-        $permissionDelete = Permission::where('name', 'rolePermission.delete')->first();
+        $permissionCreate = Permission::where('name', 'role.create')->first();
+        $permissionUpdate = Permission::where('name', 'role.index')->first();
+        $permissionDelete = Permission::where('name', 'role.show')->first();
 
         $response = $this->actingAs($this->user, 'api')
             ->postJson("/api/v1/roles/{$role->id}/permissions",

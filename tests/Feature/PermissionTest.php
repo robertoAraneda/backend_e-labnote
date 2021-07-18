@@ -362,8 +362,6 @@ class PermissionTest extends TestCase
             'errors'
         ]);
 
-        $response->dump();
-
         $response->assertStatus(Response::HTTP_NOT_ACCEPTABLE);
     }
 
