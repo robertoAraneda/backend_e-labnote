@@ -11,7 +11,7 @@ class ResponseTimeRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         switch ($this->getMethod()){
             case 'PUT':

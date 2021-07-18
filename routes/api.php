@@ -69,7 +69,7 @@ Route::group([
     Route::apiResource('response-times', ResponseTimeController::class)->whereNumber('response_time')->names('api.response-times');
     Route::apiResource('medical-request-types', MedicalRequestTypeController::class)->whereNumber('medical_request_type')->names('api.medical-request-types');
     Route::apiResource('fonasas', FonasaController::class)->names('api.fonasas');
-    Route::apiResource('sample-quantities', SampleQuantityController::class)->whereNumber('sample_quantity');
+    Route::apiResource('sample-quantities', SampleQuantityController::class)->whereNumber('sample_quantity')->names('api.sample-quantities');
     Route::apiResource('sampling-conditions', SamplingConditionController::class)->whereNumber('sampling_condition')->names('api.sampling-conditions');
     Route::apiResource('analytes', AnalyteController::class)->whereNumber('analyte')->names('api.analytes');
     Route::apiResource('loincs', LoincController::class)->names('api.loincs');
@@ -111,7 +111,7 @@ Route::group([
     Route::put('process-times/{process_time}/status', [ProcessTimeController::class, 'changeActiveAttribute']);
     Route::put('response-times/{response_time}/status', [ResponseTimeController::class, 'changeActiveAttribute']);
     Route::put('medical-request-types/{medical_request_type}/status', [MedicalRequestTypeController::class, 'changeActiveAttribute']);
-
+    Route::put('sample-quantities/{sample_quantity}/status', [SampleQuantityController::class, 'changeActiveAttribute']);
 
 
     Route::get('roles/assign/super-admin', [RoleController::class, 'assignSuperUser']);
