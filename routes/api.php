@@ -85,7 +85,7 @@ Route::group([
 
 
     Route::get('roles/{role}/permissions', [RoleController::class, 'permissionsByRole']);
-    Route::get('laboratories/{laboratory}/modules', [LaboratoryController::class, 'modulesByLaboratory']);
+   // Route::get('laboratories/{laboratory}/modules', [LaboratoryController::class, 'modulesByLaboratory']);
     Route::get('modules/{module}/menus', [ModuleController::class, 'menusByModule'] )->name('api.module.menus');
 
 
@@ -108,6 +108,9 @@ Route::group([
     Route::put('analytes/{analyte}/status', [AnalyteController::class, 'changeActiveAttribute']);
     Route::put('availabilities/{availability}/status', [AvailabilityController::class, 'changeActiveAttribute']);
     Route::put('containers/{container}/status', [ContainerController::class, 'changeActiveAttribute']);
+    Route::put('fonasas/{fonasa}/status', [FonasaController::class, 'changeActiveAttribute']);
+    Route::put('menus/{menu}/status', [MenuController::class, 'changeActiveAttribute']);
+    Route::put('modules/{module}/status', [ModuleController::class, 'changeActiveAttribute']);
 
 
 

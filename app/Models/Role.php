@@ -7,21 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
-/**
- * @OA\Schema(
- *     title="Role",
- *     description="Modelo Role",
- *     @OA\Xml(
- *         name="Role"
- *     )
- * )
- */
+
 class Role extends \Spatie\Permission\Models\Role
 {
     use HasFactory;
 
     protected $table = 'roles';
-    protected $perPage = '10';
     protected $fillable = [
         'name',
         'guard_name',
@@ -30,20 +21,6 @@ class Role extends \Spatie\Permission\Models\Role
         'active'
     ];
 
-    public static function getListJsonStructure(): array
-    {
-        return [
-            'data' => [self::getObjectJsonStructure()],
-            'links',
-            'meta',
-        ];
-    }
-
-    public static function getObjectJsonStructure(): array
-    {
-        return ['id', 'name'];
-    }
-
     public function getTable():string
     {
         return $this->table;
@@ -51,11 +28,30 @@ class Role extends \Spatie\Permission\Models\Role
 
     public function getPerPage(): string
     {
-        return $this->perPage;
+        return env('DEFAULT_PER_PAGE');
     }
 
-    public function created_user(): BelongsTo
+    /**
+     * @return BelongsTo
+     */
+    public function createdUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_user_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function updatedUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_user_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function deletedUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_user_id');
     }
 }

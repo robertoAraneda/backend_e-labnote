@@ -12,7 +12,6 @@ class Menu extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $perPage = '10';
     protected $table = 'menus';
     /**
      * The attributes that are mass assignable.
@@ -25,6 +24,7 @@ class Menu extends Model
         'icon',
         'module_id',
         'permission_id',
+        'order',
         'active',
         'created_user_id',
         'updated_user_id',

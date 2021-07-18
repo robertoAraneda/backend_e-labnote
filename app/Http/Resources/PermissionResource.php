@@ -21,8 +21,14 @@ class PermissionResource extends JsonResource
                 'name' => $this->name,
                 'model' => $this->model,
                 'action' => $this->action,
+                'guard_name' => $this->guard_name,
                 'description' => $this->description,
-                'checkbox' =>(bool) $this->checkbox
+                'checkbox' =>(bool) $this->checkbox,
+                '_links' => [
+                    'self' => [
+                        'href' => route('api.permissions.show', ['permission' => $this->id], false),
+                    ]
+                ],
             ];
         }
         return [
@@ -30,7 +36,13 @@ class PermissionResource extends JsonResource
             'name' => $this->name,
             'model' => $this->model,
             'action' => $this->action,
+            'guard_name' => $this->guard_name,
             'description' => $this->description,
+            '_links' => [
+                'self' => [
+                    'href' => route('api.permissions.show', ['permission' => $this->id], false),
+                ]
+            ],
         ];
     }
 }

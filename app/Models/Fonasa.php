@@ -24,7 +24,7 @@ class Fonasa extends Model
      *
      * @var string
      */
-    protected $primaryKey = 'codigo_mai';
+    protected $primaryKey = 'mai_code';
 
     /**
      * Indicates if the model's ID is auto-incrementing.

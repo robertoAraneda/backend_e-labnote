@@ -34,6 +34,7 @@ class MenuController extends Controller
                 'module_id',
                 'url',
                 'icon',
+                'order',
                 'active'
             )
                 ->with(['module', 'permission'])
@@ -47,6 +48,7 @@ class MenuController extends Controller
                 'module_id',
                 'url',
                 'icon',
+                'order',
                 'active'
             )
                 ->with(['module', 'permission'])

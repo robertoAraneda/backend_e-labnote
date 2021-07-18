@@ -8,8 +8,6 @@ use App\Http\Resources\FonasaResource;
 use App\Models\Fonasa;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Symfony\Component\HttpFoundation\Response;
 
 class FonasaController extends Controller
@@ -30,8 +28,8 @@ class FonasaController extends Controller
         if (isset($page)) {
             $items = Fonasa::select(
                 'id',
-                'codigo_mai',
-                'codigo_rem',
+                'mai_code',
+                'rem_code',
                 'name',
                 'active'
             )
@@ -40,8 +38,8 @@ class FonasaController extends Controller
         } else {
             $items = Fonasa::select(
                 'id',
-                'codigo_mai',
-                'codigo_rem',
+                'mai_code',
+                'rem_code',
                 'name',
                 'active'
             )

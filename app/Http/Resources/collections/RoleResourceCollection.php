@@ -5,17 +5,8 @@ namespace App\Http\Resources\collections;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class FonasaResourceCollection extends ResourceCollection
+class RoleResourceCollection extends ResourceCollection
 {
-    /**
-     * The resource that this resource collects.
-     *
-     * @var string
-     */
-    public $collects = 'App\Http\Resources\Collections\FonasaResource';
-
-
-
     /**
      * Transform the resource collection into an array.
      *
@@ -27,8 +18,8 @@ class FonasaResourceCollection extends ResourceCollection
         return [
             '_links' => [
                 'self' => [
-                    'href' => route('api.fonasas.index', [], false),
-                    'title' => 'Lista de códigos FONASA',
+                    'href' => route('api.roles.index', [], false),
+                    'title' => 'Lista de roles',
                 ]
             ],
             'count' => $this->collection->count(),

@@ -22,6 +22,7 @@ class MenuResource extends JsonResource
             'module_id' => $this->module->id,
             'permission_id' => $this->permission->id,
             'permission' => $this->permission,
+            'order' => (int) $this->order,
             'active' => (bool) $this->active,
             '_links' => [
                 'self' =>[

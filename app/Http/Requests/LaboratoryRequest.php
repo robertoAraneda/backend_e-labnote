@@ -58,17 +58,6 @@ class LaboratoryRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array
-    {
-        return  [
-            'name' => 'Nombre',
-            'address' => 'Dirección',
-            'email' => 'Correo electrónico',
-            'redirect' => 'Dirección http página web',
-            'phone' => 'Teléfono'
-        ];
-    }
-
     /**
      * Prepare the data for validation.
      *

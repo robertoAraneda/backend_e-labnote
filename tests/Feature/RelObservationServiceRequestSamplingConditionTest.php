@@ -107,13 +107,13 @@ class RelObservationServiceRequestSamplingConditionTest extends TestCase
     public function se_puede_crear_un_recurso(): void
     {
 
-        $analyte = Analyte::factory()->create();
+        $observationServiceRequest = ObservationServiceRequest::factory()->create();
         $samplingCondition = SamplingCondition::factory()->count(6)->create()->pluck('id');
 
         $stored = $samplingCondition->splice(3);
 
         $response = $this->actingAs($this->user, 'api')
-            ->postJson("/api/v1/analytes/{$analyte->id}/sampling-conditions",
+            ->postJson("/api/v1/observation-service-requests/{$observationServiceRequest->id}/sampling-conditions",
                 $stored->all());
 
         $response->assertStatus(Response::HTTP_OK);

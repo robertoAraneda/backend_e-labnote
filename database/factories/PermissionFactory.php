@@ -26,6 +26,7 @@ class PermissionFactory extends Factory
             'guard_name' => 'api',
             'model' => Permission::class,
             'action' => $this->faker->name,
-            'description' => $this->faker->slug];
+            'description' => $this->faker->slug
+        ];
     }
 }

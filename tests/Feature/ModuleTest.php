@@ -7,10 +7,12 @@ use App\Models\Menu;
 use App\Models\Module;
 use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\ModulePermissionSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
@@ -18,14 +20,11 @@ class ModuleTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    /**
-     * @var
-     */
     private $role;
     private $user, $model;
-    private ModuleController $controller;
     private string $perPage;
     private string $table;
+    const BASE_URI = '/api/v1/modules';
 
     public function setUp():void
     {
@@ -34,7 +33,7 @@ class ModuleTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(PermissionSeeder::class);
+        $this->seed(ModulePermissionSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
@@ -46,7 +45,6 @@ class ModuleTest extends TestCase
         $role->givePermissionTo('module.show');
 
         $modelClass = new Module;
-        $this->controller = new ModuleController;
 
         $user->assignRole($role);
 
@@ -58,49 +56,109 @@ class ModuleTest extends TestCase
 
     }
 
-    public function test_se_obtiene_el_valor_por_pagina_por_defecto(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_el_valor_por_pagina_por_defecto(): void
     {
         $this->assertEquals(10, $this->perPage);
     }
 
-    public function test_se_puede_obtener_una_lista_del_recurso(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_del_recurso(): void
     {
 
         Module::factory()->count(10)->create();
 
+        $uri = self::BASE_URI;
+
+        $countModels = Module::count();
+
         $response = $this->actingAs($this->user, 'api')
-            ->getJson(sprintf('/api/v1/%s', $this->table));
+            ->getJson($uri);
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(Module::getListJsonStructure());
+        $response->assertJson(function (AssertableJson $json) use ($countModels) {
+            return $json
+                ->has('_links')
+                ->has('count')
+                ->has('collection', $countModels, function ($json) {
+                    $json->whereAllType([
+                        'id' => 'integer',
+                        'name' => 'string',
+                        'url' => 'string',
+                        'icon' => 'string',
+                        'slug' => 'string',
+                        'active' => 'boolean',
+                        '_links' => 'array'
+                    ]);
+                });
+        });
     }
 
-    public function test_se_puede_obtener_el_detalle_del_recurso(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
 
+        Module::factory()->count(20)->create();
+
+        $uri = sprintf('/%s?page=1', self::BASE_URI);
+
         $response = $this->actingAs($this->user, 'api')
-            ->getJson("/api/v1/{$this->table}/{$this->model->id}" );
+            ->getJson($uri);
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(Module::getObjectJsonStructure());
-
-        $response->assertExactJson([
-            'id' => $this->model->id,
-            'name' => $this->model->name,
-            'slug' => $this->model->slug,
-            'icon' => $this->model->icon,
-            'url' => $this->model->url,
-            'menus' => $this->model->menus,
-            'active' => $this->model->active
-        ]);
+        $response->assertJson(function (AssertableJson $json) {
+            return $json
+                ->has('links')
+                ->has('meta')
+                ->has('data.collection.0', function ($json) {
+                    $json->whereAllType([
+                        'id' => 'integer',
+                        'name' => 'string',
+                        'url' => 'string',
+                        'icon' => 'string',
+                        'slug' => 'string',
+                        'active' => 'boolean',
+                        '_links' => 'array'
+                    ]);
+                });
+        });
     }
 
-    public function test_se_puede_crear_un_recurso(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_el_detalle_del_recurso(): void
     {
-        $list = Module::count();
 
+        $uri = sprintf("%s/%s", self::BASE_URI, $this->model->id);
+
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson($uri);
+        $response->assertStatus(Response::HTTP_OK);
+        $response->assertJson(fn(AssertableJson $json) => $json
+            ->where('id', $this->model->id)
+            ->where('name', $this->model->name)
+            ->where('url', $this->model->url)
+            ->where('icon', $this->model->icon)
+            ->where('slug', $this->model->slug)
+            ->where('active', $this->model->active)
+            ->etc()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function se_puede_crear_un_recurso(): void
+    {
         $factoryModel = [
             'name' => $this->faker->name,
             'url' => $this->faker->url,
@@ -109,114 +167,153 @@ class ModuleTest extends TestCase
             'active' => $this->faker->boolean
         ];
 
-        $response = $this->actingAs($this->user, 'api')
-            ->postJson("/api/v1/{$this->table}",  $factoryModel);
+        $uri = self::BASE_URI;
 
+        $response = $this->actingAs($this->user, 'api')
+            ->postJson($uri, $factoryModel);
 
         $response->assertStatus(Response::HTTP_CREATED);
 
-        $response->assertExactJson([
-            'id' => $response->json()['id'],
-            'name' =>$factoryModel['name'],
-            'icon' =>$factoryModel['icon'],
-            'url' =>$factoryModel['url'],
-            'slug' =>$factoryModel['slug'],
-            'menus' => $response->json()['menus'],
-            'active' => $factoryModel['active']
+        $response->assertJson(fn(AssertableJson $json) => $json
+            ->where('name', $factoryModel['name'])
+            ->where('url', $factoryModel['url'])
+            ->where('icon', $factoryModel['icon'])
+            ->where('slug', $factoryModel['slug'])
+            ->where('active', $factoryModel['active'])
+            ->etc()
+        );
+
+        $this->assertDatabaseHas($this->table, [
+            'name' => $factoryModel['name'],
         ]);
-
-        $response->assertJsonStructure(Module::getObjectJsonStructure());
-
-        $this->assertDatabaseCount($this->table, ($list + 1));
-
     }
 
-    public function test_se_puede_modificar_un_recurso(): void
+    /**
+     * @test
+     */
+    public function se_puede_modificar_un_recurso(): void
     {
         $response = $this->actingAs($this->user, 'api')
-            ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id),  [
-                'name' => 'new module modificado'
+            ->putJson(sprintf('/api/v1/%s/%s', $this->table, $this->model->id), [
+                'name' => 'resource modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
+        $response->assertJson(fn(AssertableJson $json) => $json
+            ->where('id', $this->model->id)
+            ->where('name', 'resource modificado')
+            ->where('url', $this->model->url)
+            ->where('slug', $this->model->slug)
+            ->where('active', $this->model->active)
+            ->etc()
+        );
 
-        $response->assertExactJson([
-            'id' => $this->model->id,
-            'name' => 'new module modificado',
-            'url' => $this->model->url,
-            'slug' => $this->model->slug,
-            'icon' => $this->model->icon,
-            'menus' => $this->model->menus,
-            'active' => $this->model->active
+        $this->assertDatabaseHas($this->table, [
+            'name' => 'resource modificado'
         ]);
     }
 
-    public function test_se_puede_eliminar_un_recurso(): void
+    /**
+     * @test
+     */
+    public function se_puede_eliminar_un_recurso(): void
     {
-        $list = Module::count();
+        $uri = sprintf('%s/%s', self::BASE_URI, $this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
-            ->deleteJson(sprintf('/api/v1/%s/%s', $this->table, $this->role->id));
+            ->deleteJson($uri);
 
         $response->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertDatabaseCount($this->table, ($list -1));
+        $this->assertDatabaseHas($this->table, ['id' => $this->model->id]);
+        $this->assertSoftDeleted($this->model);
 
     }
 
-    public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
+    /**
+     * @test
+     */
+    public function se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = Module::count();
-
         $factoryModel = [
             'name' => $this->faker->name,
+            'url' => $this->faker->url,
+            'icon' => $this->faker->lastname,
+            'slug' => $this->faker->slug,
             'active' => $this->faker->boolean
         ];
 
         $this->role->revokePermissionTo('module.create');
 
+        $uri = self::BASE_URI;
+
         $response = $this->actingAs($this->user, 'api')
-            ->postJson("/api/v1/{$this->table}",  $factoryModel);
+            ->postJson($uri, $factoryModel);
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $this->assertDatabaseCount($this->table, $list );
+        $response->assertJsonFragment([
+            'message' => 'This action is unauthorized.'
+        ]);
+
+        $this->assertDatabaseMissing($this->table, [
+            'name' => $factoryModel['name'],
+        ]);
 
     }
 
-    public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
+    /**
+     * @test
+     */
+    public function se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
         $this->role->revokePermissionTo('module.update');
-        $url = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
+        $uri = sprintf('%s/%s', self::BASE_URI, $this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
-            ->putJson($url,  [
-                'name' => 'laboratory name modificado'
+            ->putJson($uri, [
+                'name' => 'resource modificado'
             ]);
 
+        $response->assertJsonFragment([
+            'message' => 'This action is unauthorized.'
+        ]);
+
         $response->assertStatus(Response::HTTP_FORBIDDEN);
+
+        $this->assertDatabaseMissing($this->table, [
+            'name' => 'resource modificado'
+        ]);
     }
 
-    public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
+    /**
+     * @test
+     */
+    public function se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
         $this->role->revokePermissionTo('module.delete');
 
-        $list = Module::count();
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
+        $uri = sprintf('%s/%s', self::BASE_URI, $this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $this->assertDatabaseCount($this->table, $list);
+
+        $this->assertDatabaseHas($this->table, [
+            'name' => $this->model->name,
+        ]);
 
     }
 
-    public function test_se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
 
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
+        $uri = sprintf('%s/%s', self::BASE_URI, -5);
         $response = $this->actingAs($this->user, 'api')
             ->getJson($uri);
 
@@ -226,7 +323,7 @@ class ModuleTest extends TestCase
 
     public function test_se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
+        $uri = sprintf('%s/%s', self::BASE_URI, -5);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($uri);
@@ -235,9 +332,12 @@ class ModuleTest extends TestCase
 
     }
 
-    public function test_se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
+        $uri = sprintf('%s/%s', self::BASE_URI, -5);
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
@@ -246,10 +346,13 @@ class ModuleTest extends TestCase
 
     }
 
-    public function test_se_obtiene_error_500_si_parametro_no_es_numerico_al_buscar(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_error_500_si_parametro_no_es_numerico_al_buscar(): void
     {
 
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,'string');
+        $uri = sprintf('%s/%s', self::BASE_URI, 'string');
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
@@ -257,7 +360,10 @@ class ModuleTest extends TestCase
         $response->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
-    public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
 
         Module::factory()->count(20)->create();
@@ -275,25 +381,43 @@ class ModuleTest extends TestCase
                 ->getJson(sprintf('/api/v1/%s?page=%s&paginate=%s',$this->table , $i, $DEFAULT_PAGINATE ))
                 ->assertStatus(Response::HTTP_OK);
 
-            if($i < $pages){
-                $this->assertEquals($DEFAULT_PAGINATE ,  collect($response['data'])->count());
-            }else{
-                if($mod == 0){
-                    $this->assertEquals($DEFAULT_PAGINATE ,  collect($response['data'])->count());
-                }else{
-                    $this->assertEquals($mod ,  collect($response['data'])->count());
+            $response->assertJson(function (AssertableJson $json) {
+                return $json
+                    ->has('links')
+                    ->has('meta')
+                    ->has('data.collection.0', function ($json) {
+                        $json->whereAllType([
+                            'id' => 'integer',
+                            'name' => 'string',
+                            'url' => 'string',
+                            'icon' => 'string',
+                            'slug' => 'string',
+                            'active' => 'boolean',
+                            '_links' => 'array'
+                        ]);
+                    });
+            });
+
+            if ($i < $pages) {
+                $this->assertEquals($DEFAULT_PAGINATE, collect($response['data']['collection'])->count());
+            } else {
+                if ($mod == 0) {
+                    $this->assertEquals($DEFAULT_PAGINATE, collect($response['data']['collection'])->count());
+                } else {
+                    $this->assertEquals($mod, collect($response['data']['collection'])->count());
                 }
 
             }
-
-            $response->assertJsonStructure(Module::getListJsonStructure());
         }
 
         $this->assertDatabaseCount($this->table, $list);
 
     }
 
-    public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
     {
         Module::factory()->count(20)->create();
 
@@ -308,23 +432,43 @@ class ModuleTest extends TestCase
                 ->getJson(sprintf('/api/v1/%s?page=%s',$this->table ,$i))
                 ->assertStatus(Response::HTTP_OK);
 
+            $response->assertJson(function (AssertableJson $json) {
+                return $json
+                    ->has('links')
+                    ->has('meta')
+                    ->has('data.collection.0', function ($json) {
+                        $json->whereAllType([
+                            'id' => 'integer',
+                            'name' => 'string',
+                            'url' => 'string',
+                            'icon' => 'string',
+                            'slug' => 'string',
+                            'active' => 'boolean',
+                            '_links' => 'array'
+                        ]);
+                    });
+            });
+
             if($i < $pages){
-                $this->assertEquals($this->perPage ,  collect($response['data'])->count());
+                $this->assertEquals($this->perPage ,  collect($response['data']['collection'])->count());
             }else{
                 if($mod == 0){
-                    $this->assertEquals($this->perPage ,  collect($response['data'])->count());
+                    $this->assertEquals($this->perPage ,  collect($response['data']['collection'])->count());
                 }else{
-                    $this->assertEquals($mod ,  collect($response['data'])->count());
+                    $this->assertEquals($mod ,  collect($response['data']['collection'])->count());
                 }
             }
 
-            $response->assertJsonStructure(Module::getListJsonStructure());
         }
 
         $this->assertDatabaseCount($this->table, $list);
 
     }
-    public function test_se_puede_obtener_una_lista_de_menus_por_modulo(): void
+
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_de_menus_por_modulo(): void
     {
         $module = Module::factory()->create();
         Menu::factory()->count(20)->for($module)->create();
@@ -333,5 +477,22 @@ class ModuleTest extends TestCase
             ->getJson(sprintf('/api/v1/%s/%s/menus',$this->table , $module->id))
             ->assertStatus(Response::HTTP_OK);
 
+    }
+
+    /**
+     * @test
+     */
+    public function se_puede_modificar_el_estado_de_un_recurso()
+    {
+        $status = filter_var($this->model->active, FILTER_VALIDATE_BOOLEAN);
+
+        $uri = sprintf('%s/%s', self::BASE_URI, $this->model->id);
+
+        $response = $this->actingAs($this->user, 'api')
+            ->putJson($uri,  [
+                'active' => !$status,
+            ]);
+
+        $this->assertNotEquals($this->model->active, (bool) $response['active']);
     }
 }
