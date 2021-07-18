@@ -77,7 +77,6 @@ class SpecimenTest extends TestCase
 
         $uri = $this->BASE_URI;
 
-        echo $uri;
         $countModels = Specimen::count();
 
         $this->actingAs($this->user, 'api')
@@ -112,11 +111,11 @@ class SpecimenTest extends TestCase
         $this->actingAs($this->user, 'api')
             ->getJson($uri)
             ->assertStatus(Response::HTTP_OK)
-            ->assertJson(function (AssertableJson $json) use ($page) {
+            ->assertJson(function (AssertableJson $json) {
                 return $json
                     ->has('links')
                     ->has('meta')
-                    ->has('data.collection', $page, function ($json) {
+                    ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
                             'name' => 'string',
@@ -132,7 +131,6 @@ class SpecimenTest extends TestCase
      */
     public function se_puede_obtener_el_detalle_del_recurso(): void //show
     {
-        $this->withoutExceptionHandling();
         $uri = sprintf("%s/%s", $this->BASE_URI, $this->model->id);
 
         $this->actingAs($this->user, 'api')

@@ -19,6 +19,8 @@ class CreateMenusTable extends Migration
             $table->string('url');
             $table->string('icon');
             $table->unsignedBigInteger('module_id');
+            $table->unsignedBigInteger('permission_id');
+            $table->integer('order');
             $table->boolean('active')->default(true);
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();

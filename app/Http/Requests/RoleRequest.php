@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Role;
+
 class RoleRequest extends FormRequest
 {
 
@@ -28,6 +30,12 @@ class RoleRequest extends FormRequest
             default:
                 return [];
         }
+    }
+
+
+    public function getPaginate(): int
+    {
+        return $this->get('paginate', (new Role())->getPerPage());
     }
 
 

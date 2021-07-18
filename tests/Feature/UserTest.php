@@ -55,8 +55,6 @@ class UserTest extends TestCase
         $response = $this->actingAs($this->user, 'api')
             ->getJson('/api/v1/users');
 
-        $response->dump();
-
         $response->assertStatus(Response::HTTP_OK);
 
     }

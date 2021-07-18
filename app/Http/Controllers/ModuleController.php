@@ -184,4 +184,25 @@ class ModuleController extends Controller
     private function findBySlug($slug){
         return Module::active()->with('menus')->where('slug', $slug)->first();
     }
+
+    /**
+     * @param ModuleRequest $request
+     * @param Module $module
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function changeActiveAttribute(ModuleRequest $request, Module $module): JsonResponse
+    {
+        $this->authorize('update', $module);
+
+        $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
+
+        try {
+            $module->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+            return response()->json(new ModuleResource($module), Response::HTTP_OK);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

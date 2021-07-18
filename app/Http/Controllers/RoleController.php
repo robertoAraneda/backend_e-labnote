@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleRequest;
+use App\Http\Resources\collections\RoleResourceCollection;
 use App\Http\Resources\PermissionResource;
 use App\Http\Resources\RoleResource;
 use App\Models\Module;
@@ -11,17 +12,42 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class RoleController extends Controller
 {
     /**
+     * @param RoleRequest $request
      * @return JsonResponse
+     * @throws AuthorizationException
      */
-    public function index(): JsonResponse
+    public function index(RoleRequest $request): JsonResponse
     {
-        $roles = Role::with('created_user')->orderBy('id')->get();
+        $this->authorize('viewAny', Role::class);
 
-        return response()->json(RoleResource::collection($roles), 200);
+        $page = $request->input('page');
+
+        if(isset($page)){
+            $items = Role::select(
+                'id',
+                'name',
+                'active',
+            )
+                ->orderBy('id')
+                ->paginate($request->getPaginate());
+        }else{
+            $items = Role::select(
+                'id',
+                'name',
+                'active',
+            )
+                ->orderBy('id')
+                ->get();
+        }
+        $collection = new RoleResourceCollection($items);
+        return
+            response()
+                ->json($collection->response()->getData(true), Response::HTTP_OK);
     }
 
     /**
@@ -34,20 +60,31 @@ class RoleController extends Controller
 
         $this->authorize('create', Role::class);
 
-        $data = array_merge($request->validated(), ['created_user_id' => auth()->id()]);
+        $data = array_merge($request->validated(),
+            [
+                'created_user_id' => auth()->id(),
+                'created_user_ip' => $request->ip(),
+            ]);
+        try {
 
-        $role = Role::create($data);
+            $model = Role::create($data);
 
-        return response()->json(new RoleResource($role), 201);
+            return response()->json(new RoleResource($model) , Response::HTTP_CREATED);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * @param Role $role
      * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function show(Role $role): JsonResponse
     {
-        return response()->json(new RoleResource($role), 200);
+        $this->authorize('view', $role);
+
+        return response()->json(new RoleResource($role), Response::HTTP_OK);
 
     }
 
@@ -61,11 +98,19 @@ class RoleController extends Controller
     {
         $this->authorize('update', $role);
 
-        $data = array_merge($request->validated(), ['updated_user_id' => auth()->id()]);
+        $data = array_merge($request->validated(),
+            [
+                'updated_user_id' => auth()->id(),
+                'updated_user_ip' => $request->ip(),
+            ]);
 
-        $role->update($data);
+        try {
+            $role->update($data);
 
-        return response()->json(new RoleResource($role), 200);
+            return response()->json(new RoleResource($role) , Response::HTTP_OK);
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage() , Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -75,13 +120,24 @@ class RoleController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(Role $role): JsonResponse
+    public function destroy(RoleRequest $request, Role $role): JsonResponse
     {
         $this->authorize('delete', $role);
 
-        $role->delete();
+        try {
 
-        return response()->json(null, 204);
+            $role->update([
+                'deleted_user_id' => auth()->id(),
+                'deleted_user_ip' => $request->ip()
+            ]);
+
+            $role->delete();
+
+            return response()->json(null, Response::HTTP_NO_CONTENT);
+
+        }catch (\Exception $ex){
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -97,7 +153,7 @@ class RoleController extends Controller
 
         $role->syncPermissions($request->all());
 
-        return response()->json($role , 201);
+        return response()->json(PermissionResource::collection($role->permissions) , Response::HTTP_OK);
     }
 
     /**

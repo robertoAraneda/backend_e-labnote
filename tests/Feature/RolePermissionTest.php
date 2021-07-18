@@ -51,7 +51,10 @@ class RolePermissionTest extends TestCase
         $this->role = $role;
     }
 
-    public function test_se_puede_obtener_una_lista_del_recurso(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_del_recurso(): void
     {
 
         $response = $this->actingAs($this->user, 'api')
@@ -71,6 +74,9 @@ class RolePermissionTest extends TestCase
 
     }
 
+    /**
+     * @test
+     */
     public function test_se_puede_crear_un_recurso(): void
     {
         $role = Role::where('name', 'Secretaria')->first();
@@ -86,21 +92,18 @@ class RolePermissionTest extends TestCase
                     $permissionDelete->id,
                 ]);
 
-        $response->assertStatus(Response::HTTP_CREATED);
+        $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJson(fn (AssertableJson $json) =>
-            $json->whereAllType([
-                'id' => 'integer',
-                'name' => 'string',
-                'guard_name' => 'string',
-                'created_at' => 'string',
-                'updated_at' => 'string',
-                'permissions' => 'array'
-            ])
+        $response->assertJson(fn(AssertableJson $json) => $json->has('0', fn($json) => $json->whereAllType([
+            'id' => 'integer',
+            'name' => 'string',
+            'model' => 'string|null',
+            'action' => 'string|null',
+            'description' => 'string|null',
+            'guard_name' => 'string',
+            '_links' => 'array',
+        ]))
         );
 
     }
-
-
-
 }

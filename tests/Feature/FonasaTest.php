@@ -5,9 +5,11 @@ namespace Tests\Feature;
 use App\Http\Controllers\FonasaController;
 use App\Models\Fonasa;
 use App\Models\Role;
+use App\Models\Specimen;
 use App\Models\User;
 use Database\Seeders\FonasaPermissionsSeeder;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -26,9 +28,9 @@ class FonasaTest extends TestCase
     private FonasaController $fonasaController;
     private string $table;
     private string $perPage;
-    private string $base_url;
+    const  BASE_URI = '/api/v1/fonasas';
 
-    public function setUp():void
+    public function setUp(): void
     {
         parent::setUp();
         $this->artisan('passport:install');
@@ -54,7 +56,6 @@ class FonasaTest extends TestCase
         $this->role = $role;
         $this->model = Fonasa::factory()->create();
         $this->table = $modelClass->getTable();
-        $this->base_url = '/api/v1/fonasas';
         $this->perPage = $modelClass->getPerPage();
 
     }
@@ -66,109 +67,157 @@ class FonasaTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-        Fonasa::factory()->count(20) ->sequence(fn ($sequence) => ['mai_code' => 'Name '.$sequence->index])->create();
+        Fonasa::factory()->count(20)->create();
+
+        $countModels = Fonasa::count();
+
+        $this->actingAs($this->user, 'api')
+            ->getJson(self::BASE_URI)
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson(function (AssertableJson $json) use ($countModels) {
+                return $json
+                    ->has('_links')
+                    ->has('count')
+                    ->has('collection', $countModels, function ($json) {
+                        $json->whereAllType([
+                            'name' => 'string',
+                            'mai_code' => 'string',
+                            'rem_code' => 'string',
+                            'active' => 'boolean',
+                            '_links' => 'array'
+                        ]);
+                    });
+            });
+    }
+
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_paginada_del_recurso(): void
+    {
+
+        Fonasa::factory()->count(20)->create();
+
+        $uri = sprintf('/%s?page=1', self::BASE_URI);
 
         $response = $this->actingAs($this->user, 'api')
-            ->getJson($this->base_url);
+            ->getJson($uri);
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJson(function(AssertableJson $json) {
-            return $json
-                ->has('0',function($json) {
-                    $json->whereAllType([
-                        'id' => 'integer',
-                        'name' => 'string',
-                        'active' => 'boolean'
-                    ]);
-                });
-        });
+        $response->assertJson(function (AssertableJson $json) {
+                return $json
+                    ->has('links')
+                    ->has('meta')
+                    ->has('data.collection.0', function ($json) {
+                        $json->whereAllType([
+                            'rem_code' => 'string',
+                            'mai_code' => 'string',
+                            'name' => 'string',
+                            'active' => 'boolean',
+                            '_links' => 'array'
+                        ]);
+                    });
+            });
     }
 
     public function test_se_puede_obtener_el_detalle_del_recurso(): void //show
     {
+
+        $uri = sprintf("%s/%s", self::BASE_URI, $this->model->mai_code);
+
         $response = $this->actingAs($this->user, 'api')
-            ->getJson(sprintf('%s/%s', $this->base_url, $this->model->id));
+            ->getJson($uri);
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertJsonStructure(Fonasa::getObjectJsonStructure());
-
-        $response->assertExactJson([
-            'id' => $this->model->id,
-            'name' => $this->model->name,
-            'active' => $this->model->active
-        ]);
+        $response->assertJson(fn(AssertableJson $json) => $json->where('mai_code', $this->model->mai_code)
+            ->where('name', $this->model->name)
+            ->where('active', $this->model->active)
+            ->etc()
+        );
     }
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
-        $list = Fonasa::count();
 
         $factoryModel = [
-            'name' => 'Fonasa 1',
-            'active' => true
+            'name' => $this->faker->name,
+            'mai_code' => $this->faker->word,
+            'rem_code' => $this->faker->word,
+            'active' => $this->faker->boolean
         ];
 
-        $response = $this->actingAs($this->user, 'api')
-            ->postJson($this->base_url,  $factoryModel);
+        $response = $this
+            ->actingAs($this->user, 'api')
+            ->postJson(self::BASE_URI, $factoryModel);
 
         $response->assertStatus(Response::HTTP_CREATED);
 
-        $response->assertExactJson([
-            'id' => $response->json()['id'],
-            'name' => $factoryModel['name'],
-            'active' => $factoryModel['active']
+        $response->assertJson(fn(AssertableJson $json) => $json
+            ->where('name', $factoryModel['name'])
+            ->where('mai_code', $factoryModel['mai_code'])
+            ->where('rem_code', $factoryModel['rem_code'])
+            ->where('active', $factoryModel['active'])
+            ->etc()
+        );
+
+        $this->assertDatabaseHas($this->table, [
+            'mai_code' => $factoryModel['mai_code'],
         ]);
-
-        $this->assertDatabaseCount($this->table, ($list + 1));
-
     }
 
     public function test_se_puede_modificar_un_recurso(): void // update
     {
+
+        $uri = sprintf('%s/%s',self::BASE_URI, $this->model->mai_code);
         $response = $this->actingAs($this->user, 'api')
-            ->putJson(sprintf('%s/%s', $this->base_url, $this->model->id),  [
+            ->putJson($uri, [
                 'name' => 'new fonasa modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
-        $response->assertExactJson([
-            'id' => $this->model->id,
-            'name' => 'new fonasa modificado',
-            'active' => $this->model->active
-        ]);
+        $response->assertJson(fn(AssertableJson $json) => $json
+            ->where('name', 'new fonasa modificado')
+            ->where('active', $this->model->active)
+            ->etc()
+        );
     }
 
     public function test_se_puede_eliminar_un_recurso(): void //destroy
     {
+        $uri = sprintf('%s/%s', self::BASE_URI, $this->model->mai_code);
+
         $response = $this->actingAs($this->user, 'api')
-            ->deleteJson(sprintf('%s/%s', $this->base_url, $this->model->id));
+            ->deleteJson($uri);
 
         $response->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertDatabaseHas($this->table, ['id'=> $this->model->id]);
+        $this->assertDatabaseHas($this->table, ['mai_code' => $this->model->mai_code]);
         $this->assertSoftDeleted($this->model);
     }
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-        $list = Fonasa::count();
 
         $factoryModel = [
             'name' => $this->faker->name,
+            'mai_code' => $this->faker->word,
+            'rem_code' => $this->faker->word,
             'active' => true
         ];
 
         $this->role->revokePermissionTo('fonasa.create');
 
         $response = $this->actingAs($this->user, 'api')
-            ->postJson($this->base_url, $factoryModel);
+            ->postJson(self::BASE_URI, $factoryModel);
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $this->assertDatabaseCount($this->table, $list);
+        $this->assertDatabaseMissing($this->table, [
+            'mai_code' => $factoryModel['mai_code'],
+        ]);
 
     }
 
@@ -176,38 +225,41 @@ class FonasaTest extends TestCase
     {
         $this->role->revokePermissionTo('fonasa.update');
 
-        $url = sprintf('%s/%s',$this->base_url, $this->model->id);
 
-        $response = $this->actingAs($this->user, 'api')
-            ->putJson($url,  [
-                'name' => 'fonasa name modificado'
-            ]);
+        $uri = sprintf('%s/%s',self::BASE_URI, $this->model->mai_code);
 
-        $this->assertNotEquals($this->model->name, 'fonasa name modificado');
+        $this
+            ->actingAs($this->user, 'api')
+            ->putJson($uri, [
+                'name' => 'resource modificado'
+            ])
+            ->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $response->assertStatus(Response::HTTP_FORBIDDEN);
+        $this->assertDatabaseMissing($this->table, [
+            'name' => 'resource modificado'
+        ]);
     }
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
         $this->role->revokePermissionTo('fonasa.delete');
 
-        $list = Fonasa::count();
+        $uri = sprintf('%s/%s', self::BASE_URI, $this->model->mai_code);
 
-        $uri = sprintf('%s/%s',$this->base_url ,$this->model->id);
+        $this
+            ->actingAs($this->user, 'api')
+            ->deleteJson($uri)
+            ->assertStatus(Response::HTTP_FORBIDDEN);
 
-        $response = $this->actingAs($this->user, 'api')
-            ->deleteJson($uri);
-
-        $response->assertStatus(Response::HTTP_FORBIDDEN);
-
-        $this->assertDatabaseCount($this->table, $list);
+        $this->assertDatabaseHas($this->table, [
+            'name' => $this->model->name,
+        ]);
 
     }
 
     public function test_se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('%s/%s',$this->base_url , -5);
+        $uri = sprintf('%s/%s', self::BASE_URI, -5);
         $response = $this->actingAs($this->user, 'api')
             ->getJson($uri);
 
@@ -217,7 +269,7 @@ class FonasaTest extends TestCase
 
     public function test_se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('%s/%s',$this->base_url ,-5);
+        $uri = sprintf('%s/%s', self::BASE_URI, -5);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($uri);
@@ -228,7 +280,7 @@ class FonasaTest extends TestCase
 
     public function test_se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('%s/%s',$this->base_url ,-5);
+        $uri = sprintf('%s/%s', self::BASE_URI, -5);
 
         $response = $this->actingAs($this->user, 'api')
             ->deleteJson($uri);
@@ -237,14 +289,128 @@ class FonasaTest extends TestCase
 
     }
 
-    public function test_se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
+
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
-        $uri = sprintf('%s/%s',$this->base_url ,'string');
+        Fonasa::factory()->count(20)->create();
+        $list = Fonasa::count();
+        $DEFAULT_PAGINATE = 5;
+        $mod = $list % $DEFAULT_PAGINATE;
+        $pages = intval(ceil($list / $DEFAULT_PAGINATE));
 
-        $response = $this->actingAs($this->user, 'api')
-            ->deleteJson($uri);
+        for ($i = 1; $i <= $pages; $i++) {
+            $uri = sprintf('%s?page=%s&paginate=%s', self::BASE_URI, $i, $DEFAULT_PAGINATE);
+            $response = $this->actingAs($this->user, 'api')
+                ->getJson($uri)
+                ->assertStatus(Response::HTTP_OK)
+                ->assertJson(function (AssertableJson $json) {
+                    return $json
+                        ->has('links')
+                        ->has('meta')
+                        ->has('data.collection.0', function ($json) {
+                            $json->whereAllType([
+                                'rem_code' => 'string',
+                                'mai_code' => 'string',
+                                'name' => 'string',
+                                'active' => 'boolean',
+                                '_links' => 'array'
+                            ]);
+                        });
+                });
 
-        $response->assertStatus(Response::HTTP_NOT_FOUND);
+            if ($i < $pages) {
+                $this->assertEquals($DEFAULT_PAGINATE, collect($response['data']['collection'])->count());
+            } else {
+                if ($mod == 0) {
+                    $this->assertEquals($DEFAULT_PAGINATE, collect($response['data']['collection'])->count());
+                } else {
+                    $this->assertEquals($mod, collect($response['data']['collection'])->count());
+                }
+
+            }
+        }
+        $this->assertDatabaseCount($this->table, $list);
     }
+
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
+    {
+        Fonasa::factory()->count(20)->create();
+
+        $list = Fonasa::count();
+
+        $pages = intval(ceil($list / $this->perPage));
+        $mod = $list % $this->perPage;
+
+        for ($i = 1; $i <= $pages; $i++) {
+
+            $uri = sprintf('%s?page=%s', self::BASE_URI, $i);
+
+            $response = $this
+                ->actingAs($this->user, 'api')
+                ->getJson($uri)
+                ->assertStatus(Response::HTTP_OK)
+                ->assertJson(function (AssertableJson $json) {
+                    return $json
+                        ->has('links')
+                        ->has('meta')
+                        ->has('data.collection.0', function ($json) {
+                            $json->whereAllType([
+                                'rem_code' => 'string',
+                                'mai_code' => 'string',
+                                'name' => 'string',
+                                'active' => 'boolean',
+                                '_links' => 'array'
+                            ]);
+                        });
+                });
+
+            if ($i < $pages) {
+                $this->assertEquals($this->perPage, collect($response['data']['collection'])->count());
+            } else {
+                if ($mod == 0) {
+                    $this->assertEquals($this->perPage, collect($response['data']['collection'])->count());
+                } else {
+                    $this->assertEquals($mod, collect($response['data']['collection'])->count());
+                }
+            }
+        }
+
+        $this->assertDatabaseCount($this->table, $list);
+    }
+
+
+    /**
+     * @test
+     */
+    public function se_puede_modificar_el_estado_de_un_recurso()
+    {
+
+        $this->withoutExceptionHandling();
+        $uri = sprintf('%s/%s/status', self::BASE_URI, $this->model->mai_code);
+
+        if($this->model->active){
+            $response = $this->actingAs($this->user, 'api')
+                ->putJson($uri, [
+                    'active' => false
+                ]);
+        }else{
+            $response = $this->actingAs($this->user, 'api')
+                ->putJson($uri, [
+                    'active' => true
+                ]);
+        }
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $this->assertNotEquals($response['active'], $this->model->active);
+
+    }
+
 
 }

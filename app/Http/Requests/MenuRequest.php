@@ -19,6 +19,7 @@ class MenuRequest extends FormRequest
                     'name' => 'string',
                     'icon' => 'string',
                     'url' => 'string',
+                    'order' => 'integer',
                     'module_id' => 'integer',
                     'permission_id' => 'integer',
                     'active' => 'boolean',
@@ -26,11 +27,12 @@ class MenuRequest extends FormRequest
             case 'POST':
                 return [
                     'name' => 'required|string',
-                    'icon' => 'string',
-                    'url' => 'string',
+                    'icon' => 'required|string',
+                    'url' => 'required|string',
+                    'order' => 'required|integer',
                     'module_id' => 'required|integer',
                     'permission_id' => 'required|integer',
-                    'active' => 'boolean'
+                    'active' => 'required|boolean'
                 ];
             default:
                 return [];

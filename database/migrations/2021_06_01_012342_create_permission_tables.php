@@ -42,6 +42,8 @@ class CreatePermissionTables extends Migration
             $table->boolean('active')->default(true); // For MySQL 8.0 use string('guard_name', 125);
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
+            $table->unsignedBigInteger('created_user_ip')->nullable();
+            $table->unsignedBigInteger('updated_user_ip')->nullable();
             $table->timestamps();
 
             $table->unique(['name', 'guard_name']);

@@ -15,10 +15,9 @@ class FonasaResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id' => $this->id,
             'name' => $this->name,
             'mai_code' => $this->mai_code,
-            'rem_code' => $this->name,
+            'rem_code' => $this->rem_code,
             'active' => (bool) $this->active,
             'created_user_ip' => $this->created_user_ip,
             'updated_user_ip' => $this->updated_user_ip,
@@ -26,7 +25,7 @@ class FonasaResource extends JsonResource
             'updated_at' => $this->date($this->updated_at),
             '_links' => [
                 'self' => [
-                    'href' => route('api.fonasas.show', ['fonasa' => $this->id], false),
+                    'href' => route('api.fonasas.show', ['fonasa' => $this->mai_code], false),
                 ],
             ],
             '_embedded' => [

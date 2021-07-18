@@ -204,7 +204,7 @@ class LoincTest extends TestCase
         $response->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'long_common_name' => $factoryModel['long_common_name'],
+            'loinc_num' => $factoryModel['loinc_num'],
         ]);
 
     }

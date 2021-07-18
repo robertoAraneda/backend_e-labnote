@@ -15,6 +15,24 @@ class ModuleResource extends JsonResource
      */
     public function toArray($request): array
     {
+
+        if(isset($this->checkbox)){
+            return [
+                'id' => $this->id,
+                'name' => $this->name,
+                'url' => $this->url,
+                'slug' => $this->slug,
+                'icon' => $this->icon,
+                'checkbox' => $this->checkbox,
+                'active' => (bool) $this->active,
+                '_links' => [
+                    'self' =>[
+                        'href' => route('api.modules.show', ['module' => $this->id], false),
+                    ] ,
+                ],
+            ];
+        }
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -26,10 +44,8 @@ class ModuleResource extends JsonResource
                 'self' =>[
                     'href' => route('api.modules.show', ['module' => $this->id], false),
                 ] ,
-                'menus' =>[
-                    'href' => route('api.module.menus', ['module' => $this->id], false),
-                ] ,
             ],
         ];
+
     }
 }

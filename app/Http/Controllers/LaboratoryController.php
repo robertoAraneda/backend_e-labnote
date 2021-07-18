@@ -29,7 +29,7 @@ class LaboratoryController extends Controller
      */
     public function index(LaboratoryRequest $request): JsonResponse
     {
-        $this->authorize('viewAny', User::class);
+        $this->authorize('viewAny', Laboratory::class);
 
         $page = $request->input('page');
 
@@ -73,7 +73,6 @@ class LaboratoryController extends Controller
             [
                 'created_user_id' => auth()->id(),
                 'created_user_ip' => $request->ip(),
-                'url' => $request->url()
             ]);
         try {
 
@@ -117,7 +116,6 @@ class LaboratoryController extends Controller
             [
                 'updated_user_id' => auth()->id(),
                 'updated_user_ip' => $request->ip(),
-                'url' => $request->url()
             ]);
 
         try {

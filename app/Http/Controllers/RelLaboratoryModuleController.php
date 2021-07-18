@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\ModuleResource;
+use App\Http\Resources\collections\ModuleResource;
 use App\Models\Laboratory;
 use App\Models\Module;
 use Illuminate\Http\JsonResponse;
