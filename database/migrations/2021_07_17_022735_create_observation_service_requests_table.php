@@ -17,6 +17,7 @@ class CreateObservationServiceRequestsTable extends Migration
             $table->id();
             $table->text('clinical_information');
             $table->string('name');
+            $table->string('slug');
             $table->unsignedBigInteger('container_id');
             $table->unsignedBigInteger('specimen_id');
             $table->unsignedBigInteger('availability_id');

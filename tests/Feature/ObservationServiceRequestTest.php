@@ -100,6 +100,7 @@ class ObservationServiceRequestTest extends TestCase
                     $json->whereAllType([
                         'id' => 'integer',
                         'name' => 'string',
+                        'slug' => 'string',
                         'active' => 'boolean',
                         '_links' => 'array'
                     ])->etc();
@@ -129,6 +130,7 @@ class ObservationServiceRequestTest extends TestCase
                         $json->whereAllType([
                             'id' => 'integer',
                             'name' => 'string',
+                            'slug' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);
@@ -399,6 +401,7 @@ class ObservationServiceRequestTest extends TestCase
                             $json->whereAllType([
                                 'id' => 'integer',
                                 'name' => 'string',
+                                'slug' => 'string',
                                 'active' => 'boolean',
                                 '_links' => 'array'
                             ]);
@@ -447,6 +450,7 @@ class ObservationServiceRequestTest extends TestCase
                             $json->whereAllType([
                                 'id' => 'integer',
                                 'name' => 'string',
+                                'slug' => 'string',
                                 'active' => 'boolean',
                                 '_links' => 'array'
                             ]);

@@ -18,6 +18,7 @@ class ObservationServiceRequestResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'slug' => $this->slug,
             'clinical_information' => $this->clinical_information,
             'active' => (bool)$this->active,
             'created_user_ip' => $this->created_user_ip,
@@ -35,11 +36,12 @@ class ObservationServiceRequestResource extends JsonResource
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),
                 'updatedUser' => $this->user($this->updatedUser),
-                'process_time' => $this->processTime($this->processTime),
+                'processTime' => $this->processTime($this->processTime),
                 'workarea' => $this->workarea($this->workarea),
-                'medical_request_type' => $this->medicalRequestType($this->medicalRequestType),
+                'medicalRequestType' => $this->medicalRequestType($this->medicalRequestType),
                 'availability' => $this->availability($this->availability),
                 'specimen' => $this->specimen($this->specimen),
+                'container' => $this->container($this->container),
                 'loinc' => $this->loinc($this->loinc),
                 'analyte' => $this->analyte($this->analyte),
                 'samplingConditions' => $this->samplingConditions($this->samplingConditions)
@@ -92,6 +94,7 @@ class ObservationServiceRequestResource extends JsonResource
 
         return [
             'name' => $availability->name,
+            'id' => $availability->id,
             '_links' => [
                 'self' => [
                     'href' => route('api.availabilities.show', ['availability' => $availability->id], false)
@@ -111,9 +114,30 @@ class ObservationServiceRequestResource extends JsonResource
 
         return [
             'name' => $analyte->name,
+            'id' => $analyte->id,
             '_links' => [
                 'self' => [
                     'href' => route('api.analytes.show', ['analyte' => $analyte->id], false)
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @param $analyte
+     * @return array|null
+     */
+
+    private function container($container): ?array
+    {
+        if (!isset($container)) return null;
+
+        return [
+            'name' => $container->name,
+            'id' => $container->id,
+            '_links' => [
+                'self' => [
+                    'href' => route('api.analytes.show', ['analyte' => $container->id], false)
                 ]
             ]
         ];
@@ -131,6 +155,7 @@ class ObservationServiceRequestResource extends JsonResource
 
         return [
             'name' => $loinc->long_common_name,
+            'loinc_num' => $loinc->loinc_num,
             '_links' => [
                 'self' => [
                     'href' => route('api.loincs.show', ['loinc' => $loinc->loinc_num], false)
@@ -150,6 +175,7 @@ class ObservationServiceRequestResource extends JsonResource
 
         return [
             'name' => $specimen->name,
+            'id' => $specimen->id,
             '_links' => [
                 'self' => [
                     'href' => route('api.specimens.show', ['specimen' => $specimen->id], false)
@@ -169,6 +195,7 @@ class ObservationServiceRequestResource extends JsonResource
 
         return [
             'name' => $processTime->name,
+            'id' => $processTime->id,
             '_links' => [
                 'self' => [
                     'href' => route('api.process-times.show', ['process_time' => $processTime->id], false)
@@ -188,6 +215,7 @@ class ObservationServiceRequestResource extends JsonResource
 
         return [
             'name' => $workarea->name,
+            'id' => $workarea->id,
             '_links' => [
                 'self' => [
                     'href' => route('api.workareas.show', ['workarea' => $workarea->id], false)
@@ -207,6 +235,7 @@ class ObservationServiceRequestResource extends JsonResource
 
         return [
             'name' => $medicalRequestType->name,
+            'id' => $medicalRequestType->id,
             '_links' => [
                 'self' => [
                     'href' => route('api.medical-request-types.show', ['medical_request_type' => $medicalRequestType->id], false)

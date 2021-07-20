@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\ObservationServiceRequest;
+use Illuminate\Support\Str;
 
 class ObservationServiceRequestRequest extends FormRequest
 {
@@ -87,4 +88,5 @@ class ObservationServiceRequestRequest extends FormRequest
             'active.booleam' => $this->getBooleanMessage(),
         ];
     }
+
 }

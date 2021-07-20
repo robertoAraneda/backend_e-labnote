@@ -18,6 +18,7 @@ class ObservationServiceRequestResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'slug' => $this->slug,
             'active' => (bool)$this->active,
             '_links' => [
                 'self' => [
