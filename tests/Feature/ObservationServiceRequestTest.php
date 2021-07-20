@@ -91,7 +91,7 @@ class ObservationServiceRequestTest extends TestCase
         $response = $this->actingAs($this->user, 'api')
             ->getJson($uri);
         $response->assertStatus(Response::HTTP_OK);
-        $response->dump();
+
         $response->assertJson(function (AssertableJson $json) use ($countModels) {
             return $json
                 ->has('_links')
@@ -149,6 +149,7 @@ class ObservationServiceRequestTest extends TestCase
             ->assertStatus(Response::HTTP_OK)
             ->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
                 ->where('clinical_information', $this->model->clinical_information)
+                ->where('name', $this->model->name)
                 ->where('active', $this->model->active)
                 ->etc()
             );
@@ -171,6 +172,7 @@ class ObservationServiceRequestTest extends TestCase
 
         $factoryModel = [
             'clinical_information' => $this->faker->text,
+            'name' => $this->faker->name,
             'container_id' => $container->id,
             'specimen_id' => $specimen->id,
             'availability_id' => $availability->id,
@@ -192,12 +194,14 @@ class ObservationServiceRequestTest extends TestCase
         $response->assertStatus(Response::HTTP_CREATED);
 
         $response->assertJson(fn(AssertableJson $json) => $json
+            ->where('clinical_information', $factoryModel['clinical_information'])
+            ->where('name', $factoryModel['name'])
             ->where('active', $factoryModel['active'])
             ->etc()
         );
 
         $this->assertDatabaseHas($this->table, [
-            'clinical_information' => $factoryModel['clinical_information'],
+            'name' => $factoryModel['name'],
         ]);
     }
 
@@ -218,6 +222,7 @@ class ObservationServiceRequestTest extends TestCase
             ->assertJson(fn(AssertableJson $json) => $json
                 ->where('id', $this->model->id)
                 ->where('clinical_information', 'clinical_information modificado')
+                ->where('name', $this->model->name)
                 ->where('active', $this->model->active)
                 ->etc()
             );
@@ -263,6 +268,7 @@ class ObservationServiceRequestTest extends TestCase
 
         $factoryModel = [
             'clinical_information' => $this->faker->text,
+            'name' => $this->faker->name,
             'container_id' => $container->id,
             'specimen_id' => $specimen->id,
             'availability_id' => $availability->id,
@@ -285,7 +291,7 @@ class ObservationServiceRequestTest extends TestCase
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'clinical_information' => $factoryModel['clinical_information'],
+            'name' => $factoryModel['name'],
         ]);
 
     }

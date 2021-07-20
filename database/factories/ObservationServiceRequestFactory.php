@@ -33,6 +33,7 @@ class ObservationServiceRequestFactory extends Factory
 
         return [
             'clinical_information' => $this->faker->text,
+            'name' => $this->faker->name,
             'container_id' => Container::factory(),
             'specimen_id' => Specimen::factory(),
             'availability_id' => Availability::factory(),

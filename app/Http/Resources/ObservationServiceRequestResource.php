@@ -17,7 +17,7 @@ class ObservationServiceRequestResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name($this->analyte, $this->specimen),
+            'name' => $this->name,
             'clinical_information' => $this->clinical_information,
             'active' => (bool)$this->active,
             'created_user_ip' => $this->created_user_ip,
@@ -47,17 +47,6 @@ class ObservationServiceRequestResource extends JsonResource
         ];
     }
 
-
-    /**
-     * @param $analyte
-     * @param $specimen
-     * @return string
-     */
-    private function name($analyte, $specimen): string
-    {
-        if (isset($analyte) && isset($specimen)) return $analyte->name . ", " . $specimen->name;
-        return '';
-    }
 
     /**
      * @param $date

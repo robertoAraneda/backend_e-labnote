@@ -21,6 +21,7 @@ class ObservationServiceRequest extends Model
      */
     protected $fillable = [
         'clinical_information',
+        'name',
         'loinc_num',
         'process_time_id',
         'workarea_id',

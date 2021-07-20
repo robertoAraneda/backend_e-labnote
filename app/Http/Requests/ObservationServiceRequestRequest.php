@@ -18,6 +18,7 @@ class ObservationServiceRequestRequest extends FormRequest
             case 'PUT':
                 return [
                     'clinical_information' => 'string',
+                    'name' => 'string',
                     'container_id' => 'integer',
                     'specimen_id' => 'integer',
                     'availability_id' => 'integer',
@@ -32,6 +33,7 @@ class ObservationServiceRequestRequest extends FormRequest
             case 'POST':
                 return [
                     'clinical_information' => 'required|string',
+                    'name' => 'required|string',
                     'container_id' => 'required|integer',
                     'specimen_id' => 'required|integer',
                     'availability_id' => 'required|integer',
@@ -60,6 +62,7 @@ class ObservationServiceRequestRequest extends FormRequest
     {
         return [
             'clinical_information.required' => $this->getRequiredMessage(),
+            'name.required' => $this->getRequiredMessage(),
             'container_id.required' => $this->getRequiredMessage(),
             'specimen_id.required' => $this->getRequiredMessage(),
             'availability_id.required' => $this->getRequiredMessage(),
@@ -71,6 +74,7 @@ class ObservationServiceRequestRequest extends FormRequest
             'loinc_num.required' => $this->getRequiredMessage(),
             'active.required' => $this->getRequiredMessage(),
             'clinical_information.string' => $this->getStringMessage(),
+            'name.string' => $this->getStringMessage(),
             'container_id.integer' => $this->getIntegerMessage(),
             'specimen_id.integer' => $this->getIntegerMessage(),
             'availability_id.integer' => $this->getIntegerMessage(),
