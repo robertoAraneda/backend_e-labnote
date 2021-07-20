@@ -17,7 +17,8 @@ class ObservationServiceRequestResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name($this->analyte, $this->specimen),
+            'name' => $this->name,
+            'slug' => $this->slug,
             'active' => (bool)$this->active,
             '_links' => [
                 'self' => [
@@ -27,9 +28,4 @@ class ObservationServiceRequestResource extends JsonResource
         ];
     }
 
-    private function name($analyte, $specimen): string
-    {
-        if(isset($analyte) && isset($specimen)) return $analyte->name.", ".$specimen->name;
-        return '';
-    }
 }

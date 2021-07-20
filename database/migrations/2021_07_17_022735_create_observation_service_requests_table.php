@@ -16,6 +16,8 @@ class CreateObservationServiceRequestsTable extends Migration
         Schema::create('observation_service_requests', function (Blueprint $table) {
             $table->id();
             $table->text('clinical_information');
+            $table->string('name');
+            $table->string('slug');
             $table->unsignedBigInteger('container_id');
             $table->unsignedBigInteger('specimen_id');
             $table->unsignedBigInteger('availability_id');

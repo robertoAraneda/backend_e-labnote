@@ -21,6 +21,8 @@ class ObservationServiceRequest extends Model
      */
     protected $fillable = [
         'clinical_information',
+        'name',
+        'slug',
         'loinc_num',
         'process_time_id',
         'workarea_id',
@@ -140,7 +142,15 @@ class ObservationServiceRequest extends Model
      */
     public function loinc(): BelongsTo
     {
-        return $this->belongsTo(Loinc::class);
+        return $this->belongsTo(Loinc::class, 'loinc_num', 'loinc_num');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function container(): BelongsTo
+    {
+        return $this->belongsTo(Container::class);
     }
 
     /**

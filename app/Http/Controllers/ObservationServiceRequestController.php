@@ -8,6 +8,7 @@ use App\Http\Resources\ObservationServiceRequestResource;
 use App\Models\ObservationServiceRequest;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class ObservationServiceRequestController extends Controller
@@ -26,6 +27,10 @@ class ObservationServiceRequestController extends Controller
         if(isset($page)){
             $items = ObservationServiceRequest::select(
                 'id',
+                'name',
+                'slug',
+                'specimen_id',
+                'analyte_id',
                 'active',
             )
                 ->with(['specimen', 'analyte'])
@@ -34,6 +39,8 @@ class ObservationServiceRequestController extends Controller
         }else{
             $items = ObservationServiceRequest::select(
                 'id',
+                'name',
+                'slug',
                 'specimen_id',
                 'analyte_id',
                 'active',
@@ -63,6 +70,7 @@ class ObservationServiceRequestController extends Controller
             [
                 'created_user_id' => auth()->id(),
                 'created_user_ip' => $request->ip(),
+                'slug' => Str::slug($request->name)
             ]);
         try {
 
@@ -100,6 +108,7 @@ class ObservationServiceRequestController extends Controller
             [
                 'updated_user_id' => auth()->id(),
                 'updated_user_ip' => $request->ip(),
+                'slug' => Str::slug($request->name)
             ]);
 
         try {
