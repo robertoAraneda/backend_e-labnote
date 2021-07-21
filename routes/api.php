@@ -165,6 +165,7 @@ Route::group([
 
     //search queries
     Route::get('modules/search', [ModuleController::class, 'searchByParams']);
+    Route::get('observation-service-requests/search', [ObservationServiceRequestController::class, 'searchByParams']);
 
 
     //change active attribute mode

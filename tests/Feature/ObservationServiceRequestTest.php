@@ -207,7 +207,6 @@ class ObservationServiceRequestTest extends TestCase
         ]);
     }
 
-
     /**
      * @test
      */
@@ -320,7 +319,6 @@ class ObservationServiceRequestTest extends TestCase
     }
 
     /**
-     *
      * @test
      */
     public function se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
@@ -469,5 +467,25 @@ class ObservationServiceRequestTest extends TestCase
         }
 
         $this->assertDatabaseCount($this->table, $list);
+    }
+
+    /**
+     * @test
+     */
+    public function se_puede_obtener_un_recurso_mediante_slug()
+    {
+
+        $uri = sprintf("%s/search?slug=%s", $this->BASE_URI, $this->model->slug);
+
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson($uri);
+
+        $response->assertStatus(Response::HTTP_OK);
+        $response->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
+            ->where('clinical_information', $this->model->clinical_information)
+            ->where('name', $this->model->name)
+            ->where('active', $this->model->active)
+            ->etc()
+        );
     }
 }
