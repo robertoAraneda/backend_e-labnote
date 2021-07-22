@@ -2,17 +2,18 @@
 
 namespace Database\Factories;
 
-use App\Models\Container;
+use App\Models\District;
+use App\Models\State;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class ContainerFactory extends Factory
+class DistrictFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Container::class;
+    protected $model = District::class;
 
     /**
      * Define the model's default state.
@@ -23,7 +24,8 @@ class ContainerFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
-            'shortname' => $this->faker->title,
+            'code' => $this->faker->title,
+            'state_id' => State::factory(),
             'active'=> $this->faker->boolean
         ];
     }

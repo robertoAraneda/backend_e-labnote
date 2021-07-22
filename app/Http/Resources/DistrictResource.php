@@ -2,10 +2,9 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ContainerResource extends JsonResource
+class DistrictResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,7 +17,7 @@ class ContainerResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'shortname' => $this->shortname,
+            'code' => $this->code,
             'active' => (bool) $this->active,
             'created_user_ip' => $this->created_user_ip,
             'updated_user_ip' => $this->updated_user_ip,
@@ -26,12 +25,13 @@ class ContainerResource extends JsonResource
             'updated_at' => $this->date($this->updated_at),
             '_links' => [
                 'self' => [
-                    'href' => route('api.containers.show', ['container' => $this->id], false),
+                    'href' => route('api.districts.show', ['district' => $this->id], false),
                 ],
             ],
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),
                 'updatedUser' => $this->user($this->updatedUser),
+                'state' => $this->state($this->state)
             ],
         ];
     }
@@ -68,4 +68,22 @@ class ContainerResource extends JsonResource
         ];
     }
 
+    /**
+     * @param $model
+     * @return array|null
+     */
+
+    private function state($model): ?array
+    {
+        if(!isset($model)) return null;
+
+        return [
+            'name' => $model->name,
+            '_links' => [
+                'self' => [
+                    'href' => route('api.states.show', ['state' => $model->id], false)
+                ]
+            ]
+        ];
+    }
 }
