@@ -184,6 +184,7 @@ Route::group([
     Route::put('fonasas/{fonasa}/status', [FonasaController::class, 'changeActiveAttribute']);
     Route::put('menus/{menu}/status', [MenuController::class, 'changeActiveAttribute']);
     Route::put('modules/{module}/status', [ModuleController::class, 'changeActiveAttribute']);
+    Route::put('observation-service-requests/{observation_service_request}/status', [ObservationServiceRequestController::class, 'changeActiveAttribute']);
 
 
     //test routes

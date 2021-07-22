@@ -488,4 +488,24 @@ class ObservationServiceRequestTest extends TestCase
             ->etc()
         );
     }
+
+    /**
+     * @test
+     */
+    public function se_puede_modificar_el_estado_de_un_recurso()
+    {
+
+        $status = filter_var($this->model->active, FILTER_VALIDATE_BOOLEAN);
+
+        $uri = sprintf('%s/%s/status', $this->BASE_URI, $this->model->id);
+
+        $response = $this->actingAs($this->user, 'api')
+            ->putJson($uri, [
+                'active' => !$status,
+            ]);
+
+        $response->dump();
+
+        $this->assertNotEquals($this->model->active, (bool)$response['active']);
+    }
 }
