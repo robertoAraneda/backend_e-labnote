@@ -20,6 +20,7 @@ use App\Http\Controllers\SampleQuantityController;
 use App\Http\Controllers\SpecimenController;
 use App\Http\Controllers\SamplingConditionController;
 use App\Http\Controllers\SamplingIndicationController;
+use App\Http\Controllers\StateController;
 use App\Http\Controllers\WorkareaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PermissionController;
@@ -134,6 +135,10 @@ Route::group([
         ->whereNumber('observation_service_request')
         ->names('api.observation-service-requests');
 
+    Route::apiResource('states', StateController::class)
+        ->whereNumber('state')
+        ->names('api.states');
+
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     //Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
@@ -163,6 +168,7 @@ Route::group([
         ->whereNumber('specimen')
         ->names('api.specimens.sampling-indications');
 
+
     //search queries
     Route::get('modules/search', [ModuleController::class, 'searchByParams']);
     Route::get('observation-service-requests/search', [ObservationServiceRequestController::class, 'searchByParams']);
@@ -185,6 +191,7 @@ Route::group([
     Route::put('menus/{menu}/status', [MenuController::class, 'changeActiveAttribute']);
     Route::put('modules/{module}/status', [ModuleController::class, 'changeActiveAttribute']);
     Route::put('observation-service-requests/{observation_service_request}/status', [ObservationServiceRequestController::class, 'changeActiveAttribute']);
+    Route::put('states/{state}/status', [StateController::class, 'changeActiveAttribute']);
 
 
     //test routes

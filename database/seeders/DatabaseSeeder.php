@@ -43,7 +43,8 @@ class DatabaseSeeder extends Seeder
             ContainerSeeder::class,
             ContainerPermissionSeeder::class,
             SpecimenSeeder::class,
-            SpecimenPermissionSeeder::class
+            SpecimenPermissionSeeder::class,
+            StatePermissionSeeder::class,
         ]);
     }
 }
