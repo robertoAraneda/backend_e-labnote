@@ -5,9 +5,9 @@ namespace Database\Seeders;
 use App\Models\Permission;
 use Illuminate\Database\Seeder;
 
-class CityPermissionSeeder extends Seeder
+class DistrictPermissionSeeder extends Seeder
 {
-    private string $model = 'city';
+    private string $model = 'district';
 
 
     /**
@@ -21,27 +21,27 @@ class CityPermissionSeeder extends Seeder
             [
                 'name' => "{$this->model}.create",
                 'action' => 'create',
-                'description' => 'Crear comuna'
+                'description' => 'Crear provincia'
             ],
             [
                 'name' => "{$this->model}.update",
                 'action' => 'update',
-                'description' => 'Modificar comuna'
+                'description' => 'Modificar provincia'
             ],
             [
                 'name' => "{$this->model}.delete",
                 'action' => 'delete',
-                'description' => 'Eliminar comuna'
+                'description' => 'Eliminar provincia'
             ],
             [
                 'name' => "{$this->model}.show",
                 'action' => 'show',
-                'description' => 'Ver detalle  comuna'
+                'description' => 'Ver detalle  provincia'
             ],
             [
                 'name' => "{$this->model}.index",
                 'action' => 'index',
-                'description' => 'Ver todos comuna'
+                'description' => 'Ver todos provincia'
             ],
         ];
 
@@ -49,7 +49,7 @@ class CityPermissionSeeder extends Seeder
             Permission::create([
                 'name' => $permission['name'],
                 'guard_name' => 'api',
-                'model' => 'City',
+                'model' => 'District',
                 'action' => $permission['action'],
                 'description' => $permission['description']
             ]);

@@ -5,7 +5,7 @@ namespace App\Http\Resources\collections;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CityResource extends JsonResource
+class DistrictResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -21,7 +21,7 @@ class CityResource extends JsonResource
             'active' => (bool) $this->active,
             '_links' => [
                 'self' =>[
-                    'href' => route('api.cities.show', ['city' => $this->id], false),
+                    'href' => route('api.districts.show', ['district' => $this->id], false),
                 ] ,
             ],
         ];

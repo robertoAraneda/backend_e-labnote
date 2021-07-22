@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CityResource extends JsonResource
+class DistrictResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -25,13 +25,13 @@ class CityResource extends JsonResource
             'updated_at' => $this->date($this->updated_at),
             '_links' => [
                 'self' => [
-                    'href' => route('api.cities.show', ['city' => $this->id], false),
+                    'href' => route('api.districts.show', ['district' => $this->id], false),
                 ],
             ],
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),
                 'updatedUser' => $this->user($this->updatedUser),
-                'district' => $this->district($this->district)
+                'state' => $this->state($this->state)
             ],
         ];
     }
@@ -69,11 +69,11 @@ class CityResource extends JsonResource
     }
 
     /**
-     * @param $user
+     * @param $model
      * @return array|null
      */
 
-    private function district($model): ?array
+    private function state($model): ?array
     {
         if(!isset($model)) return null;
 
@@ -81,10 +81,9 @@ class CityResource extends JsonResource
             'name' => $model->name,
             '_links' => [
                 'self' => [
-                    'href' => route('api.districts.show', ['district' => $model->id], false)
+                    'href' => route('api.states.show', ['state' => $model->id], false)
                 ]
             ]
         ];
     }
-
 }

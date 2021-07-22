@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class City extends Model
+class District extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -20,7 +21,7 @@ class City extends Model
     protected  $fillable = [
         'code',
         'name',
-        'district_id',
+        'state_id',
         'active',
         'created_user_id',
         'updated_user_id',
@@ -76,8 +77,16 @@ class City extends Model
     /**
      * @return BelongsTo
      */
-    public function district(): BelongsTo
+    public function state(): BelongsTo
     {
-        return $this->belongsTo(District::class);
+        return $this->belongsTo(State::class, );
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function cities(): HasMany
+    {
+        return $this->hasMany(City::class, );
     }
 }

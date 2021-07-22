@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AnalyteController;
+use App\Http\Controllers\CityController;
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\AvailabilityController;
+use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\FonasaController;
 use App\Http\Controllers\LaboratoryController;
 use App\Http\Controllers\LoincController;
@@ -139,6 +141,14 @@ Route::group([
         ->whereNumber('state')
         ->names('api.states');
 
+    Route::apiResource('cities', CityController::class)
+        ->whereNumber('city')
+        ->names('api.cities');
+
+    Route::apiResource('district', DistrictController::class)
+        ->whereNumber('district')
+        ->names('api.districts');
+
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     //Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
@@ -192,6 +202,8 @@ Route::group([
     Route::put('modules/{module}/status', [ModuleController::class, 'changeActiveAttribute']);
     Route::put('observation-service-requests/{observation_service_request}/status', [ObservationServiceRequestController::class, 'changeActiveAttribute']);
     Route::put('states/{state}/status', [StateController::class, 'changeActiveAttribute']);
+    Route::put('districts/{district}/status', [DistrictController::class, 'changeActiveAttribute']);
+    Route::put('cities/{city}/status', [CityController::class, 'changeActiveAttribute']);
 
 
     //test routes

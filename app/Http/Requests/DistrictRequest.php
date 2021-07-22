@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Models\City;
+use App\Models\District;
 
-class CityRequest extends FormRequest
+class DistrictRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -18,14 +18,14 @@ class CityRequest extends FormRequest
                 return [
                     'name' => 'string',
                     'code' => 'string',
-                    'district_id' => 'integer',
+                    'state_id' => 'integer',
                     'active' => 'boolean',
                 ];
             case 'POST':
                 return [
                     'name' => 'required|string',
                     'code' =>  'required|string',
-                    'district_id' => 'required|integer',
+                    'state_id' => 'required|integer',
                     'active' =>  'required|boolean'
                 ];
             default:
@@ -38,7 +38,7 @@ class CityRequest extends FormRequest
      */
     public function getPaginate(): int
     {
-        return $this->get('paginate', (new City())->getPerPage());
+        return $this->get('paginate', (new District())->getPerPage());
     }
 
     /**
@@ -51,11 +51,11 @@ class CityRequest extends FormRequest
         return [
             'name.required' => $this->getRequiredMessage(),
             'code.required' => $this->getRequiredMessage(),
-            'district_id.required' => $this->getRequiredMessage(),
+            'state_id.required' => $this->getRequiredMessage(),
             'active.required' => $this->getRequiredMessage(),
             'name.string' => $this->getStringMessage(),
             'code.string' => $this->getStringMessage(),
-            'district_id.integer' => $this->getIntegerMessage(),
+            'state_id.integer' => $this->getIntegerMessage(),
             'active.boolean' => $this->getBooleanMessage(),
         ];
     }

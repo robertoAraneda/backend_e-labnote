@@ -5,15 +5,14 @@ namespace App\Http\Resources\collections;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class CityResourceCollection extends ResourceCollection
+class DistrictResourceCollection extends ResourceCollection
 {
-
     /**
      * The resource that this resource collects.
      *
      * @var string
      */
-    public $collects = 'App\Http\Resources\Collections\CityResource';
+    public $collects = 'App\Http\Resources\Collections\DistrictResource';
 
 
     /**
@@ -27,8 +26,8 @@ class CityResourceCollection extends ResourceCollection
         return [
             '_links' => [
                 'self' => [
-                    'href' => route('api.cities.index', [], false),
-                    'title' => 'Lista de comunas de chile',
+                    'href' => route('api.districts.index', [], false),
+                    'title' => 'Lista de provincias de chile',
                 ]
             ],
             'count' => $this->collection->count(),

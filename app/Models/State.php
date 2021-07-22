@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class State extends Model
@@ -70,5 +71,13 @@ class State extends Model
     public function deletedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_user_id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function districts(): HasMany
+    {
+        return $this->hasMany(District::class, );
     }
 }

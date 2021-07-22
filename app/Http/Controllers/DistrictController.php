@@ -2,31 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CityRequest;
-use App\Http\Resources\CityResource;
-use App\Http\Resources\collections\CityResourceCollection;
-use App\Models\City;
+use App\Http\Requests\DistrictRequest;
+use App\Http\Resources\collections\DistrictResourceCollection;
+use App\Http\Resources\DistrictResource;
+use App\Models\District;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-class CityController extends Controller
+class DistrictController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @param CityRequest $request
+     * @param DistrictRequest $request
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function index(CityRequest $request): JsonResponse
+    public function index(DistrictRequest $request): JsonResponse
     {
-        $this->authorize('viewAny', City::class);
+        $this->authorize('viewAny', District::class);
 
         $page = $request->input('page');
 
         if(isset($page)){
-            $items = City::select(
+            $items = District::select(
                 'id',
                 'name',
                 'active',
@@ -34,7 +34,7 @@ class CityController extends Controller
                 ->orderBy('id')
                 ->paginate($request->getPaginate());
         }else{
-            $items = City::select(
+            $items = District::select(
                 'id',
                 'name',
                 'active',
@@ -42,7 +42,7 @@ class CityController extends Controller
                 ->orderBy('id')
                 ->get();
         }
-        $collection = new CityResourceCollection($items);
+        $collection = new DistrictResourceCollection($items);
         return
             response()
                 ->json($collection->response()->getData(true), Response::HTTP_OK);
@@ -51,13 +51,13 @@ class CityController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param CityRequest $request
+     * @param DistrictRequest $request
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function store(CityRequest $request): JsonResponse
+    public function store(DistrictRequest $request): JsonResponse
     {
-        $this->authorize('create', City::class);
+        $this->authorize('create', District::class);
 
         $data = array_merge($request->validated(),
             [
@@ -66,9 +66,9 @@ class CityController extends Controller
             ]);
         try {
 
-            $model = City::create($data);
+            $model = District::create($data);
 
-            return response()->json(new CityResource($model) , Response::HTTP_CREATED);
+            return response()->json(new DistrictResource($model) , Response::HTTP_CREATED);
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -77,28 +77,28 @@ class CityController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param City $city
+     * @param District $district
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function show(City $city): JsonResponse
+    public function show(District $district): JsonResponse
     {
-        $this->authorize('view', $city);
+        $this->authorize('view', $district);
 
-        return response()->json(new CityResource($city), Response::HTTP_OK);
+        return response()->json(new DistrictResource($district), Response::HTTP_OK);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param CityRequest $request
-     * @param City $city
+     * @param DistrictRequest $request
+     * @param District $district
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function update(CityRequest $request, City $city): JsonResponse
+    public function update(DistrictRequest $request, District $district): JsonResponse
     {
-        $this->authorize('update', $city);
+        $this->authorize('update', $district);
 
         $data = array_merge($request->validated(),
             [
@@ -107,9 +107,9 @@ class CityController extends Controller
             ]);
 
         try {
-            $city->update($data);
+            $district->update($data);
 
-            return response()->json(new CityResource($city) , Response::HTTP_OK);
+            return response()->json(new DistrictResource($district) , Response::HTTP_OK);
         }catch (\Exception $ex){
             return response()->json($ex->getMessage() , Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -118,23 +118,23 @@ class CityController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param CityRequest $request
-     * @param City $city
+     * @param DistrictRequest $request
+     * @param District $district
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(CityRequest $request, City $city): JsonResponse
+    public function destroy(DistrictRequest $request, District $district): JsonResponse
     {
-        $this->authorize('delete', $city);
+        $this->authorize('delete', $district);
 
         try {
 
-            $city->update([
+            $district->update([
                 'deleted_user_id' => auth()->id(),
                 'deleted_user_ip' => $request->ip()
             ]);
 
-            $city->delete();
+            $district->delete();
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
 
@@ -144,21 +144,21 @@ class CityController extends Controller
     }
 
     /**
-     * @param CityRequest $request
-     * @param City $city
+     * @param DistrictRequest $request
+     * @param District $district
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function changeActiveAttribute(CityRequest $request, City $city): JsonResponse
+    public function changeActiveAttribute(DistrictRequest $request, District $district): JsonResponse
     {
-        $this->authorize('update', $city);
+        $this->authorize('update', $district);
 
         $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
 
         try {
-            $city->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+            $district->update(['active' => $status, 'updated_user_id' => auth()->id()]);
 
-            return response()->json(new CityResource($city), Response::HTTP_OK);
+            return response()->json(new DistrictResource($district), Response::HTTP_OK);
         }catch (\Exception $ex){
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

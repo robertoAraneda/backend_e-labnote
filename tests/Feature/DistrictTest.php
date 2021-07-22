@@ -2,19 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Models\City;
-use App\Models\District;
-use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\CityPermissionSeeder;
-use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Testing\Fluent\AssertableJson;
-use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class CityTest extends TestCase
+class DistrictTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -23,7 +16,7 @@ class CityTest extends TestCase
     private string $perPage;
     private string $table;
 
-    const BASE_URI = '/api/v1/cities';
+    const BASE_URI = '/api/v1/states';
 
     public function setUp(): void
     {
@@ -34,24 +27,24 @@ class CityTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(CityPermissionSeeder::class);
+        $this->seed(StatePermissionSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('city.create');
-        $role->givePermissionTo('city.update');
-        $role->givePermissionTo('city.delete');
-        $role->givePermissionTo('city.index');
-        $role->givePermissionTo('city.show');
+        $role->givePermissionTo('state.create');
+        $role->givePermissionTo('state.update');
+        $role->givePermissionTo('state.delete');
+        $role->givePermissionTo('state.index');
+        $role->givePermissionTo('state.show');
 
         $user->assignRole($role);
 
-        $modelClass = new City();
+        $modelClass = new State();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = City::factory()->create();
+        $this->model = State::factory()->create();
         $this->perPage = $modelClass->getPerPage();
         $this->table = $modelClass->getTable();
 
@@ -67,10 +60,10 @@ class CityTest extends TestCase
 
         $this->withoutExceptionHandling();
 
-        City::factory()->count(20)->create();
+        State::factory()->count(20)->create();
 
         $uri = sprintf('/api/v1/%s', $this->table);
-        $countModels = City::count();
+        $countModels = State::count();
 
         $this->actingAs($this->user, 'api')
             ->getJson($uri)
@@ -95,7 +88,7 @@ class CityTest extends TestCase
     public function test_se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
 
-        City::factory()->count(20)->create();
+        State::factory()->count(20)->create();
 
         $uri = sprintf('/api/v1/%s?page=1', $this->table);
         $page = $this->perPage;
@@ -134,11 +127,9 @@ class CityTest extends TestCase
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
-        $district = District::factory()->create();
         $factoryModel = [
             'name' => $this->faker->name,
             'code' => $this->faker->title,
-            'district_id' => $district->id,
             'active' => $this->faker->boolean
         ];
 
@@ -208,7 +199,7 @@ class CityTest extends TestCase
             'active' => $this->faker->boolean
         ];
 
-        $this->role->revokePermissionTo('city.create');
+        $this->role->revokePermissionTo('state.create');
 
         $uri = sprintf('/api/v1/%s', $this->table);
 
@@ -225,7 +216,7 @@ class CityTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('city.update');
+        $this->role->revokePermissionTo('state.update');
 
         $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
@@ -244,7 +235,7 @@ class CityTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('city.delete');
+        $this->role->revokePermissionTo('state.delete');
 
         $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
@@ -303,9 +294,9 @@ class CityTest extends TestCase
     public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
 
-        City::factory()->count(20)->create();
+        State::factory()->count(20)->create();
 
-        $list = City::count();
+        $list = State::count();
 
         $DEFAULT_PAGINATE = 5;
 
@@ -350,9 +341,9 @@ class CityTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
     {
-        City::factory()->count(20)->create();
+        State::factory()->count(20)->create();
 
-        $list = City::count();
+        $list = State::count();
 
         $pages = intval(ceil($list / $this->perPage));
         $mod = $list % $this->perPage;
