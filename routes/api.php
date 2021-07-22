@@ -145,7 +145,7 @@ Route::group([
         ->whereNumber('city')
         ->names('api.cities');
 
-    Route::apiResource('district', DistrictController::class)
+    Route::apiResource('districts', DistrictController::class)
         ->whereNumber('district')
         ->names('api.districts');
 

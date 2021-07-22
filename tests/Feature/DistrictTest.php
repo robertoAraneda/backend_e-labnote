@@ -2,9 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Models\District;
+use App\Models\Role;
+use App\Models\State;
 use App\Models\User;
+use Database\Seeders\DistrictPermissionSeeder;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Testing\Fluent\AssertableJson;
+use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
 class DistrictTest extends TestCase
@@ -16,7 +23,7 @@ class DistrictTest extends TestCase
     private string $perPage;
     private string $table;
 
-    const BASE_URI = '/api/v1/states';
+    const BASE_URI = '/api/v1/districts';
 
     public function setUp(): void
     {
@@ -27,24 +34,24 @@ class DistrictTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(StatePermissionSeeder::class);
+        $this->seed(DistrictPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('state.create');
-        $role->givePermissionTo('state.update');
-        $role->givePermissionTo('state.delete');
-        $role->givePermissionTo('state.index');
-        $role->givePermissionTo('state.show');
+        $role->givePermissionTo('district.create');
+        $role->givePermissionTo('district.update');
+        $role->givePermissionTo('district.delete');
+        $role->givePermissionTo('district.index');
+        $role->givePermissionTo('district.show');
 
         $user->assignRole($role);
 
-        $modelClass = new State();
+        $modelClass = new District();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = State::factory()->create();
+        $this->model = District::factory()->create();
         $this->perPage = $modelClass->getPerPage();
         $this->table = $modelClass->getTable();
 
@@ -60,10 +67,10 @@ class DistrictTest extends TestCase
 
         $this->withoutExceptionHandling();
 
-        State::factory()->count(20)->create();
+        District::factory()->count(20)->create();
 
         $uri = sprintf('/api/v1/%s', $this->table);
-        $countModels = State::count();
+        $countModels = District::count();
 
         $this->actingAs($this->user, 'api')
             ->getJson($uri)
@@ -88,7 +95,7 @@ class DistrictTest extends TestCase
     public function test_se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
 
-        State::factory()->count(20)->create();
+        District::factory()->count(20)->create();
 
         $uri = sprintf('/api/v1/%s?page=1', $this->table);
         $page = $this->perPage;
@@ -127,9 +134,11 @@ class DistrictTest extends TestCase
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
+        $state = State::factory()->create();
         $factoryModel = [
             'name' => $this->faker->name,
             'code' => $this->faker->title,
+            'state_id' => $state->id,
             'active' => $this->faker->boolean
         ];
 
@@ -192,14 +201,15 @@ class DistrictTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-
+$state = State::factory()->create();
         $factoryModel = [
             'name' => $this->faker->slug,
             'code' => $this->faker->title,
+            'state_id' => $state->id,
             'active' => $this->faker->boolean
         ];
 
-        $this->role->revokePermissionTo('state.create');
+        $this->role->revokePermissionTo('district.create');
 
         $uri = sprintf('/api/v1/%s', $this->table);
 
@@ -216,7 +226,7 @@ class DistrictTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('state.update');
+        $this->role->revokePermissionTo('district.update');
 
         $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
@@ -235,7 +245,7 @@ class DistrictTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('state.delete');
+        $this->role->revokePermissionTo('district.delete');
 
         $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
@@ -294,9 +304,9 @@ class DistrictTest extends TestCase
     public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
 
-        State::factory()->count(20)->create();
+        District::factory()->count(20)->create();
 
-        $list = State::count();
+        $list = District::count();
 
         $DEFAULT_PAGINATE = 5;
 
@@ -341,9 +351,9 @@ class DistrictTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
     {
-        State::factory()->count(20)->create();
+        District::factory()->count(20)->create();
 
-        $list = State::count();
+        $list = District::count();
 
         $pages = intval(ceil($list / $this->perPage));
         $mod = $list % $this->perPage;
