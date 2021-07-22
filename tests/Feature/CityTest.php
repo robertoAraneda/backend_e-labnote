@@ -202,9 +202,12 @@ class CityTest extends TestCase
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
 
+        $district = District::factory()->create();
+
         $factoryModel = [
             'name' => $this->faker->slug,
             'code' => $this->faker->title,
+            'district_id' => $district->id,
             'active' => $this->faker->boolean
         ];
 
