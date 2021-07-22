@@ -85,7 +85,7 @@ class ObservationServiceRequestRequest extends FormRequest
             'process_time_id.integer' => $this->getIntegerMessage(),
             'medical_request_type_id.integer' => $this->getIntegerMessage(),
             'loinc_num.string' => $this->getStringMessage(),
-            'active.booleam' => $this->getBooleanMessage(),
+            'active.boolean' => $this->getBooleanMessage(),
         ];
     }
 
