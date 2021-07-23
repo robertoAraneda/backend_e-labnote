@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\District;
 use App\Models\Role;
 use App\Models\State;
 use App\Models\User;
@@ -290,7 +291,7 @@ class StateTest extends TestCase
      */
     public function se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table,'string');
+        $uri = sprintf('/api/v1/%s/%s', $this->table, 'string');
 
         $this->actingAs($this->user, 'api')
             ->deleteJson($uri)
@@ -400,12 +401,12 @@ class StateTest extends TestCase
 
         $uri = sprintf('%s/%s/status', self::BASE_URI, $this->model->id);
 
-        if($this->model->active){
+        if ($this->model->active) {
             $response = $this->actingAs($this->user, 'api')
                 ->putJson($uri, [
                     'active' => false
                 ]);
-        }else{
+        } else {
             $response = $this->actingAs($this->user, 'api')
                 ->putJson($uri, [
                     'active' => true
@@ -416,5 +417,34 @@ class StateTest extends TestCase
 
         $this->assertNotEquals($response['active'], $this->model->active);
 
+    }
+
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_de_provincias_de_una_region_determinada()
+    {
+
+        $state = State::factory()->create();
+        District::factory()->for($state)->count(10)->create();
+
+        $uri = sprintf('%s/%s/districts', self::BASE_URI, $state->id);
+
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson($uri);
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $response->assertJson(function (AssertableJson $json) {
+            return $json
+                ->has('0', function ($json) {
+                    $json->whereAllType([
+                        'id' => 'integer',
+                        'name' => 'string',
+                        'active' => 'boolean',
+                        '_links' => 'array'
+                    ]);
+                });
+        });
     }
 }

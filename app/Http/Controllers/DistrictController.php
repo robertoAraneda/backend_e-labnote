@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DistrictRequest;
+use App\Http\Resources\collections\CityResource;
 use App\Http\Resources\collections\DistrictResourceCollection;
 use App\Http\Resources\DistrictResource;
 use App\Models\District;
@@ -156,11 +157,29 @@ class DistrictController extends Controller
         $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
 
         try {
-            $district->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+
+
+
+
+
+
 
             return response()->json(new DistrictResource($district), Response::HTTP_OK);
         }catch (\Exception $ex){
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * @param District $district
+     * @return JsonResponse
+     */
+    public function cities(District $district): JsonResponse
+    {
+        $cities = $district->cities()->active()->orderBy('id')->get();
+
+        $collection = CityResource::collection($cities);
+
+        return response()->json($collection, 200);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\City;
 use App\Models\District;
 use App\Models\Role;
 use App\Models\State;
@@ -420,5 +421,34 @@ $state = State::factory()->create();
 
         $this->assertNotEquals($response['active'], $this->model->active);
 
+    }
+
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_de_comunas_de_una_provincia_determinada()
+    {
+
+        $district = District::factory()->create();
+        City::factory()->for($district)->count(10)->create();
+
+        $uri = sprintf('%s/%s/cities', self::BASE_URI, $district->id);
+
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson($uri);
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $response->assertJson(function (AssertableJson $json) {
+            return $json
+                ->has('0', function ($json) {
+                    $json->whereAllType([
+                        'id' => 'integer',
+                        'name' => 'string',
+                        'active' => 'boolean',
+                        '_links' => 'array'
+                    ]);
+                });
+        });
     }
 }

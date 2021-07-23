@@ -154,11 +154,14 @@ Route::group([
     //Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
 
 
+    //rels one to many
     Route::get('roles/{role}/permissions', [RoleController::class, 'permissionsByRole']);
     Route::get('modules/{module}/menus', [ModuleController::class, 'menusByModule'])->name('api.module.menus');
+    Route::get('states/{state}/districts', [StateController::class, 'districts'])->name('api.state.districts');
+    Route::get('districts/{district}/cities', [DistrictController::class, 'cities'])->name('api.districts.cities');
 
 
-    //rels
+    //rels many to many
     Route::apiResource('modules.permissions', RelModulePermissionController::class)
         ->only('index', 'store')
         ->whereNumber('module')
