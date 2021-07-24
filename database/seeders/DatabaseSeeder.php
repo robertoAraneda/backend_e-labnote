@@ -47,6 +47,9 @@ class DatabaseSeeder extends Seeder
             StatePermissionSeeder::class,
             DistrictPermissionSeeder::class,
             CityPermissionSeeder::class,
+            IdentifierTypeSeeder::class,
+            IdentifierUseSeeder::class,
+            AdministrativeGenderSeeder::class
         ]);
     }
 }
