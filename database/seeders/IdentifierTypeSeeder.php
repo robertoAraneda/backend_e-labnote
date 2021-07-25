@@ -11,15 +11,15 @@ class IdentifierTypeSeeder extends Seeder
    private const IdentifierType = [
         [
             'code' => 'RUT',
-            'display' => 'Número de RUT'
+            'display' => 'RUT'
         ],
         [
             'code' => 'PASAPORTE',
-            'display' => 'Número de pasaporte'
+            'display' => 'PASAPORTE'
         ],
         [
             'code' => 'FICHA CLINICA',
-            'display' => 'Número de ficha clínica'
+            'display' => 'FICHA CLINICA'
         ]
     ];
 

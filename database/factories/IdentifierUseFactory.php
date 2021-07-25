@@ -22,7 +22,7 @@ class IdentifierUseFactory extends Factory
     public function definition(): array
     {
         return [
-            'use' => $this->faker->languageCode,
+            'code' => $this->faker->languageCode,
             'display' => $this->faker->name,
         ];
     }

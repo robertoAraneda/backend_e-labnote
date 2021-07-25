@@ -83,6 +83,26 @@ class PatientController extends Controller
 
             $model->humanNames()->create($humanName);
 
+
+
+
+            //se obtiene la información de los identificadores del paciente
+            $identifierPatientCollection = collect($request->validated()['identifierPatient']);
+
+
+            $identifierPatient = $identifierPatientCollection->map(function ($item) use ($request) {
+                return [
+                    'identifier_type_id' => $item['identifier_type_id'],
+                    'value' => $item['value'],
+                    'identifier_use_id' => $item['identifier_use_id'],
+                    'created_user_id' => auth()->id(),
+                    'created_user_ip' => $request->ip()
+                ];
+            });
+
+
+            $model->identifierPatient()->createMany($identifierPatient);
+
             //se obtiene la información de los puntos de contacto
             $contactPointCollection = collect($request->validated()['contactPointPatient']);
             $contactPoint = $contactPointCollection->map(function ($item) use ($request) {
@@ -158,7 +178,7 @@ class PatientController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function update(PatientRequest $request, Patient $patient): JsonResponse
+    public function update(PatientRequest $request, Patient $patient)
     {
         $this->authorize('update', $patient);
 
@@ -190,6 +210,24 @@ class PatientController extends Controller
                 [
                     'id' => $validated->addressPatient['id'],
                 ], $data);
+        }
+
+
+
+        if (isset($validated->identifierPatient) && count($validated->identifierPatient) != 0) {
+            foreach ($validated->identifierPatient as $identifierPatient) {
+                $data = array_merge($identifierPatient,
+                    [
+                        'updated_user_id' => auth()->id(),
+                        'updated_user_ip' => $request->ip(),
+                    ]);
+
+                $patient->identifierPatient()->updateOrCreate(
+                    [
+                        'id' => $identifierPatient['id'],
+                    ], $data);
+
+            }
         }
 
         if (isset($validated->contactPointPatient) && count($validated->contactPointPatient) != 0) {

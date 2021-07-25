@@ -18,6 +18,10 @@ class PatientRequest extends FormRequest
                 return [
                     'patient.birthdate' => 'date',
                     'patient.administrative_gender_id' => 'integer',
+                    'identifierPatient.*.id' => 'integer',
+                    'identifierPatient.*.identifier_use_id' => 'integer',
+                    'identifierPatient.*.identifier_type_id' => 'integer',
+                    'identifierPatient.*.value' => 'string',
                     'humanName.id' => 'integer',
                     'humanName.use' => 'string',
                     'humanName.given' => 'string',
@@ -45,9 +49,9 @@ class PatientRequest extends FormRequest
                 return [
                     'patient.birthdate' => 'required|date',
                     'patient.administrative_gender_id' => 'required|integer',
-                    'identifier.*.identifier_uses_id' => 'required|integer',
-                    'identifier.*.identifier_type_id' => 'required|integer',
-                    'identifier.*.value' => 'required|integer',
+                    'identifierPatient.*.identifier_use_id' => 'required|integer',
+                    'identifierPatient.*.identifier_type_id' => 'required|integer',
+                    'identifierPatient.*.value' => 'required|string',
                     'humanName.use' => 'string',
                     'humanName.given' => 'string',
                     'humanName.father_family' => 'string',

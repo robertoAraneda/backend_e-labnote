@@ -9,6 +9,9 @@ use App\Models\ContactPointPatient;
 use App\Models\District;
 use App\Models\AdministrativeGender;
 use App\Models\HumanName;
+use App\Models\IdentifierPatient;
+use App\Models\IdentifierType;
+use App\Models\IdentifierUse;
 use App\Models\Patient;
 use App\Models\Role;
 use App\Models\State;
@@ -60,6 +63,7 @@ class PatientTest extends TestCase
         $this->role = $role;
         $this->model = Patient::factory()
             ->has(AdministrativeGender::factory())
+            ->has(IdentifierPatient::factory())
             ->has(HumanName::factory())
             ->has(AddressPatient::factory())
             ->has(ContactPointPatient::factory())
@@ -168,12 +172,21 @@ class PatientTest extends TestCase
         $city = City::factory()->create();
         $district = District::factory()->create();
         $state = State::factory()->create();
+        $identifierType = IdentifierType::factory()->create();
+        $identifierUse = IdentifierUse::factory()->create();
 
         $factoryModel = [
             'patient' => [
                 'birthdate' => $this->faker->date(),
                 'administrative_gender_id' => $gender->id,
                 'active' => $this->faker->boolean
+            ],
+            'identifierPatient' => [
+                [
+                    'identifier_use_id' => $identifierType->id,
+                    'identifier_type_id' => $identifierUse->id,
+                    'value' => $this->faker->lastName
+                ]
             ],
             'humanName' => [
                 'use' => 'usual',
@@ -231,6 +244,7 @@ class PatientTest extends TestCase
 
         $response->assertStatus(Response::HTTP_CREATED);
 
+
         $response->assertJson(fn(AssertableJson $json) => $json
             ->where('birthdate', $factoryModel['patient']['birthdate'])
             ->where('active', $factoryModel['patient']['active'])
@@ -286,6 +300,52 @@ class PatientTest extends TestCase
             'patient_id' => $this->model->id
         ]);
     }
+
+    /**
+     * @test
+     */
+    public function se_puede_modificar_el_identificador_del_paciente(): void // update
+    {
+
+        $identifierType = IdentifierType::create(['code' => 'RUT', 'display' => 'RUT']);
+        $identifierUse = IdentifierUse::create(['code' => 'official', 'display' => 'Oficial']);
+
+        $factoryModifiedModel = [
+            'patient' => [
+                'birthdate' => $this->model->birthdate,
+                'administrative_gender_id' => $this->model->administrative_gender_id,
+                'active' => $this->model->active
+            ],
+            'identifierPatient' => [
+                [
+                    'id' => $this->model->identifierPatient[0]->id,
+                    'identifier_use_id' => $identifierType->id,
+                    'identifier_type_id' => $identifierUse->id,
+                    'value' => '15654738-7'
+                ]
+            ],
+        ];
+
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+
+        $response = $this->actingAs($this->user, 'api')
+            ->putJson($uri, $factoryModifiedModel);
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $response->assertJson(fn(AssertableJson $json) => $json
+            ->where('identifier.0.value', '15654738-7')
+            ->where('identifier.0.type', 'RUT')
+            ->where('identifier.0.use', 'Oficial')
+            ->etc()
+        );
+
+        $this->assertDatabaseHas('identifier_patients', [
+            'value' => '15654738-7',
+            'patient_id' => $this->model->id
+        ]);
+    }
+
 
     /**
      * @test

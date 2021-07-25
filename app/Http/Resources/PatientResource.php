@@ -16,6 +16,7 @@ class PatientResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'identifier' => $this->identifier($this->identifierPatient),
             'name' =>$this->name($this->humanNames),
             'telecom' => $this->telecom($this->contactPointPatient),
             'address' => $this->address($this->addressPatient),
@@ -56,6 +57,7 @@ class PatientResource extends JsonResource
 
         return $array->map(function ($item){
             return [
+                'id' => $item->id,
                 'system' => $item->system,
                 'value' => $item->value,
                 'use' => $item->use
@@ -69,10 +71,25 @@ class PatientResource extends JsonResource
 
         return $array->map(function ($item){
             return [
+                'id' => $item->id,
                 'use' => $item->use,
                 'text' => $item->text,
                 'city'  => $item->city->name,
                 'state' => $item->state->name,
+            ];
+        });
+
+    }
+
+    private function identifier($array){
+        if(count($array) === 0) return $array;
+
+        return $array->map(function ($item){
+            return [
+                'id' => $item->id,
+                'use' => $item->identifierUse->display,
+                'type' => $item->identifierType->display,
+                'value'  => $item->value,
             ];
         });
 
@@ -83,6 +100,7 @@ class PatientResource extends JsonResource
 
         return $array->map(function ($item){
             return [
+                'id' => $item->id,
                 'given' => $item->given,
                 'family' => $item->family,
                 'relationship'  => $item->relationship,
@@ -98,6 +116,7 @@ class PatientResource extends JsonResource
 
        return $array->map(function ($item){
            return [
+               'id' => $item->id,
                'use' => $item->use,
                'given' => $item->given,
                'father_family' => $item->father_family,

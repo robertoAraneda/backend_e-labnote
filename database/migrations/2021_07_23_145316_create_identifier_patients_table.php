@@ -15,8 +15,9 @@ class CreateIdentifierPatientsTable extends Migration
     {
         Schema::create('identifier_patients', function (Blueprint $table) {
             $table->id();
-            $table->string('identifier_use_id');
-            $table->string('identifier_type_id');
+            $table->unsignedBigInteger('patient_id');
+            $table->unsignedBigInteger('identifier_use_id');
+            $table->unsignedBigInteger('identifier_type_id');
             $table->string('value');
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
