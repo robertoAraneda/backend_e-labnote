@@ -418,33 +418,4 @@ class StateTest extends TestCase
         $this->assertNotEquals($response['active'], $this->model->active);
 
     }
-
-    /**
-     * @test
-     */
-    public function se_puede_obtener_una_lista_de_provincias_de_una_region_determinada()
-    {
-
-        $state = State::factory()->create();
-        District::factory()->for($state)->count(10)->create();
-
-        $uri = sprintf('%s/%s/districts', self::BASE_URI, $state->id);
-
-        $response = $this->actingAs($this->user, 'api')
-            ->getJson($uri);
-
-        $response->assertStatus(Response::HTTP_OK);
-
-        $response->assertJson(function (AssertableJson $json) {
-            return $json
-                ->has('0', function ($json) {
-                    $json->whereAllType([
-                        'id' => 'integer',
-                        'name' => 'string',
-                        'active' => 'boolean',
-                        '_links' => 'array'
-                    ]);
-                });
-        });
-    }
 }

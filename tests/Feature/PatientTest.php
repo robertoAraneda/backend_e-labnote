@@ -166,11 +166,8 @@ class PatientTest extends TestCase
     public function se_puede_crear_un_recurso(): void //store
     {
 
-        $this->withoutExceptionHandling();
-
         $gender = AdministrativeGender::factory()->create();
         $city = City::factory()->create();
-        $district = District::factory()->create();
         $state = State::factory()->create();
         $identifierType = IdentifierType::factory()->create();
         $identifierUse = IdentifierUse::factory()->create();
@@ -213,13 +210,11 @@ class PatientTest extends TestCase
                     'use' => 'home',
                     'text' => 'Juan Enrique Rodo 05080',
                     'city_id' => $city->id,
-                    'district_id' => $district->id,
                     'state_id' => $state->id],
                 [
                     'use' => 'work',
                     'text' => 'Huerfanos 670',
                     'city_id' => $city->id,
-                    'district_id' => $district->id,
                     'state_id' => $state->id],
             ],
             'contactPatient' => [
@@ -511,7 +506,6 @@ class PatientTest extends TestCase
 
         $administrativeGender = AdministrativeGender::factory()->create();
         $city = City::factory()->create();
-        $district = District::factory()->create();
         $state = State::factory()->create();
 
         $factoryModel = [
@@ -545,13 +539,11 @@ class PatientTest extends TestCase
                     'use' => 'home',
                     'text' => 'Juan Enrique Rodo 05080',
                     'city_id' => $city->id,
-                    'district_id' => $district->id,
                     'state_id' => $state->id],
                 [
                     'use' => 'work',
                     'text' => 'Huerfanos 670',
                     'city_id' => $city->id,
-                    'district_id' => $district->id,
                     'state_id' => $state->id],
             ],
             'contactPatient' => [

@@ -123,7 +123,6 @@ class PatientController extends Controller
                     'use' => $item['use'],
                     'text' => $item['text'],
                     'city_id' => $item['city_id'],
-                    'district_id' => $item['district_id'],
                     'state_id' => $item['state_id'],
                     'created_user_id' => auth()->id(),
                     'created_user_ip' => $request->ip()

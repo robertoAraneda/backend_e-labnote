@@ -28,7 +28,6 @@ class AddressPatientFactory extends Factory
             'use' => 'home',
             'text' => $this->faker->streetAddress,
             'city_id' => City::factory(),
-            'district_id' => District::factory(),
             'state_id' => State::factory()
         ];
     }

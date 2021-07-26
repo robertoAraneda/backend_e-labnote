@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\City;
 use App\Models\District;
+use App\Models\State;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CityFactory extends Factory
@@ -25,7 +26,7 @@ class CityFactory extends Factory
         return [
             'name' => $this->faker->name,
             'code' => $this->faker->title,
-            'district_id' => District::factory(),
+            'state_id' => State::factory(),
             'active'=> $this->faker->boolean
         ];
     }

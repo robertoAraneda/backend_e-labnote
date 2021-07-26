@@ -77,14 +77,6 @@ class AddressPatient extends Model
     /**
      * @return BelongsTo
      */
-    public function district(): BelongsTo
-    {
-        return $this->belongsTo(District::class);
-    }
-
-    /**
-     * @return BelongsTo
-     */
     public function state(): BelongsTo
     {
         return $this->belongsTo(State::class);

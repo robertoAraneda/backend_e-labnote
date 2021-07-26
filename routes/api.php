@@ -147,10 +147,6 @@ Route::group([
         ->whereNumber('city')
         ->names('api.cities');
 
-    Route::apiResource('districts', DistrictController::class)
-        ->whereNumber('district')
-        ->names('api.districts');
-
     Route::apiResource('patients', PatientController::class)
         ->whereNumber('patient')
         ->names('api.patients');
@@ -167,8 +163,7 @@ Route::group([
     //rels one to many
     Route::get('roles/{role}/permissions', [RoleController::class, 'permissionsByRole']);
     Route::get('modules/{module}/menus', [ModuleController::class, 'menusByModule'])->name('api.module.menus');
-    Route::get('states/{state}/districts', [StateController::class, 'districts'])->name('api.state.districts');
-    Route::get('districts/{district}/cities', [DistrictController::class, 'cities'])->name('api.districts.cities');
+    Route::get('states/{state}/cities', [StateController::class, 'districts'])->name('api.state.districts');
     Route::get('patients/{patient}/names', [PatientController::class, 'names'])->name('api.patients.names');
     Route::get('patients/{patient}/telecoms', [PatientController::class, 'telecoms'])->name('api.patients.telecoms');
     Route::get('patients/{patient}/addresses', [PatientController::class, 'addresses'])->name('api.patients.addresses');
@@ -219,7 +214,6 @@ Route::group([
     Route::put('modules/{module}/status', [ModuleController::class, 'changeActiveAttribute']);
     Route::put('observation-service-requests/{observation_service_request}/status', [ObservationServiceRequestController::class, 'changeActiveAttribute']);
     Route::put('states/{state}/status', [StateController::class, 'changeActiveAttribute']);
-    Route::put('districts/{district}/status', [DistrictController::class, 'changeActiveAttribute']);
     Route::put('cities/{city}/status', [CityController::class, 'changeActiveAttribute']);
     Route::put('administrative-genders/{administrative_gender}/status', [AdministrativeGenderController::class, 'changeActiveAttribute']);
 

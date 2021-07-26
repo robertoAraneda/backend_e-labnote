@@ -31,7 +31,7 @@ class CityResource extends JsonResource
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),
                 'updatedUser' => $this->user($this->updatedUser),
-                'district' => $this->district($this->district)
+                'state' => $this->state($this->state)
             ],
         ];
     }
@@ -73,7 +73,7 @@ class CityResource extends JsonResource
      * @return array|null
      */
 
-    private function district($model): ?array
+    private function state($model): ?array
     {
         if(!isset($model)) return null;
 
@@ -81,7 +81,7 @@ class CityResource extends JsonResource
             'name' => $model->name,
             '_links' => [
                 'self' => [
-                    'href' => route('api.districts.show', ['district' => $model->id], false)
+                    'href' => route('api.states.show', ['state' => $model->id], false)
                 ]
             ]
         ];

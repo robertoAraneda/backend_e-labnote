@@ -20,7 +20,7 @@ class City extends Model
     protected  $fillable = [
         'code',
         'name',
-        'district_id',
+        'state_id',
         'active',
         'created_user_id',
         'updated_user_id',
@@ -76,8 +76,8 @@ class City extends Model
     /**
      * @return BelongsTo
      */
-    public function district(): BelongsTo
+    public function state(): BelongsTo
     {
-        return $this->belongsTo(District::class);
+        return $this->belongsTo(State::class);
     }
 }

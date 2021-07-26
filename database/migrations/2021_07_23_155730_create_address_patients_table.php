@@ -19,7 +19,6 @@ class CreateAddressPatientsTable extends Migration
             $table->string('use');
             $table->string('text');
             $table->unsignedBigInteger('city_id');
-            $table->unsignedBigInteger('district_id');
             $table->unsignedBigInteger('state_id');
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
