@@ -5,14 +5,14 @@ namespace App\Http\Resources\collections;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class DistrictResourceCollection extends ResourceCollection
+class AdministrativeGenderResourceCollection extends ResourceCollection
 {
     /**
      * The resource that this resource collects.
      *
      * @var string
      */
-    public $collects = 'App\Http\Resources\Collections\DistrictResource';
+    public $collects = 'App\Http\Resources\Collections\AdministrativeGenderResource';
 
 
     /**
@@ -26,8 +26,8 @@ class DistrictResourceCollection extends ResourceCollection
         return [
             '_links' => [
                 'self' => [
-                    'href' => route('api.districts.index', [], false),
-                    'title' => 'Lista de provincias de chile',
+                    'href' => route('api.administrative-genders.index', [], false),
+                    'title' => 'Lista de géneros',
                 ]
             ],
             'count' => $this->collection->count(),

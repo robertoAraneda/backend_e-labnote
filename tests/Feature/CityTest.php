@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\City;
 use App\Models\District;
 use App\Models\Role;
+use App\Models\State;
 use App\Models\User;
 use Database\Seeders\CityPermissionSeeder;
 use Database\Seeders\RoleSeeder;
@@ -134,11 +135,11 @@ class CityTest extends TestCase
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
-        $district = District::factory()->create();
+        $state = State::factory()->create();
         $factoryModel = [
             'name' => $this->faker->name,
             'code' => $this->faker->title,
-            'district_id' => $district->id,
+            'state_id' => $state->id,
             'active' => $this->faker->boolean
         ];
 
@@ -202,12 +203,12 @@ class CityTest extends TestCase
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
 
-        $district = District::factory()->create();
+        $state = State::factory()->create();
 
         $factoryModel = [
             'name' => $this->faker->slug,
             'code' => $this->faker->title,
-            'district_id' => $district->id,
+            'state_id' => $state->id,
             'active' => $this->faker->boolean
         ];
 

@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class DistrictResource extends JsonResource
+class AdministrativeGenderResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,7 +16,7 @@ class DistrictResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'display' => $this->display,
             'code' => $this->code,
             'active' => (bool) $this->active,
             'created_user_ip' => $this->created_user_ip,
@@ -25,13 +25,12 @@ class DistrictResource extends JsonResource
             'updated_at' => $this->date($this->updated_at),
             '_links' => [
                 'self' => [
-                    'href' => route('api.districts.show', ['district' => $this->id], false),
+                    'href' => route('api.administrative-genders.show', ['administrative_gender' => $this->id], false),
                 ],
             ],
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),
                 'updatedUser' => $this->user($this->updatedUser),
-                'state' => $this->state($this->state)
             ],
         ];
     }
@@ -63,25 +62,6 @@ class DistrictResource extends JsonResource
             '_links' => [
                 'self' => [
                     'href' => route('api.users.show', ['user' => $user->id], false)
-                ]
-            ]
-        ];
-    }
-
-    /**
-     * @param $model
-     * @return array|null
-     */
-
-    private function state($model): ?array
-    {
-        if(!isset($model)) return null;
-
-        return [
-            'name' => $model->name,
-            '_links' => [
-                'self' => [
-                    'href' => route('api.states.show', ['state' => $model->id], false)
                 ]
             ]
         ];

@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Models\District;
+use App\Models\AdministrativeGender;
 
-class DistrictRequest extends FormRequest
+class AdministrativeGenderRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -16,16 +16,14 @@ class DistrictRequest extends FormRequest
         switch ($this->getMethod()){
             case 'PUT':
                 return [
-                    'name' => 'string',
+                    'display' => 'string',
                     'code' => 'string',
-                    'state_id' => 'integer',
                     'active' => 'boolean',
                 ];
             case 'POST':
                 return [
-                    'name' => 'required|string',
+                    'display' => 'required|string',
                     'code' =>  'required|string',
-                    'state_id' => 'required|integer',
                     'active' =>  'required|boolean'
                 ];
             default:
@@ -38,7 +36,7 @@ class DistrictRequest extends FormRequest
      */
     public function getPaginate(): int
     {
-        return $this->get('paginate', (new District())->getPerPage());
+        return $this->get('paginate', (new AdministrativeGender())->getPerPage());
     }
 
     /**
@@ -49,13 +47,11 @@ class DistrictRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => $this->getRequiredMessage(),
+            'display.required' => $this->getRequiredMessage(),
             'code.required' => $this->getRequiredMessage(),
-            'state_id.required' => $this->getRequiredMessage(),
             'active.required' => $this->getRequiredMessage(),
-            'name.string' => $this->getStringMessage(),
+            'display.string' => $this->getStringMessage(),
             'code.string' => $this->getStringMessage(),
-            'state_id.integer' => $this->getIntegerMessage(),
             'active.boolean' => $this->getBooleanMessage(),
         ];
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCitiesTable extends Migration
+class CreatePatientsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,10 @@ class CreateCitiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('cities', function (Blueprint $table) {
+        Schema::create('patients', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('code')->nullable();
-            $table->string('state_id')->nullable();
+            $table->date('birthdate');
+            $table->unsignedBigInteger('administrative_gender_id');
             $table->boolean('active')->default(true);
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
@@ -37,6 +36,6 @@ class CreateCitiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cities');
+        Schema::dropIfExists('patients');
     }
 }

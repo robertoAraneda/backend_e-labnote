@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class City extends Model
+class Patient extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -18,9 +19,8 @@ class City extends Model
      * @var string[]
      */
     protected  $fillable = [
-        'code',
-        'name',
-        'state_id',
+        'birthdate',
+        'administrative_gender_id',
         'active',
         'created_user_id',
         'updated_user_id',
@@ -76,8 +76,48 @@ class City extends Model
     /**
      * @return BelongsTo
      */
-    public function state(): BelongsTo
+    public function administrativeGender(): BelongsTo
     {
-        return $this->belongsTo(State::class);
+        return $this->belongsTo(AdministrativeGender::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function humanNames(): HasMany
+    {
+        return $this->hasMany(HumanName::class, 'patient_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function identifierPatient(): HasMany
+    {
+        return $this->hasMany(IdentifierPatient::class, 'patient_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function contactPointPatient(): HasMany
+    {
+        return $this->hasMany(ContactPointPatient::class, 'patient_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function addressPatient(): HasMany
+    {
+        return $this->hasMany(AddressPatient::class, 'patient_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function contactPatient(): HasMany
+    {
+        return $this->hasMany(ContactPatient::class, 'patient_id', 'id');
     }
 }

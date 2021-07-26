@@ -3,23 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StateRequest;
+use App\Http\Resources\collections\DistrictResource;
 use App\Http\Resources\collections\StateResourceCollection;
 use App\Http\Resources\StateResource;
 use App\Models\State;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class StateController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @param StateRequest $request
-     * @return JsonResponse
-     * @throws AuthorizationException
-     */
+ * Display a listing of the resource.
+ *
+ * @param StateRequest $request
+ * @return JsonResponse
+ * @throws AuthorizationException
+ */
     public function index(StateRequest $request): JsonResponse
     {
         $this->authorize('viewAny', State::class);
@@ -164,4 +164,18 @@ class StateController extends Controller
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * @param State $state
+     * @return JsonResponse
+     */
+    public function districts(State $state): JsonResponse
+    {
+        $districts = $state->districts()->active()->orderBy('id')->get();
+
+        $collection = DistrictResource::collection($districts);
+
+        return response()->json($collection, 200);
+    }
+
 }

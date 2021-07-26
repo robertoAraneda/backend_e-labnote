@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class City extends Model
+class AddressPatient extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -18,10 +18,11 @@ class City extends Model
      * @var string[]
      */
     protected  $fillable = [
-        'code',
-        'name',
+        'use',
+        'text',
+        'city_id',
+        'district_id',
         'state_id',
-        'active',
         'created_user_id',
         'updated_user_id',
         'deleted_user_id',
@@ -39,14 +40,6 @@ class City extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
-    }
-
-    /**
-     * @return string
-     */
-    public function getPerPage(): string
-    {
-        return env('DEFAULT_PER_PAGE');
     }
 
     /**
@@ -71,6 +64,14 @@ class City extends Model
     public function deletedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_user_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
     }
 
     /**

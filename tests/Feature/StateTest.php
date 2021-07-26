@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\District;
 use App\Models\Role;
 use App\Models\State;
 use App\Models\User;
@@ -290,7 +291,7 @@ class StateTest extends TestCase
      */
     public function se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table,'string');
+        $uri = sprintf('/api/v1/%s/%s', $this->table, 'string');
 
         $this->actingAs($this->user, 'api')
             ->deleteJson($uri)
@@ -400,12 +401,12 @@ class StateTest extends TestCase
 
         $uri = sprintf('%s/%s/status', self::BASE_URI, $this->model->id);
 
-        if($this->model->active){
+        if ($this->model->active) {
             $response = $this->actingAs($this->user, 'api')
                 ->putJson($uri, [
                     'active' => false
                 ]);
-        }else{
+        } else {
             $response = $this->actingAs($this->user, 'api')
                 ->putJson($uri, [
                     'active' => true

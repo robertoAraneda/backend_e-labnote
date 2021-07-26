@@ -2,18 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Models\District;
-use App\Models\State;
+use App\Models\AdministrativeGender;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class DistrictFactory extends Factory
+class AdministrativeGenderFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = District::class;
+    protected $model = AdministrativeGender::class;
 
     /**
      * Define the model's default state.
@@ -23,9 +22,8 @@ class DistrictFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name,
+            'display' => $this->faker->name,
             'code' => $this->faker->title,
-            'state_id' => State::factory(),
             'active'=> $this->faker->boolean
         ];
     }

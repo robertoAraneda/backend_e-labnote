@@ -6,10 +6,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class District extends Model
+class ContactPatient extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -19,10 +18,11 @@ class District extends Model
      * @var string[]
      */
     protected  $fillable = [
-        'code',
-        'name',
-        'state_id',
-        'active',
+        'given',
+        'family',
+        'relationship',
+        'phone',
+        'email',
         'created_user_id',
         'updated_user_id',
         'deleted_user_id',
@@ -40,14 +40,6 @@ class District extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
-    }
-
-    /**
-     * @return string
-     */
-    public function getPerPage(): string
-    {
-        return env('DEFAULT_PER_PAGE');
     }
 
     /**
@@ -72,21 +64,5 @@ class District extends Model
     public function deletedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_user_id');
-    }
-
-    /**
-     * @return BelongsTo
-     */
-    public function state(): BelongsTo
-    {
-        return $this->belongsTo(State::class, );
-    }
-
-    /**
-     * @return HasMany
-     */
-    public function cities(): HasMany
-    {
-        return $this->hasMany(City::class, );
     }
 }

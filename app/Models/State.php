@@ -78,6 +78,6 @@ class State extends Model
      */
     public function districts(): HasMany
     {
-        return $this->hasMany(District::class, );
+        return $this->hasMany(District::class);
     }
 }

@@ -2,19 +2,19 @@
 
 namespace Database\Factories;
 
-use App\Models\City;
-use App\Models\District;
-use App\Models\State;
+use App\Models\IdentifierPatient;
+use App\Models\IdentifierType;
+use App\Models\IdentifierUse;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class CityFactory extends Factory
+class IdentifierPatientFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = City::class;
+    protected $model = IdentifierPatient::class;
 
     /**
      * Define the model's default state.
@@ -24,10 +24,9 @@ class CityFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name,
-            'code' => $this->faker->title,
-            'state_id' => State::factory(),
-            'active'=> $this->faker->boolean
+            'value' => 'home',
+            'identifier_type_id' => IdentifierType::factory(),
+            'identifier_use_id' => IdentifierUse::factory(),
         ];
     }
 }

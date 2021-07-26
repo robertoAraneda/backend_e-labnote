@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class City extends Model
+class AdministrativeGender extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -19,8 +19,7 @@ class City extends Model
      */
     protected  $fillable = [
         'code',
-        'name',
-        'state_id',
+        'display',
         'active',
         'created_user_id',
         'updated_user_id',
@@ -71,13 +70,5 @@ class City extends Model
     public function deletedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_user_id');
-    }
-
-    /**
-     * @return BelongsTo
-     */
-    public function state(): BelongsTo
-    {
-        return $this->belongsTo(State::class);
     }
 }

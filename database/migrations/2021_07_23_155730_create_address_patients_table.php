@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDistrictsTable extends Migration
+class CreateAddressPatientsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,13 @@ class CreateDistrictsTable extends Migration
      */
     public function up()
     {
-        Schema::create('districts', function (Blueprint $table) {
+        Schema::create('address_patients', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('code')->nullable();
+            $table->unsignedBigInteger('patient_id');
+            $table->string('use');
+            $table->string('text');
+            $table->unsignedBigInteger('city_id');
             $table->unsignedBigInteger('state_id');
-            $table->boolean('active')->default(true);
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
             $table->unsignedBigInteger('deleted_user_id')->nullable();
@@ -27,6 +28,11 @@ class CreateDistrictsTable extends Migration
             $table->string('deleted_user_ip', 15)->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('patient_id')
+                ->references('id')
+                ->on('patients')
+                ->onDelete('cascade');
         });
     }
 
@@ -37,6 +43,6 @@ class CreateDistrictsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('districts');
+        Schema::dropIfExists('address_patients');
     }
 }

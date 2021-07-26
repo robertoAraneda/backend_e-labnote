@@ -2,11 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\District;
+use App\Models\AdministrativeGender;
 use App\Models\Role;
-use App\Models\State;
 use App\Models\User;
-use Database\Seeders\DistrictPermissionSeeder;
+use Database\Seeders\AdministrativeGenderPermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -14,7 +13,7 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class DistrictTest extends TestCase
+class AdministrativeGenderTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -23,7 +22,7 @@ class DistrictTest extends TestCase
     private string $perPage;
     private string $table;
 
-    const BASE_URI = '/api/v1/districts';
+    const BASE_URI = '/api/v1/administrative-genders';
 
     public function setUp(): void
     {
@@ -34,43 +33,49 @@ class DistrictTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(DistrictPermissionSeeder::class);
+        $this->seed(AdministrativeGenderPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('district.create');
-        $role->givePermissionTo('district.update');
-        $role->givePermissionTo('district.delete');
-        $role->givePermissionTo('district.index');
-        $role->givePermissionTo('district.show');
+        $role->givePermissionTo('administrativeGender.create');
+        $role->givePermissionTo('administrativeGender.update');
+        $role->givePermissionTo('administrativeGender.delete');
+        $role->givePermissionTo('administrativeGender.index');
+        $role->givePermissionTo('administrativeGender.show');
 
         $user->assignRole($role);
 
-        $modelClass = new District();
+        $modelClass = new AdministrativeGender();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = District::factory()->create();
+        $this->model = AdministrativeGender::factory()->create();
         $this->perPage = $modelClass->getPerPage();
         $this->table = $modelClass->getTable();
 
     }
 
-    public function test_se_obtiene_el_valor_por_pagina_por_defecto(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_el_valor_por_pagina_por_defecto(): void
     {
         $this->assertEquals(10, $this->perPage);
     }
 
-    public function test_se_puede_obtener_una_lista_del_recurso(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_del_recurso(): void
     {
 
         $this->withoutExceptionHandling();
 
-        District::factory()->count(20)->create();
+        AdministrativeGender::factory()->count(20)->create();
 
-        $uri = sprintf('/api/v1/%s', $this->table);
-        $countModels = District::count();
+        $uri = sprintf('%s', self::BASE_URI);
+        $countModels = AdministrativeGender::count();
 
         $this->actingAs($this->user, 'api')
             ->getJson($uri)
@@ -82,7 +87,7 @@ class DistrictTest extends TestCase
                     ->has('collection', $countModels, function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
+                            'display' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);
@@ -92,12 +97,15 @@ class DistrictTest extends TestCase
 
     }
 
-    public function test_se_puede_obtener_una_lista_paginada_del_recurso(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
 
-        District::factory()->count(20)->create();
+        AdministrativeGender::factory()->count(20)->create();
 
-        $uri = sprintf('/api/v1/%s?page=1', $this->table);
+        $uri = sprintf('%s?page=1', self::BASE_URI);
         $page = $this->perPage;
 
         $this->actingAs($this->user, 'api')
@@ -110,7 +118,7 @@ class DistrictTest extends TestCase
                     ->has('data.collection', $page, function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
+                            'display' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);
@@ -118,61 +126,73 @@ class DistrictTest extends TestCase
             });
     }
 
-    public function test_se_puede_obtener_el_detalle_del_recurso(): void //show
+    /**
+     * @test
+     */
+    public function se_puede_obtener_el_detalle_del_recurso(): void //show
     {
-        $uri = sprintf("/api/v1/%s/%s", $this->table, $this->model->id);
+        $this->withoutExceptionHandling();
 
-        $this->actingAs($this->user, 'api')
-            ->getJson($uri)
-            ->assertStatus(Response::HTTP_OK)
-            ->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
-                ->where('name', $this->model->name)
-                ->where('code', $this->model->code)
-                ->etc()
-            );
+        $uri = sprintf("%s/%s", self::BASE_URI, $this->model->id);
+
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson($uri);
+
+        $response->assertStatus(Response::HTTP_OK);
+        $response->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
+            ->where('display', $this->model->display)
+            ->where('code', $this->model->code)
+            ->etc()
+        );
     }
 
-    public function test_se_puede_crear_un_recurso(): void //store
+    /**
+     * @test
+     */
+    public function se_puede_crear_un_recurso(): void //store
     {
-        $state = State::factory()->create();
+        $district = AdministrativeGender::factory()->create();
         $factoryModel = [
-            'name' => $this->faker->name,
+            'display' => $this->faker->name,
             'code' => $this->faker->title,
-            'state_id' => $state->id,
+            'district_id' => $district->id,
             'active' => $this->faker->boolean
         ];
 
-        $uri = sprintf("/api/v1/%s", $this->table);
+        $uri = sprintf("%s", self::BASE_URI);
 
         $this
             ->actingAs($this->user, 'api')
             ->postJson($uri, $factoryModel)
             ->assertStatus(Response::HTTP_CREATED)
             ->assertJson(fn(AssertableJson $json) => $json
-                ->where('name', $factoryModel['name'])
+                ->where('display', $factoryModel['display'])
                 ->where('code', $factoryModel['code'])
                 ->where('active', $factoryModel['active'])
                 ->etc()
             );
 
         $this->assertDatabaseHas($this->table, [
-            'name' => $factoryModel['name'],
+            'display' => $factoryModel['display'],
         ]);
     }
 
-    public function test_se_puede_modificar_un_recurso(): void // update
+    /**
+     * @test
+     */
+    public function se_puede_modificar_un_recurso(): void // update
     {
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+        $uri = sprintf('%s/%s', self::BASE_URI, $this->model->id);
 
         $this->actingAs($this->user, 'api')
             ->putJson($uri, [
-                'name' => 'name modificado'
+                'display' => 'name modificado'
             ])
             ->assertStatus(Response::HTTP_OK)
             ->assertJson(fn(AssertableJson $json) => $json
                 ->where('id', $this->model->id)
-                ->where('name', 'name modificado')
+                ->where('display', 'name modificado')
                 ->where('code', $this->model->code)
                 ->where('active', $this->model->active)
                 ->etc()
@@ -180,14 +200,17 @@ class DistrictTest extends TestCase
 
 
         $this->assertDatabaseHas($this->table, [
-            'name' => 'name modificado'
+            'display' => 'name modificado'
         ]);
     }
 
-    public function test_se_puede_eliminar_un_recurso(): void //destroy
+    /**
+     * @test
+     */
+    public function se_puede_eliminar_un_recurso(): void //destroy
     {
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+        $uri = sprintf('%s/%s', self::BASE_URI, $this->model->id);
 
         $this
             ->actingAs($this->user, 'api')
@@ -199,19 +222,24 @@ class DistrictTest extends TestCase
 
     }
 
-    public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
+    /**
+     * @test
+     */
+    public function se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
-$state = State::factory()->create();
+
+        $district = AdministrativeGender::factory()->create();
+
         $factoryModel = [
-            'name' => $this->faker->slug,
+            'display' => $this->faker->slug,
             'code' => $this->faker->title,
-            'state_id' => $state->id,
+            'district_id' => $district->id,
             'active' => $this->faker->boolean
         ];
 
-        $this->role->revokePermissionTo('district.create');
+        $this->role->revokePermissionTo('administrativeGender.create');
 
-        $uri = sprintf('/api/v1/%s', $this->table);
+        $uri = sprintf('%s', self::BASE_URI);
 
         $this
             ->actingAs($this->user, 'api')
@@ -219,35 +247,41 @@ $state = State::factory()->create();
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'name' => $factoryModel['name'],
+            'display' => $factoryModel['display'],
         ]);
 
     }
 
-    public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
+    /**
+     * @test
+     */
+    public function se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('district.update');
+        $this->role->revokePermissionTo('administrativeGender.update');
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+        $uri = sprintf('%s/%s', self::BASE_URI, $this->model->id);
 
         $this
             ->actingAs($this->user, 'api')
             ->putJson($uri, [
-                'name' => 'resource modificado'
+                'display' => 'resource modificado'
             ])
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'name' => 'resource modificado'
+            'display' => 'resource modificado'
         ]);
 
     }
 
-    public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
+    /**
+     * @test
+     */
+    public function se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('district.delete');
+        $this->role->revokePermissionTo('administrativeGender.delete');
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+        $uri = sprintf('%s/%s', self::BASE_URI, $this->model->id);
 
         $this
             ->actingAs($this->user, 'api')
@@ -255,33 +289,42 @@ $state = State::factory()->create();
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseHas($this->table, [
-            'name' => $this->model->name,
+            'display' => $this->model->display,
         ]);
 
     }
 
-    public function test_se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, -5);
+        $uri = sprintf('%s/%s', self::BASE_URI, -5);
         $this->actingAs($this->user, 'api')
             ->getJson($uri)
             ->assertStatus(Response::HTTP_NOT_FOUND);
 
     }
 
-    public function test_se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s', $this->table, -5);
+        $uri = sprintf('%s/%s', self::BASE_URI, -5);
 
         $this->actingAs($this->user, 'api')
             ->putJson($uri)
             ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
-    public function test_se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
+    /**
+     * @test
+     */
+    public function se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s', $this->table, -5);
+        $uri = sprintf('%s/%s', self::BASE_URI, -5);
 
         $this->actingAs($this->user, 'api')
             ->deleteJson($uri)
@@ -294,19 +337,22 @@ $state = State::factory()->create();
      */
     public function se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table,'string');
+        $uri = sprintf('%s/%s', self::BASE_URI, 'string');
 
         $this->actingAs($this->user, 'api')
             ->deleteJson($uri)
             ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
-    public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
 
-        District::factory()->count(20)->create();
+        AdministrativeGender::factory()->count(20)->create();
 
-        $list = District::count();
+        $list = AdministrativeGender::count();
 
         $DEFAULT_PAGINATE = 5;
 
@@ -316,7 +362,7 @@ $state = State::factory()->create();
 
         for ($i = 1; $i <= $pages; $i++) {
             $response = $this->actingAs($this->user, 'api')
-                ->getJson(sprintf('/api/v1/%s?page=%s&paginate=%s', $this->table, $i, $DEFAULT_PAGINATE))
+                ->getJson(sprintf('%s?page=%s&paginate=%s', self::BASE_URI, $i, $DEFAULT_PAGINATE))
                 ->assertStatus(Response::HTTP_OK);
 
             if ($i < $pages) {
@@ -336,7 +382,7 @@ $state = State::factory()->create();
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
+                            'display' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);
@@ -348,19 +394,21 @@ $state = State::factory()->create();
 
     }
 
-
-    public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
+    /**
+     * @test
+     */
+    public function se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
     {
-        District::factory()->count(20)->create();
+        AdministrativeGender::factory()->count(20)->create();
 
-        $list = District::count();
+        $list = AdministrativeGender::count();
 
         $pages = intval(ceil($list / $this->perPage));
         $mod = $list % $this->perPage;
 
         for ($i = 1; $i <= $pages; $i++) {
 
-            $uri = sprintf('/api/v1/%s?page=%s', $this->table, $i);
+            $uri = sprintf('%s?page=%s', self::BASE_URI, $i);
 
             $response = $this
                 ->actingAs($this->user, 'api')
@@ -384,7 +432,7 @@ $state = State::factory()->create();
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
+                            'display' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);
@@ -395,7 +443,6 @@ $state = State::factory()->create();
         $this->assertDatabaseCount($this->table, $list);
     }
 
-
     /**
      * @test
      */
@@ -404,12 +451,12 @@ $state = State::factory()->create();
 
         $uri = sprintf('%s/%s/status', self::BASE_URI, $this->model->id);
 
-        if($this->model->active){
+        if ($this->model->active) {
             $response = $this->actingAs($this->user, 'api')
                 ->putJson($uri, [
                     'active' => false
                 ]);
-        }else{
+        } else {
             $response = $this->actingAs($this->user, 'api')
                 ->putJson($uri, [
                     'active' => true

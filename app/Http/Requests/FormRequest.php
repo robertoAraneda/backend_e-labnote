@@ -77,4 +77,9 @@ class FormRequest extends \Illuminate\Foundation\Http\FormRequest
     {
         return "El atributo :attribute es obligatorio.";
     }
+
+    public function getDateMessage(): string
+    {
+        return "El atributo :attribute debe ser tipo date.";
+    }
 }

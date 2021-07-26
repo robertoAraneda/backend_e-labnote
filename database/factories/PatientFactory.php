@@ -2,19 +2,18 @@
 
 namespace Database\Factories;
 
-use App\Models\City;
-use App\Models\District;
-use App\Models\State;
+use App\Models\AdministrativeGender;
+use App\Models\Patient;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class CityFactory extends Factory
+class PatientFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = City::class;
+    protected $model = Patient::class;
 
     /**
      * Define the model's default state.
@@ -24,9 +23,8 @@ class CityFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name,
-            'code' => $this->faker->title,
-            'state_id' => State::factory(),
+            'birthdate' => $this->faker->date(),
+            'administrative_gender_id' => AdministrativeGender::factory(),
             'active'=> $this->faker->boolean
         ];
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCitiesTable extends Migration
+class CreateContactPatientsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,14 @@ class CreateCitiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('cities', function (Blueprint $table) {
+        Schema::create('contact_patients', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('code')->nullable();
-            $table->string('state_id')->nullable();
-            $table->boolean('active')->default(true);
+            $table->unsignedBigInteger('patient_id');
+            $table->string('given');
+            $table->string('family');
+            $table->string('relationship');
+            $table->string('phone');
+            $table->string('email');
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
             $table->unsignedBigInteger('deleted_user_id')->nullable();
@@ -27,6 +29,12 @@ class CreateCitiesTable extends Migration
             $table->string('deleted_user_ip', 15)->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+
+            $table->foreign('patient_id')
+                ->references('id')
+                ->on('patients')
+                ->onDelete('cascade');
         });
     }
 
@@ -37,6 +45,6 @@ class CreateCitiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cities');
+        Schema::dropIfExists('contact_patients');
     }
 }

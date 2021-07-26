@@ -2,47 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DistrictRequest;
-use App\Http\Resources\collections\DistrictResourceCollection;
-use App\Http\Resources\DistrictResource;
-use App\Models\District;
+use App\Http\Requests\AdministrativeGenderRequest;
+use App\Http\Resources\collections\AdministrativeGenderResourceCollection;
+use App\Http\Resources\AdministrativeGenderResource;
+use App\Models\AdministrativeGender;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-class DistrictController extends Controller
+class AdministrativeGenderController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @param DistrictRequest $request
+     * @param AdministrativeGenderRequest $request
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function index(DistrictRequest $request): JsonResponse
+    public function index(AdministrativeGenderRequest $request): JsonResponse
     {
-        $this->authorize('viewAny', District::class);
+        $this->authorize('viewAny', AdministrativeGender::class);
 
         $page = $request->input('page');
 
         if(isset($page)){
-            $items = District::select(
+            $items = AdministrativeGender::select(
                 'id',
-                'name',
+                'display',
                 'active',
             )
                 ->orderBy('id')
                 ->paginate($request->getPaginate());
         }else{
-            $items = District::select(
+            $items = AdministrativeGender::select(
                 'id',
-                'name',
+                'display',
                 'active',
             )
                 ->orderBy('id')
                 ->get();
         }
-        $collection = new DistrictResourceCollection($items);
+        $collection = new AdministrativeGenderResourceCollection($items);
         return
             response()
                 ->json($collection->response()->getData(true), Response::HTTP_OK);
@@ -51,13 +51,13 @@ class DistrictController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param DistrictRequest $request
+     * @param AdministrativeGenderRequest $request
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function store(DistrictRequest $request): JsonResponse
+    public function store(AdministrativeGenderRequest $request): JsonResponse
     {
-        $this->authorize('create', District::class);
+        $this->authorize('create', AdministrativeGender::class);
 
         $data = array_merge($request->validated(),
             [
@@ -66,9 +66,9 @@ class DistrictController extends Controller
             ]);
         try {
 
-            $model = District::create($data);
+            $model = AdministrativeGender::create($data);
 
-            return response()->json(new DistrictResource($model) , Response::HTTP_CREATED);
+            return response()->json(new AdministrativeGenderResource($model) , Response::HTTP_CREATED);
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -77,28 +77,28 @@ class DistrictController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param District $district
+     * @param AdministrativeGender $administrativeGender
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function show(District $district): JsonResponse
+    public function show(AdministrativeGender $administrativeGender)
     {
-        $this->authorize('view', $district);
+        $this->authorize('view', $administrativeGender);
 
-        return response()->json(new DistrictResource($district), Response::HTTP_OK);
+        return response()->json(new AdministrativeGenderResource($administrativeGender), Response::HTTP_OK);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param DistrictRequest $request
-     * @param District $district
+     * @param AdministrativeGenderRequest $request
+     * @param AdministrativeGender $administrativeGender
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function update(DistrictRequest $request, District $district): JsonResponse
+    public function update(AdministrativeGenderRequest $request, AdministrativeGender $administrativeGender): JsonResponse
     {
-        $this->authorize('update', $district);
+        $this->authorize('update', $administrativeGender);
 
         $data = array_merge($request->validated(),
             [
@@ -107,9 +107,9 @@ class DistrictController extends Controller
             ]);
 
         try {
-            $district->update($data);
+            $administrativeGender->update($data);
 
-            return response()->json(new DistrictResource($district) , Response::HTTP_OK);
+            return response()->json(new AdministrativeGenderResource($administrativeGender) , Response::HTTP_OK);
         }catch (\Exception $ex){
             return response()->json($ex->getMessage() , Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -118,23 +118,23 @@ class DistrictController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param DistrictRequest $request
-     * @param District $district
+     * @param AdministrativeGenderRequest $request
+     * @param AdministrativeGender $administrativeGender
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(DistrictRequest $request, District $district): JsonResponse
+    public function destroy(AdministrativeGenderRequest $request, AdministrativeGender $administrativeGender): JsonResponse
     {
-        $this->authorize('delete', $district);
+        $this->authorize('delete', $administrativeGender);
 
         try {
 
-            $district->update([
+            $administrativeGender->update([
                 'deleted_user_id' => auth()->id(),
                 'deleted_user_ip' => $request->ip()
             ]);
 
-            $district->delete();
+            $administrativeGender->delete();
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
 
@@ -144,21 +144,21 @@ class DistrictController extends Controller
     }
 
     /**
-     * @param DistrictRequest $request
-     * @param District $district
+     * @param AdministrativeGenderRequest $request
+     * @param AdministrativeGender $administrativeGender
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function changeActiveAttribute(DistrictRequest $request, District $district): JsonResponse
+    public function changeActiveAttribute(AdministrativeGenderRequest $request, AdministrativeGender $administrativeGender): JsonResponse
     {
-        $this->authorize('update', $district);
+        $this->authorize('update', $administrativeGender);
 
         $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
 
         try {
-            $district->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+            $administrativeGender->update(['active' => $status, 'updated_user_id' => auth()->id()]);
 
-            return response()->json(new DistrictResource($district), Response::HTTP_OK);
+            return response()->json(new AdministrativeGenderResource($administrativeGender), Response::HTTP_OK);
         }catch (\Exception $ex){
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
