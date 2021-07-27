@@ -26,7 +26,7 @@ class CityFactory extends Factory
         return [
             'name' => $this->faker->name,
             'code' => $this->faker->title,
-            'state_id' => State::factory(),
+            'state_code' => State::factory(),
             'active'=> $this->faker->boolean
         ];
     }

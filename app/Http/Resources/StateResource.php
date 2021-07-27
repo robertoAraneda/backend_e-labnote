@@ -16,7 +16,6 @@ class StateResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id' => $this->id,
             'name' => $this->name,
             'code' => $this->code,
             'active' => (bool) $this->active,
@@ -26,7 +25,7 @@ class StateResource extends JsonResource
             'updated_at' => $this->date($this->updated_at),
             '_links' => [
                 'self' => [
-                    'href' => route('api.states.show', ['state' => $this->id], false),
+                    'href' => route('api.states.show', ['state' => $this->code], false),
                 ],
             ],
             '_embedded' => [

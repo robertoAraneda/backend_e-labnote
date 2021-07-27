@@ -27,19 +27,19 @@ class CityController extends Controller
 
         if(isset($page)){
             $items = City::select(
-                'id',
+                'code',
                 'name',
                 'active',
             )
-                ->orderBy('id')
+                ->orderBy('code')
                 ->paginate($request->getPaginate());
         }else{
             $items = City::select(
-                'id',
+                'code',
                 'name',
                 'active',
             )
-                ->orderBy('id')
+                ->orderBy('code')
                 ->get();
         }
         $collection = new CityResourceCollection($items);

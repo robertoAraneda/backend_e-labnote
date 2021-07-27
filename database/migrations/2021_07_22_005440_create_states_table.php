@@ -14,9 +14,8 @@ class CreateStatesTable extends Migration
     public function up()
     {
         Schema::create('states', function (Blueprint $table) {
-            $table->id();
+            $table->string('code');
             $table->string('name');
-            $table->string('code')->nullable();
             $table->boolean('active')->default(true);
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
@@ -26,6 +25,7 @@ class CreateStatesTable extends Migration
             $table->string('deleted_user_ip', 15)->nullable();
             $table->timestamps();
             $table->softDeletes();
+          //  $table->primary('code');
         });
     }
 

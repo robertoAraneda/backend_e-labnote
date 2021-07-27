@@ -27,8 +27,8 @@ class AddressPatientFactory extends Factory
         return [
             'use' => 'home',
             'text' => $this->faker->streetAddress,
-            'city_id' => City::factory(),
-            'state_id' => State::factory()
+            'city_code' => City::factory(),
+            'state_code' => State::factory()
         ];
     }
 }

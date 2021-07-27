@@ -73,22 +73,24 @@ class CityTest extends TestCase
         $uri = sprintf('/api/v1/%s', $this->table);
         $countModels = City::count();
 
-        $this->actingAs($this->user, 'api')
-            ->getJson($uri)
-            ->assertStatus(Response::HTTP_OK)
-            ->assertJson(function (AssertableJson $json) use ($countModels) {
-                return $json
-                    ->has('_links')
-                    ->has('count')
-                    ->has('collection', $countModels, function ($json) {
-                        $json->whereAllType([
-                            'id' => 'integer',
-                            'name' => 'string',
-                            'active' => 'boolean',
-                            '_links' => 'array'
-                        ]);
-                    });
-            });
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson($uri);
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $response->assertJson(function (AssertableJson $json) use ($countModels) {
+            return $json
+                ->has('_links')
+                ->has('count')
+                ->has('collection', $countModels, function ($json) {
+                    $json->whereAllType([
+                        'code' => 'string',
+                        'name' => 'string',
+                        'active' => 'boolean',
+                        '_links' => 'array'
+                    ]);
+                });
+        });
 
 
     }
@@ -110,7 +112,7 @@ class CityTest extends TestCase
                     ->has('meta')
                     ->has('data.collection', $page, function ($json) {
                         $json->whereAllType([
-                            'id' => 'integer',
+                            'code' => 'string',
                             'name' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
@@ -121,16 +123,18 @@ class CityTest extends TestCase
 
     public function test_se_puede_obtener_el_detalle_del_recurso(): void //show
     {
-        $uri = sprintf("/api/v1/%s/%s", $this->table, $this->model->id);
+        $uri = sprintf("/api/v1/%s/%s", $this->table, $this->model->code);
 
-        $this->actingAs($this->user, 'api')
-            ->getJson($uri)
-            ->assertStatus(Response::HTTP_OK)
-            ->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
-                ->where('name', $this->model->name)
-                ->where('code', $this->model->code)
-                ->etc()
-            );
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson($uri);
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $response->assertJson(fn(AssertableJson $json) => $json->where('code', $this->model->code)
+            ->where('name', $this->model->name)
+            ->where('code', $this->model->code)
+            ->etc()
+        );
     }
 
     public function test_se_puede_crear_un_recurso(): void //store
@@ -139,7 +143,7 @@ class CityTest extends TestCase
         $factoryModel = [
             'name' => $this->faker->name,
             'code' => $this->faker->title,
-            'state_id' => $state->id,
+            'state_code' => $state->code,
             'active' => $this->faker->boolean
         ];
 
@@ -164,7 +168,7 @@ class CityTest extends TestCase
     public function test_se_puede_modificar_un_recurso(): void // update
     {
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->code);
 
         $this->actingAs($this->user, 'api')
             ->putJson($uri, [
@@ -172,7 +176,6 @@ class CityTest extends TestCase
             ])
             ->assertStatus(Response::HTTP_OK)
             ->assertJson(fn(AssertableJson $json) => $json
-                ->where('id', $this->model->id)
                 ->where('name', 'name modificado')
                 ->where('code', $this->model->code)
                 ->where('active', $this->model->active)
@@ -188,14 +191,14 @@ class CityTest extends TestCase
     public function test_se_puede_eliminar_un_recurso(): void //destroy
     {
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->code);
 
         $this
             ->actingAs($this->user, 'api')
             ->deleteJson($uri)
             ->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertDatabaseHas($this->table, ['id' => $this->model->id]);
+        $this->assertDatabaseHas($this->table, ['code' => $this->model->code]);
         $this->assertSoftDeleted($this->model);
 
     }
@@ -208,7 +211,7 @@ class CityTest extends TestCase
         $factoryModel = [
             'name' => $this->faker->slug,
             'code' => $this->faker->title,
-            'state_id' => $state->id,
+            'state_code' => $state->code,
             'active' => $this->faker->boolean
         ];
 
@@ -231,7 +234,7 @@ class CityTest extends TestCase
     {
         $this->role->revokePermissionTo('city.update');
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->code);
 
         $this
             ->actingAs($this->user, 'api')
@@ -250,7 +253,7 @@ class CityTest extends TestCase
     {
         $this->role->revokePermissionTo('city.delete');
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->code);
 
         $this
             ->actingAs($this->user, 'api')
@@ -297,7 +300,7 @@ class CityTest extends TestCase
      */
     public function se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table,'string');
+        $uri = sprintf('/api/v1/%s/%s', $this->table, 'string');
 
         $this->actingAs($this->user, 'api')
             ->deleteJson($uri)
@@ -338,7 +341,7 @@ class CityTest extends TestCase
                     ->has('meta')
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
-                            'id' => 'integer',
+                            'code' => 'string',
                             'name' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
@@ -386,7 +389,7 @@ class CityTest extends TestCase
                     ->has('meta')
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
-                            'id' => 'integer',
+                            'code' => 'string',
                             'name' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
@@ -405,14 +408,14 @@ class CityTest extends TestCase
     public function se_puede_modificar_el_estado_de_un_recurso()
     {
 
-        $uri = sprintf('%s/%s/status', self::BASE_URI, $this->model->id);
+        $uri = sprintf('%s/%s/status', self::BASE_URI, $this->model->code);
 
-        if($this->model->active){
+        if ($this->model->active) {
             $response = $this->actingAs($this->user, 'api')
                 ->putJson($uri, [
                     'active' => false
                 ]);
-        }else{
+        } else {
             $response = $this->actingAs($this->user, 'api')
                 ->putJson($uri, [
                     'active' => true

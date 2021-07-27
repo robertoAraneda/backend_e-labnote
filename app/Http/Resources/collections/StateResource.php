@@ -15,12 +15,12 @@ class StateResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id' => $this->id,
+            'code' => $this->code,
             'name' => $this->name,
             'active' => (bool) $this->active,
             '_links' => [
                 'self' =>[
-                    'href' => route('api.states.show', ['state' => $this->id], false),
+                    'href' => route('api.states.show', ['state' => $this->code], false),
                 ] ,
             ],
         ];

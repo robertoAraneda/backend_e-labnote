@@ -84,20 +84,17 @@ class PatientController extends Controller
             $model->humanNames()->create($humanName);
 
 
-
-
             //se obtiene la información de los identificadores del paciente
             $identifierPatientCollection = collect($request->validated()['identifierPatient']);
 
 
             $identifierPatient = $identifierPatientCollection->map(function ($item) use ($request) {
-                return [
-                    'identifier_type_id' => $item['identifier_type_id'],
-                    'value' => $item['value'],
-                    'identifier_use_id' => $item['identifier_use_id'],
-                    'created_user_id' => auth()->id(),
-                    'created_user_ip' => $request->ip()
-                ];
+
+                return array_merge($item,
+                    [
+                        'updated_user_id' => auth()->id(),
+                        'updated_user_ip' => $request->ip(),
+                    ]);
             });
 
 
@@ -106,42 +103,38 @@ class PatientController extends Controller
             //se obtiene la información de los puntos de contacto
             $contactPointCollection = collect($request->validated()['contactPointPatient']);
             $contactPoint = $contactPointCollection->map(function ($item) use ($request) {
-                return [
-                    'system' => $item['system'],
-                    'value' => $item['value'],
-                    'use' => $item['use'],
-                    'created_user_id' => auth()->id(),
-                    'created_user_ip' => $request->ip()
-                ];
+
+                return array_merge($item,
+                    [
+                        'updated_user_id' => auth()->id(),
+                        'updated_user_ip' => $request->ip(),
+                    ]);
+
             });
             $model->contactPointPatient()->createMany($contactPoint);
 
             //se obtiene la información de los puntos de contacto
             $addressCollection = collect($request->validated()['addressPatient']);
             $address = $addressCollection->map(function ($item) use ($request) {
-                return [
-                    'use' => $item['use'],
-                    'text' => $item['text'],
-                    'city_id' => $item['city_id'],
-                    'state_id' => $item['state_id'],
-                    'created_user_id' => auth()->id(),
-                    'created_user_ip' => $request->ip()
-                ];
+
+                return array_merge($item,
+                    [
+                        'updated_user_id' => auth()->id(),
+                        'updated_user_ip' => $request->ip(),
+                    ]);
             });
             $model->addressPatient()->createMany($address);
 
             //se obtiene la información de familiar de contacto
             $contactPatientCollection = collect($request->validated()['contactPatient']);
             $contactPatient = $contactPatientCollection->map(function ($item) use ($request) {
-                return [
-                    'given' => $item['given'],
-                    'family' => $item['family'],
-                    'relationship' => $item['relationship'],
-                    'phone' => $item['phone'],
-                    'email' => $item['email'],
-                    'created_user_id' => auth()->id(),
-                    'created_user_ip' => $request->ip()
-                ];
+
+                return array_merge($item,
+                    [
+                        'updated_user_id' => auth()->id(),
+                        'updated_user_ip' => $request->ip(),
+                    ]);
+
             });
             $model->contactPatient()->createMany($contactPatient);
 

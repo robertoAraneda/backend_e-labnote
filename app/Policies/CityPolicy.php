@@ -16,7 +16,15 @@ class CityPolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array('city.index', $user->getAllPermissions()->pluck('name')->toArray());
+        if(in_array('city.index', $user->getAllPermissions()->pluck('name')->toArray())){
+            return true;
+        }
+
+        if (in_array('patient.create', $user->getAllPermissions()->pluck('name')->toArray())) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

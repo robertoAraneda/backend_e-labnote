@@ -20,9 +20,8 @@ class AddressPatient extends Model
     protected  $fillable = [
         'use',
         'text',
-        'city_id',
-        'district_id',
-        'state_id',
+        'city_code',
+        'state_code',
         'created_user_id',
         'updated_user_id',
         'deleted_user_id',
@@ -71,7 +70,7 @@ class AddressPatient extends Model
      */
     public function city(): BelongsTo
     {
-        return $this->belongsTo(City::class);
+        return $this->belongsTo(City::class, 'city_code');
     }
 
     /**
@@ -79,6 +78,6 @@ class AddressPatient extends Model
      */
     public function state(): BelongsTo
     {
-        return $this->belongsTo(State::class);
+        return $this->belongsTo(State::class, 'state_code');
     }
 }

@@ -13,6 +13,28 @@ class City extends Model
     use HasFactory, SoftDeletes;
 
     /**
+     * The primary key for the model.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'code';
+
+
+    /**
+     * The "type" of the primary key ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var string[]
@@ -20,7 +42,7 @@ class City extends Model
     protected  $fillable = [
         'code',
         'name',
-        'state_id',
+        'state_code',
         'active',
         'created_user_id',
         'updated_user_id',
@@ -78,6 +100,6 @@ class City extends Model
      */
     public function state(): BelongsTo
     {
-        return $this->belongsTo(State::class);
+        return $this->belongsTo(State::class, 'state_code');
     }
 }

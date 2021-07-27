@@ -140,11 +140,9 @@ Route::group([
         ->names('api.observation-service-requests');
 
     Route::apiResource('states', StateController::class)
-        ->whereNumber('state')
         ->names('api.states');
 
     Route::apiResource('cities', CityController::class)
-        ->whereNumber('city')
         ->names('api.cities');
 
     Route::apiResource('patients', PatientController::class)
