@@ -25,7 +25,7 @@ class CreateStatesTable extends Migration
             $table->string('deleted_user_ip', 15)->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->primary('code');
+          //  $table->primary('code');
         });
     }
 

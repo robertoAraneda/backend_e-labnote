@@ -95,11 +95,4 @@ class State extends Model
         return $this->belongsTo(User::class, 'deleted_user_id');
     }
 
-    /**
-     * @return HasMany
-     */
-    public function districts(): HasMany
-    {
-        return $this->hasMany(District::class);
-    }
 }

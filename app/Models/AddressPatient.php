@@ -71,7 +71,7 @@ class AddressPatient extends Model
      */
     public function city(): BelongsTo
     {
-        return $this->belongsTo(City::class);
+        return $this->belongsTo(City::class, 'code');
     }
 
     /**
@@ -79,6 +79,6 @@ class AddressPatient extends Model
      */
     public function state(): BelongsTo
     {
-        return $this->belongsTo(State::class);
+        return $this->belongsTo(State::class, 'code');
     }
 }

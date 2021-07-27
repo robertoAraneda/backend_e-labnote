@@ -28,7 +28,7 @@ class CreateCitiesTable extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->primary('code');
+          //  $table->primary('code');
         });
     }
 

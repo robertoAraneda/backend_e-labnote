@@ -18,14 +18,14 @@ class CityRequest extends FormRequest
                 return [
                     'name' => 'string',
                     'code' => 'string',
-                    'state_id' => 'integer',
+                    'state_code' => 'string',
                     'active' => 'boolean',
                 ];
             case 'POST':
                 return [
                     'name' => 'required|string',
                     'code' =>  'required|string',
-                    'state_id' => 'required|integer',
+                    'state_code' => 'required|string',
                     'active' =>  'required|boolean'
                 ];
             default:
@@ -51,11 +51,11 @@ class CityRequest extends FormRequest
         return [
             'name.required' => $this->getRequiredMessage(),
             'code.required' => $this->getRequiredMessage(),
-            'state_id.required' => $this->getRequiredMessage(),
+            'state_code.required' => $this->getRequiredMessage(),
             'active.required' => $this->getRequiredMessage(),
             'name.string' => $this->getStringMessage(),
             'code.string' => $this->getStringMessage(),
-            'state_id.integer' => $this->getIntegerMessage(),
+            'state_code.integer' => $this->getIntegerMessage(),
             'active.boolean' => $this->getBooleanMessage(),
         ];
     }

@@ -15,7 +15,6 @@ class CityResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id' => $this->id,
             'name' => $this->name,
             'code' => $this->code,
             'active' => (bool) $this->active,
@@ -25,7 +24,7 @@ class CityResource extends JsonResource
             'updated_at' => $this->date($this->updated_at),
             '_links' => [
                 'self' => [
-                    'href' => route('api.cities.show', ['city' => $this->id], false),
+                    'href' => route('api.cities.show', ['city' => $this->code], false),
                 ],
             ],
             '_embedded' => [
@@ -81,7 +80,7 @@ class CityResource extends JsonResource
             'name' => $model->name,
             '_links' => [
                 'self' => [
-                    'href' => route('api.states.show', ['state' => $model->id], false)
+                    'href' => route('api.states.show', ['state' => $model->code], false)
                 ]
             ]
         ];
