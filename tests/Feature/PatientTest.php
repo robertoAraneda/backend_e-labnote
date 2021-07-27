@@ -209,13 +209,13 @@ class PatientTest extends TestCase
                 [
                     'use' => 'home',
                     'text' => 'Juan Enrique Rodo 05080',
-                    'city_id' => $city->id,
-                    'state_id' => $state->id],
+                    'city_code' => $city->code,
+                    'state_code' => $state->code],
                 [
                     'use' => 'work',
                     'text' => 'Huerfanos 670',
-                    'city_id' => $city->id,
-                    'state_id' => $state->id],
+                    'city_code' => $city->code,
+                    'state_code' => $state->code],
             ],
             'contactPatient' => [
                 [
@@ -538,13 +538,13 @@ class PatientTest extends TestCase
                 [
                     'use' => 'home',
                     'text' => 'Juan Enrique Rodo 05080',
-                    'city_id' => $city->id,
-                    'state_id' => $state->id],
+                    'city_code' => $city->code,
+                    'state_code' => $state->code],
                 [
                     'use' => 'work',
                     'text' => 'Huerfanos 670',
-                    'city_id' => $city->id,
-                    'state_id' => $state->id],
+                    'city_code' => $city->code,
+                    'state_code' => $state->code],
             ],
             'contactPatient' => [
                 [
