@@ -28,19 +28,19 @@ class StateController extends Controller
 
         if(isset($page)){
             $items = State::select(
-                'id',
+                'code',
                 'name',
                 'active',
             )
-                ->orderBy('id')
+                ->orderBy('code')
                 ->paginate($request->getPaginate());
         }else{
             $items = State::select(
-                'id',
+                'code',
                 'name',
                 'active',
             )
-                ->orderBy('id')
+                ->orderBy('code')
                 ->get();
         }
         $collection = new StateResourceCollection($items);

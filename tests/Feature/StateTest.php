@@ -81,7 +81,7 @@ class StateTest extends TestCase
                     ->has('count')
                     ->has('collection', $countModels, function ($json) {
                         $json->whereAllType([
-                            'id' => 'integer',
+                            'code' => 'string',
                             'name' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
@@ -109,7 +109,7 @@ class StateTest extends TestCase
                     ->has('meta')
                     ->has('data.collection', $page, function ($json) {
                         $json->whereAllType([
-                            'id' => 'integer',
+                            'code' => 'string',
                             'name' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
@@ -120,14 +120,13 @@ class StateTest extends TestCase
 
     public function test_se_puede_obtener_el_detalle_del_recurso(): void //show
     {
-        $uri = sprintf("/api/v1/%s/%s", $this->table, $this->model->id);
+        $uri = sprintf("/api/v1/%s/%s", $this->table, $this->model->code);
 
         $this->actingAs($this->user, 'api')
             ->getJson($uri)
             ->assertStatus(Response::HTTP_OK)
-            ->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
+            ->assertJson(fn(AssertableJson $json) => $json->where('code', $this->model->code)
                 ->where('name', $this->model->name)
-                ->where('code', $this->model->code)
                 ->etc()
             );
     }
@@ -161,7 +160,7 @@ class StateTest extends TestCase
     public function test_se_puede_modificar_un_recurso(): void // update
     {
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->code);
 
         $this->actingAs($this->user, 'api')
             ->putJson($uri, [
@@ -169,7 +168,6 @@ class StateTest extends TestCase
             ])
             ->assertStatus(Response::HTTP_OK)
             ->assertJson(fn(AssertableJson $json) => $json
-                ->where('id', $this->model->id)
                 ->where('name', 'name modificado')
                 ->where('code', $this->model->code)
                 ->where('active', $this->model->active)
@@ -185,14 +183,14 @@ class StateTest extends TestCase
     public function test_se_puede_eliminar_un_recurso(): void //destroy
     {
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->code);
 
         $this
             ->actingAs($this->user, 'api')
             ->deleteJson($uri)
             ->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertDatabaseHas($this->table, ['id' => $this->model->id]);
+        $this->assertDatabaseHas($this->table, ['code' => $this->model->code]);
         $this->assertSoftDeleted($this->model);
 
     }
@@ -225,7 +223,7 @@ class StateTest extends TestCase
     {
         $this->role->revokePermissionTo('state.update');
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->code);
 
         $this
             ->actingAs($this->user, 'api')
@@ -244,7 +242,7 @@ class StateTest extends TestCase
     {
         $this->role->revokePermissionTo('state.delete');
 
-        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->code);
 
         $this
             ->actingAs($this->user, 'api')
@@ -332,7 +330,7 @@ class StateTest extends TestCase
                     ->has('meta')
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
-                            'id' => 'integer',
+                            'code' => 'string',
                             'name' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
@@ -380,7 +378,7 @@ class StateTest extends TestCase
                     ->has('meta')
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
-                            'id' => 'integer',
+                            'code' => 'string',
                             'name' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
@@ -399,7 +397,7 @@ class StateTest extends TestCase
     public function se_puede_modificar_el_estado_de_un_recurso()
     {
 
-        $uri = sprintf('%s/%s/status', self::BASE_URI, $this->model->id);
+        $uri = sprintf('%s/%s/status', self::BASE_URI, $this->model->code);
 
         if ($this->model->active) {
             $response = $this->actingAs($this->user, 'api')
