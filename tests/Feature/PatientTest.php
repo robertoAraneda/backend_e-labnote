@@ -6,7 +6,6 @@ use App\Models\AddressPatient;
 use App\Models\City;
 use App\Models\ContactPatient;
 use App\Models\ContactPointPatient;
-use App\Models\District;
 use App\Models\AdministrativeGender;
 use App\Models\HumanName;
 use App\Models\IdentifierPatient;
@@ -771,5 +770,22 @@ class PatientTest extends TestCase
         }
 
         $this->assertDatabaseCount($this->table, $list);
+    }
+
+    /**
+     * @test
+     */
+    public function se_puede_obtener_un_paciente_a_traves_de_un_identifier(){
+
+
+        $uri = sprintf("/api/v1/patients/search?query=identifier&value=%s",  '15654738-7');
+
+        $this->actingAs($this->user, 'api')
+            ->getJson($uri)
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
+                ->where('birthdate', $this->model->birthdate)
+                ->etc()
+            );
     }
 }
