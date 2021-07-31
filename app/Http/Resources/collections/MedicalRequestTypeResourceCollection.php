@@ -8,6 +8,13 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 class MedicalRequestTypeResourceCollection extends ResourceCollection
 {
     /**
+     * The resource that this resource collects.
+     *
+     * @var string
+     */
+    public $collects = 'App\Http\Resources\Collections\MedicalRequestTypeResource';
+
+    /**
      * Transform the resource collection into an array.
      *
      * @param  Request  $request
