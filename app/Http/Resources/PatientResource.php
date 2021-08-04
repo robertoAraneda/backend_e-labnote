@@ -21,7 +21,7 @@ class PatientResource extends JsonResource
             'telecom' => $this->telecom($this->contactPointPatient),
             'address' => $this->address($this->addressPatient),
             'contact' => $this->contact($this->contactPatient),
-            'gender' => $this->administrativeGender->display,
+            'administrative_gender_id' => $this->administrativeGender->id,
             'birthdate' => $this->birthdate,
             'active' => (bool) $this->active,
             'created_user_ip' => $this->created_user_ip,
@@ -74,8 +74,8 @@ class PatientResource extends JsonResource
                 'id' => $item->id,
                 'use' => $item->use,
                 'text' => $item->text,
-                'city'  => $item->city->name,
-                'state' => $item->state->name,
+                'city_code'  => $item->city->code,
+                'state_code' => $item->state->code,
             ];
         });
 
@@ -87,8 +87,8 @@ class PatientResource extends JsonResource
         return $array->map(function ($item){
             return [
                 'id' => $item->id,
-                'use' => $item->identifierUse->display,
-                'type' => $item->identifierType->display,
+                'identifier_use_id' => $item->identifierUse->id,
+                'identifier_type_id' => $item->identifierType->id,
                 'value'  => $item->value,
             ];
         });

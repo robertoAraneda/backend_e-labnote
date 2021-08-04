@@ -80,4 +80,12 @@ class IdentifierPatient extends Model
         return $this->belongsTo(IdentifierUse::class);
     }
 
+    /**
+     * @return BelongsTo
+     */
+    public function patient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
 }

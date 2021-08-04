@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PatientRequest;
 use App\Http\Resources\collections\PatientResourceCollection;
 use App\Http\Resources\PatientResource;
+use App\Models\IdentifierPatient;
 use App\Models\Patient;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -64,18 +66,22 @@ class PatientController extends Controller
         try {
             DB::beginTransaction();
 
-            //se agrega al objeto paciente la información de auditoria
-            $patient = array_merge($request->validated()['patient'],
-                [
-                    'created_user_id' => auth()->id(),
-                    'created_user_ip' => $request->ip(),
-                ]);
+            $dataPatient = $request->validated();
 
-            $model = Patient::create($patient);
+            return $dataPatient;
+
+            //se agrega al objeto paciente la información de auditoria
+            $model = Patient::create([
+                'active' => $dataPatient['active'],
+                'administrative_gender_id' => $dataPatient['administrative_gender_id'],
+                'birthdate' => $dataPatient['birthdate'],
+                'created_user_id' => auth()->id(),
+                'created_user_ip' => $request->ip(),
+            ]);
 
             //se obtiene la información del nombre
             $humanName = array_merge(
-                $request->validated()['humanName'],
+                $request->validated(),
                 [
                     'created_user_id' => auth()->id(),
                     'created_user_ip' => $request->ip()
@@ -92,8 +98,8 @@ class PatientController extends Controller
 
                 return array_merge($item,
                     [
-                        'updated_user_id' => auth()->id(),
-                        'updated_user_ip' => $request->ip(),
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip()
                     ]);
             });
 
@@ -106,8 +112,8 @@ class PatientController extends Controller
 
                 return array_merge($item,
                     [
-                        'updated_user_id' => auth()->id(),
-                        'updated_user_ip' => $request->ip(),
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip()
                     ]);
 
             });
@@ -119,8 +125,8 @@ class PatientController extends Controller
 
                 return array_merge($item,
                     [
-                        'updated_user_id' => auth()->id(),
-                        'updated_user_ip' => $request->ip(),
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip()
                     ]);
             });
             $model->addressPatient()->createMany($address);
@@ -131,8 +137,8 @@ class PatientController extends Controller
 
                 return array_merge($item,
                     [
-                        'updated_user_id' => auth()->id(),
-                        'updated_user_ip' => $request->ip(),
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip()
                     ]);
 
             });
@@ -155,7 +161,7 @@ class PatientController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function show(Patient $patient): JsonResponse
+    public function show(Patient $patient)
     {
         $this->authorize('view', $patient);
 
@@ -176,40 +182,52 @@ class PatientController extends Controller
 
         $validated = (object)$request->validated();
 
-        if (isset($validated->humanName)) {
 
-            $data = array_merge($validated->humanName,
-                [
-                    'updated_user_id' => auth()->id(),
-                    'updated_user_ip' => $request->ip(),
-                ]);
+        if (isset($validated->name) && count($validated->name) != 0) {
+            foreach ($validated->name as $name) {
+                $data = array_merge($name,
+                    [
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip(),
+                        'updated_user_id' => auth()->id(),
+                        'updated_user_ip' => $request->ip(),
+                    ]);
 
-            $patient->humanNames()->updateOrCreate(
-                [
-                    'id' => $validated->humanName['id'],
-                ], $data);
+                $patient->humanNames()->updateOrCreate(
+                    [
+                        'id' => $name['id'],
+                    ], $data);
+
+            }
         }
 
-        if (isset($validated->addressPatient)) {
+        if (isset($validated->address) && count($validated->address) != 0) {
+            foreach ($validated->address as $address) {
+                $data = array_merge($address,
+                    [
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip(),
+                        'updated_user_id' => auth()->id(),
+                        'updated_user_ip' => $request->ip(),
+                    ]);
 
-            $data = array_merge($validated->addressPatient,
-                [
-                    'updated_user_id' => auth()->id(),
-                    'updated_user_ip' => $request->ip(),
-                ]);
+                $patient->addressPatient()->updateOrCreate(
+                    [
+                        'id' => $address['id'],
+                    ], $data);
 
-            $patient->addressPatient()->updateOrCreate(
-                [
-                    'id' => $validated->addressPatient['id'],
-                ], $data);
+            }
         }
 
 
 
-        if (isset($validated->identifierPatient) && count($validated->identifierPatient) != 0) {
-            foreach ($validated->identifierPatient as $identifierPatient) {
+        if (isset($validated->identifier) && count($validated->identifier) != 0) {
+            foreach ($validated->identifier as $identifierPatient) {
+
                 $data = array_merge($identifierPatient,
                     [
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip(),
                         'updated_user_id' => auth()->id(),
                         'updated_user_ip' => $request->ip(),
                     ]);
@@ -222,26 +240,30 @@ class PatientController extends Controller
             }
         }
 
-        if (isset($validated->contactPointPatient) && count($validated->contactPointPatient) != 0) {
-            foreach ($validated->contactPointPatient as $contactPointPatient) {
+        if (isset($validated->telecom) && count($validated->telecom) != 0) {
+            foreach ($validated->telecom as $contactPointPatient) {
                 $data = array_merge($contactPointPatient,
                     [
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip(),
                         'updated_user_id' => auth()->id(),
                         'updated_user_ip' => $request->ip(),
                     ]);
                 $patient->contactPointPatient()->updateOrCreate(
                     [
-                        'id' => $contactPointPatient['id'],
+                        'id' => $contactPointPatient['id'] ?? -1,
                     ], $data);
             }
         }
 
 
-        if (isset($validated->contactPatient) && count($validated->contactPatient) != 0) {
-            foreach ($validated->contactPatient as $contactPatient) {
+        if (isset($validated->contact) && count($validated->contact) != 0) {
+            foreach ($validated->contact as $contactPatient) {
 
                 $data = array_merge($contactPatient,
                     [
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip(),
                         'updated_user_id' => auth()->id(),
                         'updated_user_ip' => $request->ip(),
                     ]);
@@ -252,14 +274,16 @@ class PatientController extends Controller
             }
         }
 
-        $data = array_merge($validated->patient,
-            [
-                'updated_user_id' => auth()->id(),
-                'updated_user_ip' => $request->ip(),
-            ]);
-
         try {
-            $patient->update($data);
+            $patient->update(
+                [
+                    'active' => $validated->active,
+                    'administrative_gender_id' => $validated->administrative_gender_id,
+                    'birthdate' => $validated->birthdate,
+                    'updated_user_id' => auth()->id(),
+                    'updated_user_ip' => $request->ip(),
+                ]
+            );
 
             return response()->json(new PatientResource($patient), Response::HTTP_OK);
         } catch (\Exception $ex) {
@@ -287,6 +311,10 @@ class PatientController extends Controller
             ]);
 
             $patient->humanNames()->delete();
+            $patient->addressPatient()->delete();
+            $patient->identifierPatient()->delete();
+            $patient->contactPatient()->delete();
+            $patient->contactPointPatient()->delete();
 
             $patient->delete();
 
@@ -317,6 +345,24 @@ class PatientController extends Controller
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public function searchByParams(PatientRequest $request)
+    {
+
+        if($request->query('query') == 'identifier'){
+            $identifier = IdentifierPatient::where('value', $request->query('value'))->first();
+
+            if(isset($identifier)){
+                return response()->json(new PatientResource($identifier->patient), Response::HTTP_OK);
+            }else{
+                return response()->json(null, Response::HTTP_OK);
+            }
+
+
+        }
+
+        return response()->json([], Response::HTTP_OK);
     }
 
 }

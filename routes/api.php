@@ -191,6 +191,7 @@ Route::group([
 
     //search queries
     Route::get('modules/search', [ModuleController::class, 'searchByParams']);
+    Route::get('patients/search', [PatientController::class, 'searchByParams']);
     Route::get('observation-service-requests/search', [ObservationServiceRequestController::class, 'searchByParams']);
 
 
@@ -220,6 +221,32 @@ Route::group([
     //test routes
     Route::get('roles/assign/super-admin', [RoleController::class, 'assignSuperUser']);
     Route::get('/tests/{id}', [ModuleController::class, 'findById']);
+
+
+    //closures Routes
+    Route::get('identifier-types', function(){
+       $identifierTypes =  \App\Models\IdentifierType::all()->map(function ($identifier){
+           return [
+               'id' => $identifier->id,
+               'code' => $identifier->code,
+               'display' => $identifier->display
+           ];
+       });
+
+        return response()->json(['collection' => $identifierTypes], 200);
+    });
+
+    Route::get('identifier-uses', function(){
+        $identifierUses =  \App\Models\IdentifierUse::all()->map(function ($identifier){
+            return [
+                'id' => $identifier->id,
+                'code' => $identifier->code,
+                'display' => $identifier->display
+            ];
+        });
+
+        return response()->json(['collection' => $identifierUses], 200);
+    });
 
 
 });
