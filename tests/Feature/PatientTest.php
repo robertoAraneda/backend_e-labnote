@@ -165,6 +165,8 @@ class PatientTest extends TestCase
     public function se_puede_crear_un_recurso(): void //store
     {
 
+        $this->withoutExceptionHandling();
+
         $gender = AdministrativeGender::factory()->create();
         $city = City::factory()->create();
         $state = State::factory()->create();
@@ -172,25 +174,27 @@ class PatientTest extends TestCase
         $identifierUse = IdentifierUse::factory()->create();
 
         $factoryModel = [
-            'patient' => [
-                'birthdate' => $this->faker->date(),
-                'administrative_gender_id' => $gender->id,
-                'active' => $this->faker->boolean
-            ],
-            'identifierPatient' => [
+
+            'birthdate' => $this->faker->date(),
+            'administrative_gender_id' => $gender->id,
+            'active' => $this->faker->boolean,
+
+            'identifier' => [
                 [
                     'identifier_use_id' => $identifierType->id,
                     'identifier_type_id' => $identifierUse->id,
                     'value' => $this->faker->lastName
                 ]
             ],
-            'humanName' => [
-                'use' => 'usual',
-                'given' => 'Roberto Alejandro',
-                'father_family' => 'Araneda',
-                'mother_family' => 'Espinoza'
+            'name' => [
+                [
+                    'use' => 'usual',
+                    'given' => 'Roberto Alejandro',
+                    'father_family' => 'Araneda',
+                    'mother_family' => 'Espinoza'
+                ]
             ],
-            'contactPointPatient' => [
+            'telecom' => [
                 [
                     'system' => 'email',
                     'value' => 'roberto.aranedaespinoza@minsal.cl',
@@ -204,7 +208,7 @@ class PatientTest extends TestCase
                     'value' => '+56958639620',
                     'use' => 'work']
             ],
-            'addressPatient' => [
+            'address' => [
                 [
                     'use' => 'home',
                     'text' => 'Juan Enrique Rodo 05080',
@@ -216,7 +220,7 @@ class PatientTest extends TestCase
                     'city_code' => $city->code,
                     'state_code' => $state->code],
             ],
-            'contactPatient' => [
+            'contact' => [
                 [
                     'given' => 'Yolanda',
                     'family' => 'Espinoza',
@@ -240,13 +244,13 @@ class PatientTest extends TestCase
 
 
         $response->assertJson(fn(AssertableJson $json) => $json
-            ->where('birthdate', $factoryModel['patient']['birthdate'])
-            ->where('active', $factoryModel['patient']['active'])
+            ->where('birthdate', $factoryModel['birthdate'])
+            ->where('active', $factoryModel['active'])
             ->etc()
         );
 
         $this->assertDatabaseHas($this->table, [
-            'birthdate' => $factoryModel['patient']['birthdate'],
+            'birthdate' => $factoryModel['birthdate'],
         ]);
     }
 
@@ -257,17 +261,19 @@ class PatientTest extends TestCase
     {
 
         $factoryModifiedModel = [
-            'patient' => [
-                'birthdate' => '2021-01-01',
-                'administrative_gender_id' => $this->model->administrative_gender_id,
-                'active' => $this->model->active
-            ],
-            'humanName' => [
-                'id' => $this->model->humanNames[0]->id,
-                'use' => 'official',
-                'given' => 'Roberto Alejandro',
-                'father_family' => 'Araneda',
-                'mother_family' => 'Espinoza'
+
+            'birthdate' => '2021-01-01',
+            'administrative_gender_id' => $this->model->administrative_gender_id,
+            'active' => $this->model->active,
+
+            'name' => [
+                [
+                    'id' => $this->model->humanNames[0]->id,
+                    'use' => 'official',
+                    'given' => 'Roberto Alejandro',
+                    'father_family' => 'Araneda',
+                    'mother_family' => 'Espinoza'
+                ]
             ]
         ];
 
@@ -305,12 +311,12 @@ class PatientTest extends TestCase
         $identifierUse = IdentifierUse::create(['code' => 'official', 'display' => 'Oficial']);
 
         $factoryModifiedModel = [
-            'patient' => [
-                'birthdate' => $this->model->birthdate,
-                'administrative_gender_id' => $this->model->administrative_gender_id,
-                'active' => $this->model->active
-            ],
-            'identifierPatient' => [
+
+            'birthdate' => $this->model->birthdate,
+            'administrative_gender_id' => $this->model->administrative_gender_id,
+            'active' => $this->model->active,
+
+            'identifier' => [
                 [
                     'id' => $this->model->identifierPatient[0]->id,
                     'identifier_use_id' => $identifierType->id,
@@ -329,8 +335,8 @@ class PatientTest extends TestCase
 
         $response->assertJson(fn(AssertableJson $json) => $json
             ->where('identifier.0.value', '15654738-7')
-            ->where('identifier.0.type', 'RUT')
-            ->where('identifier.0.use', 'Oficial')
+            ->where('identifier.0.identifier_type_id', $identifierType->id)
+            ->where('identifier.0.identifier_use_id', $identifierUse->id)
             ->etc()
         );
 
@@ -348,17 +354,18 @@ class PatientTest extends TestCase
     {
 
         $factoryModifiedModel = [
-            'patient' => [
-                'birthdate' => $this->model->birthdate,
-                'administrative_gender_id' => $this->model->administrative_gender_id,
-                'active' => $this->model->active
-            ],
-            'addressPatient' =>
+
+            'birthdate' => $this->model->birthdate,
+            'administrative_gender_id' => $this->model->administrative_gender_id,
+            'active' => $this->model->active,
+
+            'address' => [
                 [
                     'id' => $this->model->addressPatient[0]->id,
                     'use' => 'home',
                     'text' => 'Llutay 1968'
                 ]
+            ]
         ];
 
         $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
@@ -387,14 +394,13 @@ class PatientTest extends TestCase
     public function se_puede_modificar_un_punto_de_contacto_del_paciente(): void // update
     {
 
-        $this->withoutExceptionHandling();
         $factoryModifiedModel = [
-            'patient' => [
-                'birthdate' => $this->model->birthdate,
-                'administrative_gender_id' => $this->model->administrative_gender_id,
-                'active' => $this->model->active
-            ],
-            'contactPointPatient' => [
+
+            'birthdate' => $this->model->birthdate,
+            'administrative_gender_id' => $this->model->administrative_gender_id,
+            'active' => $this->model->active,
+
+            'telecom' => [
                 [
                     'id' => $this->model->contactPointPatient[0]->id,
                     'system' => 'email',
@@ -432,15 +438,13 @@ class PatientTest extends TestCase
     public function se_puede_modificar_el_contacto_del_paciente(): void // update
     {
 
-        $this->withoutExceptionHandling();
-
         $factoryModifiedModel = [
-            'patient' => [
-                'birthdate' => $this->model->birthdate,
-                'administrative_gender_id' => $this->model->administrative_gender_id,
-                'active' => $this->model->active
-            ],
-            'contactPatient' => [
+
+            'birthdate' => $this->model->birthdate,
+            'administrative_gender_id' => $this->model->administrative_gender_id,
+            'active' => $this->model->active,
+
+            'contact' => [
                 [
                     'id' => $this->model->contactPatient[0]->id,
                     'given' => 'Yolanda',
@@ -508,18 +512,17 @@ class PatientTest extends TestCase
         $state = State::factory()->create();
 
         $factoryModel = [
-            'patient' => [
-                'birthdate' => $this->faker->date(),
-                'administrative_gender_id' => $administrativeGender->id,
-                'active' => $this->faker->boolean
+            'birthdate' => $this->faker->date(),
+            'administrative_gender_id' => $administrativeGender->id,
+            'active' => $this->faker->boolean,
+
+            'name' => [
+                ['use' => 'usual',
+                    'given' => 'Roberto Alejandro',
+                    'father_family' => 'Araneda',
+                    'mother_family' => 'Espinoza']
             ],
-            'humanName' => [
-                'use' => 'usual',
-                'given' => 'Roberto Alejandro',
-                'father_family' => 'Araneda',
-                'mother_family' => 'Espinoza'
-            ],
-            'contactPointPatient' => [
+            'telecom' => [
                 [
                     'system' => 'email',
                     'value' => 'roberto.aranedaespinoza@minsal.cl',
@@ -533,7 +536,7 @@ class PatientTest extends TestCase
                     'value' => '+56958639620',
                     'use' => 'work']
             ],
-            'addressPatient' => [
+            'address' => [
                 [
                     'use' => 'home',
                     'text' => 'Juan Enrique Rodo 05080',
@@ -545,7 +548,7 @@ class PatientTest extends TestCase
                     'city_code' => $city->code,
                     'state_code' => $state->code],
             ],
-            'contactPatient' => [
+            'contact' => [
                 [
                     'given' => 'Yolanda',
                     'family' => 'Espinoza',
@@ -566,7 +569,7 @@ class PatientTest extends TestCase
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'birthdate' => $factoryModel['patient']['birthdate'],
+            'birthdate' => $factoryModel['birthdate'],
         ]);
 
     }
@@ -775,17 +778,44 @@ class PatientTest extends TestCase
     /**
      * @test
      */
-    public function se_puede_obtener_un_paciente_a_traves_de_un_identifier(){
+    public function se_puede_obtener_un_paciente_a_traves_de_un_identifier()
+    {
+        $identifierType = IdentifierType::create(['code' => 'RUT', 'display' => 'RUT']);
+        $identifierUse = IdentifierUse::create(['code' => 'official', 'display' => 'Oficial']);
 
+        $factoryModifiedModel = [
 
-        $uri = sprintf("/api/v1/patients/search?query=identifier&value=%s",  '15654738-7');
+            'birthdate' => $this->model->birthdate,
+            'administrative_gender_id' => $this->model->administrative_gender_id,
+            'active' => $this->model->active,
+
+            'identifier' => [
+                [
+                    'id' => $this->model->identifierPatient[0]->id,
+                    'identifier_use_id' => $identifierType->id,
+                    'identifier_type_id' => $identifierUse->id,
+                    'value' => '15654738-7'
+                ]
+            ],
+        ];
+
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
         $this->actingAs($this->user, 'api')
-            ->getJson($uri)
-            ->assertStatus(Response::HTTP_OK)
-            ->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
-                ->where('birthdate', $this->model->birthdate)
-                ->etc()
-            );
+            ->putJson($uri, $factoryModifiedModel);
+
+        $uri = sprintf("/api/v1/patients/search?query=identifier&value=%s", '15654738-7');
+
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson($uri);
+
+        $response->dump();
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $response->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
+            ->where('birthdate', $this->model->birthdate)
+            ->etc()
+        );
     }
 }

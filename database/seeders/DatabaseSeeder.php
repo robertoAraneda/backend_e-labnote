@@ -45,7 +45,6 @@ class DatabaseSeeder extends Seeder
             SpecimenSeeder::class,
             SpecimenPermissionSeeder::class,
             StatePermissionSeeder::class,
-            DistrictPermissionSeeder::class,
             CityPermissionSeeder::class,
             IdentifierTypeSeeder::class,
             IdentifierUseSeeder::class,

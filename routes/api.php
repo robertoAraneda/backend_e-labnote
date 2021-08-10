@@ -21,6 +21,10 @@ use App\Http\Controllers\RelModulePermissionController;
 use App\Http\Controllers\RelSpecimenSamplingIndicationController;
 use App\Http\Controllers\ResponseTimeController;
 use App\Http\Controllers\SampleQuantityController;
+use App\Http\Controllers\ServiceRequestCategoryController;
+use App\Http\Controllers\ServiceRequestIntentController;
+use App\Http\Controllers\ServiceRequestPriorityController;
+use App\Http\Controllers\ServiceRequestStatusController;
 use App\Http\Controllers\SpecimenController;
 use App\Http\Controllers\SamplingConditionController;
 use App\Http\Controllers\SamplingIndicationController;
@@ -153,6 +157,22 @@ Route::group([
         ->whereNumber('administrative_gender')
         ->names('api.administrative-genders');
 
+    Route::apiResource('service-request-categories', ServiceRequestCategoryController::class)
+        ->whereNumber('service_request_category')
+        ->names('api.service-request-categories');
+
+    Route::apiResource('service-request-intents', ServiceRequestIntentController::class)
+        ->whereNumber('service_request_intent')
+        ->names('api.service-request-intents');
+
+    Route::apiResource('service-request-priorities', ServiceRequestPriorityController::class)
+        ->whereNumber('service_request_priority')
+        ->names('api.service-request-priorities');
+
+    Route::apiResource('service-request-statuses', ServiceRequestStatusController::class)
+        ->whereNumber('service_request_status')
+        ->names('api.service-request-statuses');
+
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     //Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
@@ -215,7 +235,10 @@ Route::group([
     Route::put('states/{state}/status', [StateController::class, 'changeActiveAttribute']);
     Route::put('cities/{city}/status', [CityController::class, 'changeActiveAttribute']);
     Route::put('administrative-genders/{administrative_gender}/status', [AdministrativeGenderController::class, 'changeActiveAttribute']);
-
+    Route::put('service-request-categories/{service_request_category}/status', [ServiceRequestCategoryController::class, 'changeActiveAttribute']);
+    Route::put('service-request-intents/{service_request_intent}/status', [ServiceRequestIntentController::class, 'changeActiveAttribute']);
+    Route::put('service-request-priorities/{service_request_priority}/status', [ServiceRequestPriorityController::class, 'changeActiveAttribute']);
+    Route::put('service-request-statuses/{service_request_status}/status', [ServiceRequestStatusController::class, 'changeActiveAttribute']);
 
 
     //test routes

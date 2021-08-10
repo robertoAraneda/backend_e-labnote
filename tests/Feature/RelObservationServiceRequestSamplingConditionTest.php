@@ -54,7 +54,7 @@ class RelObservationServiceRequestSamplingConditionTest extends TestCase
     /**
      * @test
      */
-    public function se_puede_obtener_una_lista_de_indicaciones_toma_muestra_de_un_examen(): void
+    public function se_puede_obtener_una_lista_de_condiciones_toma_muestra_de_un_examen(): void
     {
 
         $url = "/api/v1/observation-service-requests/{$this->model->id}/sampling-conditions";
@@ -76,7 +76,7 @@ class RelObservationServiceRequestSamplingConditionTest extends TestCase
     /**
      * @test
      */
-    public function se_puede_obtener_las_indicationes_toma_muestra_asociados_a_un_exameno_del_total_de_indicaciones(): void
+    public function se_puede_obtener_las_condiciones_toma_muestra_asociados_a_un_exameno_del_total_de_condiciones(): void
     {
         SamplingCondition::factory()->count(5)->create();
         ObservationServiceRequest::factory()
