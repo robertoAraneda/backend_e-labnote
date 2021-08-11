@@ -13,6 +13,7 @@ use App\Http\Controllers\MedicalRequestTypeController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ObservationServiceRequestController;
+use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProcessTimeController;
 use App\Http\Controllers\RelObservationServiceRequestSamplingConditionController;
@@ -173,6 +174,10 @@ Route::group([
         ->whereNumber('service_request_status')
         ->names('api.service-request-statuses');
 
+    Route::apiResource('organizations', OrganizationController::class)
+        ->whereNumber('organization')
+        ->names('api.organizations');
+
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     //Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
@@ -239,6 +244,7 @@ Route::group([
     Route::put('service-request-intents/{service_request_intent}/status', [ServiceRequestIntentController::class, 'changeActiveAttribute']);
     Route::put('service-request-priorities/{service_request_priority}/status', [ServiceRequestPriorityController::class, 'changeActiveAttribute']);
     Route::put('service-request-statuses/{service_request_status}/status', [ServiceRequestStatusController::class, 'changeActiveAttribute']);
+    Route::put('organizations/{organization}/status', [OrganizationController::class, 'changeActiveAttribute']);
 
 
     //test routes
