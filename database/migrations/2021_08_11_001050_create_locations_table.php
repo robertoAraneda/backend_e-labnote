@@ -21,8 +21,8 @@ class CreateLocationsTable extends Migration
             $table->string('description');
             $table->unsignedBigInteger('location_type_id');
             $table->unsignedBigInteger('location_physical_type_id');
-            $table->unsignedBigInteger('managing_organization_id');
-            $table->unsignedBigInteger('part_of_location_id');
+            $table->unsignedBigInteger('managing_organization_id')->nullable();
+            $table->unsignedBigInteger('part_of_location_id')->nullable();
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
             $table->unsignedBigInteger('deleted_user_id')->nullable();

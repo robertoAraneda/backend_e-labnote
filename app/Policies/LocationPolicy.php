@@ -10,63 +10,31 @@ class LocationPolicy
 {
     use HandlesAuthorization;
 
-    /**
-     * Determine whether the user can view any models.
-     *
-     * @param  \App\Models\User  $user
-     * @return mixed
-     */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return in_array('location.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
-    /**
-     * Determine whether the user can view the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Location  $location
-     * @return mixed
-     */
-    public function view(User $user, Location $location)
+    public function view(User $user, Location $location): bool
     {
-        //
+        return in_array('location.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
-    /**
-     * Determine whether the user can create models.
-     *
-     * @param  \App\Models\User  $user
-     * @return mixed
-     */
-    public function create(User $user)
+    public function create(User $user): bool
     {
-        //
+        return in_array('location.create', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
-    /**
-     * Determine whether the user can update the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Location  $location
-     * @return mixed
-     */
-    public function update(User $user, Location $location)
+    public function update(User $user, Location $location): bool
     {
-        //
+        return in_array('location.update', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Location  $location
-     * @return mixed
-     */
-    public function delete(User $user, Location $location)
+    public function delete(User $user, Location $location): bool
     {
-        //
+        return in_array('location.delete', $user->getAllPermissions()->pluck('name')->toArray());
     }
+
 
     /**
      * Determine whether the user can restore the model.

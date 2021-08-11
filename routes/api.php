@@ -8,6 +8,7 @@ use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\FonasaController;
 use App\Http\Controllers\AdministrativeGenderController;
 use App\Http\Controllers\LaboratoryController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LocationPhysicalTypeController;
 use App\Http\Controllers\LocationStatusController;
 use App\Http\Controllers\LocationTypeController;
@@ -192,6 +193,10 @@ Route::group([
     Route::apiResource('location-types', LocationTypeController::class)
         ->whereNumber('location_type')
         ->names('api.location-types');
+
+    Route::apiResource('locations', LocationController::class)
+        ->whereNumber('location')
+        ->names('api.locations');
 
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
