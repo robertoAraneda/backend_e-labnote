@@ -8,6 +8,8 @@ use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\FonasaController;
 use App\Http\Controllers\AdministrativeGenderController;
 use App\Http\Controllers\LaboratoryController;
+use App\Http\Controllers\LocationPhysicalTypeController;
+use App\Http\Controllers\LocationStatusController;
 use App\Http\Controllers\LoincController;
 use App\Http\Controllers\MedicalRequestTypeController;
 use App\Http\Controllers\MenuController;
@@ -178,6 +180,14 @@ Route::group([
         ->whereNumber('organization')
         ->names('api.organizations');
 
+    Route::apiResource('location-statuses', LocationStatusController::class)
+        ->whereNumber('location_status')
+        ->names('api.location-statuses');
+
+    Route::apiResource('location-physical-types', LocationPhysicalTypeController::class)
+        ->whereNumber('location_physical_type')
+        ->names('api.location-physical-types');
+
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     //Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
@@ -245,6 +255,8 @@ Route::group([
     Route::put('service-request-priorities/{service_request_priority}/status', [ServiceRequestPriorityController::class, 'changeActiveAttribute']);
     Route::put('service-request-statuses/{service_request_status}/status', [ServiceRequestStatusController::class, 'changeActiveAttribute']);
     Route::put('organizations/{organization}/status', [OrganizationController::class, 'changeActiveAttribute']);
+    Route::put('location-statuses/{location_status}/status', [LocationStatusController::class, 'changeActiveAttribute']);
+    Route::put('location-physical-types/{location_physical_type}/status', [LocationPhysicalTypeController::class, 'changeActiveAttribute']);
 
 
     //test routes

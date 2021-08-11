@@ -2,49 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\OrganizationRequest;
-use App\Http\Resources\collections\OrganizationResourceCollection;
-use App\Http\Resources\OrganizationResource;
-use App\Models\Organization;
+use App\Http\Requests\LocationStatusRequest;
+use App\Http\Resources\collections\LocationStatusResourceCollection;
+use App\Http\Resources\LocationStatusResource;
+use App\Models\LocationStatus;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-class OrganizationController extends Controller
+class LocationStatusController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @param OrganizationRequest $request
-     * @return JsonResponse+
+     * @param LocationStatusRequest $request
+     * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function index(OrganizationRequest $request): JsonResponse
+    public function index(LocationStatusRequest $request): JsonResponse
     {
-        $this->authorize('viewAny', Organization::class);
+        $this->authorize('viewAny', LocationStatus::class);
 
         $page = $request->input('page');
 
         if(isset($page)){
-            $items = Organization::select(
+            $items = LocationStatus::select(
                 'id',
-                'name',
-                'alias',
+                'code',
+                'display',
                 'active',
             )
                 ->orderBy('id')
                 ->paginate($request->getPaginate());
         }else{
-            $items = Organization::select(
+            $items = LocationStatus::select(
                 'id',
-                'name',
-                'alias',
+                'code',
+                'display',
                 'active',
             )
                 ->orderBy('id')
                 ->get();
         }
-        $collection = new OrganizationResourceCollection($items);
+        $collection = new LocationStatusResourceCollection($items);
         return
             response()
                 ->json($collection->response()->getData(true), Response::HTTP_OK);
@@ -53,13 +53,13 @@ class OrganizationController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param OrganizationRequest $request
+     * @param LocationStatusRequest $request
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function store(OrganizationRequest $request): JsonResponse
+    public function store(LocationStatusRequest $request): JsonResponse
     {
-        $this->authorize('create', Organization::class);
+        $this->authorize('create', LocationStatus::class);
 
         $data = array_merge($request->validated(),
             [
@@ -68,9 +68,9 @@ class OrganizationController extends Controller
             ]);
         try {
 
-            $model = Organization::create($data);
+            $model = LocationStatus::create($data);
 
-            return response()->json(new OrganizationResource($model) , Response::HTTP_CREATED);
+            return response()->json(new LocationStatusResource($model) , Response::HTTP_CREATED);
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -79,28 +79,28 @@ class OrganizationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Organization $organization
+     * @param LocationStatus $locationStatus
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function show(Organization $organization): JsonResponse
+    public function show(LocationStatus $locationStatus): JsonResponse
     {
-        $this->authorize('view', $organization);
+        $this->authorize('view', $locationStatus);
 
-        return response()->json(new OrganizationResource($organization), Response::HTTP_OK);
+        return response()->json(new LocationStatusResource($locationStatus), Response::HTTP_OK);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param OrganizationRequest $request
-     * @param Organization $organization
+     * @param LocationStatusRequest $request
+     * @param LocationStatus $locationStatus
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function update(OrganizationRequest $request, Organization $organization): JsonResponse
+    public function update(LocationStatusRequest $request, LocationStatus $locationStatus): JsonResponse
     {
-        $this->authorize('update', $organization);
+        $this->authorize('update', $locationStatus);
 
         $data = array_merge($request->validated(),
             [
@@ -109,9 +109,9 @@ class OrganizationController extends Controller
             ]);
 
         try {
-            $organization->update($data);
+            $locationStatus->update($data);
 
-            return response()->json(new OrganizationResource($organization) , Response::HTTP_OK);
+            return response()->json(new LocationStatusResource($locationStatus) , Response::HTTP_OK);
         }catch (\Exception $ex){
             return response()->json($ex->getMessage() , Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -120,23 +120,23 @@ class OrganizationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param OrganizationRequest $request
-     * @param Organization $organization
+     * @param LocationStatusRequest $request
+     * @param LocationStatus $locationStatus
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(OrganizationRequest $request, Organization $organization): JsonResponse
+    public function destroy(LocationStatusRequest $request, LocationStatus $locationStatus): JsonResponse
     {
-        $this->authorize('delete', $organization);
+        $this->authorize('delete', $locationStatus);
 
         try {
 
-            $organization->update([
+            $locationStatus->update([
                 'deleted_user_id' => auth()->id(),
                 'deleted_user_ip' => $request->ip()
             ]);
 
-            $organization->delete();
+            $locationStatus->delete();
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
 
@@ -146,21 +146,21 @@ class OrganizationController extends Controller
     }
 
     /**
-     * @param OrganizationRequest $request
-     * @param Organization $organization
+     * @param LocationStatusRequest $request
+     * @param LocationStatus $locationStatus
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function changeActiveAttribute(OrganizationRequest $request, Organization $organization): JsonResponse
+    public function changeActiveAttribute(LocationStatusRequest $request, LocationStatus $locationStatus): JsonResponse
     {
-        $this->authorize('update', $organization);
+        $this->authorize('update', $locationStatus);
 
         $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
 
         try {
-            $organization->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+            $locationStatus->update(['active' => $status, 'updated_user_id' => auth()->id()]);
 
-            return response()->json(new OrganizationResource($organization), Response::HTTP_OK);
+            return response()->json(new LocationStatusResource($locationStatus), Response::HTTP_OK);
         }catch (\Exception $ex){
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

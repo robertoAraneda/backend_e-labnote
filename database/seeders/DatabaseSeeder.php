@@ -48,7 +48,9 @@ class DatabaseSeeder extends Seeder
             CityPermissionSeeder::class,
             IdentifierTypeSeeder::class,
             IdentifierUseSeeder::class,
-            AdministrativeGenderSeeder::class
+            AdministrativeGenderSeeder::class,
+            LocationStatusSeeder::class,
+            LocationPhysicalTypeSeeder::class
         ]);
     }
 }

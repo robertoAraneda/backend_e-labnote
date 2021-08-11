@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\Location;
+use App\Models\LocationPhysicalType;
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\LocationPermissionsSeeder;
+use Database\Seeders\LocationPhysicalTypePermissionsSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -13,7 +13,7 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class LocationTest extends TestCase
+class LocationPhysicalTypeTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -22,7 +22,7 @@ class LocationTest extends TestCase
     private string $perPage;
     private string $table;
 
-    const BASE_URI = '/api/v1/Locations';
+    const BASE_URI = '/api/v1/location-physical-types';
 
     public function setUp(): void
     {
@@ -32,26 +32,26 @@ class LocationTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(LocationPermissionsSeeder::class);
+        $this->seed(LocationPhysicalTypePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('location.create');
-        $role->givePermissionTo('location.update');
-        $role->givePermissionTo('location.delete');
-        $role->givePermissionTo('location.index');
-        $role->givePermissionTo('location.show');
+        $role->givePermissionTo('locationPhysicalType.create');
+        $role->givePermissionTo('locationPhysicalType.update');
+        $role->givePermissionTo('locationPhysicalType.delete');
+        $role->givePermissionTo('locationPhysicalType.index');
+        $role->givePermissionTo('locationPhysicalType.show');
 
         $user->assignRole($role);
 
-        $modelClass = new Location();
+        $modelClass = new LocationPhysicalType();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = Location::factory()->create();
+        $this->model = LocationPhysicalType::factory()->create();
         $this->perPage = $modelClass->getPerPage();
-        $this->table = 'locations';
+        $this->table = 'location_physical_types';
 
     }
 
@@ -63,10 +63,10 @@ class LocationTest extends TestCase
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
 
-        Location::factory()->count(20)->create();
+        LocationPhysicalType::factory()->count(20)->create();
 
         $uri = sprintf('%s', self::BASE_URI);
-        $countModels = Location::count();
+        $countModels = LocationPhysicalType::count();
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson($uri);
@@ -80,21 +80,22 @@ class LocationTest extends TestCase
                 ->has('collection', $countModels, function ($json) {
                     $json->whereAllType([
                         'id' => 'integer',
-                        'name' => 'string',
-                        'alias' => 'string',
+                        'code' => 'string',
+                        'display' => 'string',
                         'active' => 'boolean',
                         '_links' => 'array'
                     ]);
                 });
         });
 
-
     }
 
     public function test_se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
 
-        Location::factory()->count(20)->create();
+        $this->withoutExceptionHandling();
+
+        LocationPhysicalType::factory()->count(20)->create();
 
         $uri = sprintf('%s?page=1', self::BASE_URI);
         $page = $this->perPage;
@@ -109,8 +110,8 @@ class LocationTest extends TestCase
                     ->has('data.collection', $page, function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
-                            'alias' => 'string',
+                            'code' => 'string',
+                            'display' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);
@@ -128,8 +129,8 @@ class LocationTest extends TestCase
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
-            ->where('name', $this->model->name)
-            ->where('alias', $this->model->alias)
+            ->where('code', $this->model->code)
+            ->where('display', $this->model->display)
             ->etc()
         );
     }
@@ -138,8 +139,8 @@ class LocationTest extends TestCase
     {
 
         $factoryModel = [
-            'name' => $this->faker->slug,
-            'alias' => $this->faker->text,
+            'code' => $this->faker->slug,
+            'display' => $this->faker->title,
             'active' => $this->faker->boolean
         ];
 
@@ -152,14 +153,14 @@ class LocationTest extends TestCase
         $response->assertStatus(Response::HTTP_CREATED);
 
         $response->assertJson(fn(AssertableJson $json) => $json
-            ->where('name', $factoryModel['name'])
-            ->where('alias', $factoryModel['alias'])
+            ->where('code', $factoryModel['code'])
+            ->where('display', $factoryModel['display'])
             ->where('active', $factoryModel['active'])
             ->etc()
         );
 
         $this->assertDatabaseHas($this->table, [
-            'alias' => $factoryModel['alias'],
+            'display' => $factoryModel['display'],
         ]);
     }
 
@@ -170,21 +171,21 @@ class LocationTest extends TestCase
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($uri, [
-                'alias' => 'name modificado'
+                'display' => 'name modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertJson(fn(AssertableJson $json) => $json
             ->where('id', $this->model->id)
-            ->where('alias', 'name modificado')
-            ->where('name', $this->model->name)
+            ->where('display', 'name modificado')
+            ->where('code', $this->model->code)
             ->where('active', $this->model->active)
             ->etc()
         );
 
         $this->assertDatabaseHas($this->table, [
-            'alias' => 'name modificado'
+            'display' => 'name modificado'
         ]);
     }
 
@@ -207,12 +208,12 @@ class LocationTest extends TestCase
     {
 
         $factoryModel = [
-            'name' => $this->faker->slug,
-            'alias' => $this->faker->title,
+            'code' => $this->faker->slug,
+            'display' => $this->faker->title,
             'active' => $this->faker->boolean
         ];
 
-        $this->role->revokePermissionTo('location.create');
+        $this->role->revokePermissionTo('locationPhysicalType.create');
 
         $uri = sprintf('%s', self::BASE_URI);
 
@@ -222,33 +223,33 @@ class LocationTest extends TestCase
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'alias' => $factoryModel['alias'],
+            'display' => $factoryModel['display'],
         ]);
 
     }
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('location.update');
+        $this->role->revokePermissionTo('locationPhysicalType.update');
 
         $uri = sprintf("%s/%s", self::BASE_URI, $this->model->id);
 
         $this
             ->actingAs($this->user, 'api')
             ->putJson($uri, [
-                'alias' => 'resource modificado'
+                'display' => 'resource modificado'
             ])
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'alias' => 'resource modificado'
+            'display' => 'resource modificado'
         ]);
 
     }
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('location.delete');
+        $this->role->revokePermissionTo('locationPhysicalType.delete');
 
         $uri = sprintf("%s/%s", self::BASE_URI, $this->model->id);
 
@@ -258,7 +259,7 @@ class LocationTest extends TestCase
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseHas($this->table, [
-            'name' => $this->model->name,
+            'code' => $this->model->code,
         ]);
 
     }
@@ -307,9 +308,9 @@ class LocationTest extends TestCase
     public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
 
-        Location::factory()->count(20)->create();
+        LocationPhysicalType::factory()->count(20)->create();
 
-        $list = Location::count();
+        $list = LocationPhysicalType::count();
 
         $DEFAULT_PAGINATE = 5;
 
@@ -339,8 +340,8 @@ class LocationTest extends TestCase
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
-                            'alias' => 'string',
+                            'code' => 'string',
+                            'display' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);
@@ -355,9 +356,9 @@ class LocationTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
     {
-        Location::factory()->count(20)->create();
+        LocationPhysicalType::factory()->count(20)->create();
 
-        $list = Location::count();
+        $list = LocationPhysicalType::count();
 
         $pages = intval(ceil($list / $this->perPage));
         $mod = $list % $this->perPage;
@@ -388,8 +389,8 @@ class LocationTest extends TestCase
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
-                            'alias' => 'string',
+                            'code' => 'string',
+                            'display' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);
