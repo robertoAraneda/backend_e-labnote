@@ -50,7 +50,8 @@ class DatabaseSeeder extends Seeder
             IdentifierUseSeeder::class,
             AdministrativeGenderSeeder::class,
             LocationStatusSeeder::class,
-            LocationPhysicalTypeSeeder::class
+            LocationPhysicalTypeSeeder::class,
+            LocationTypeSeeder::class
         ]);
     }
 }
