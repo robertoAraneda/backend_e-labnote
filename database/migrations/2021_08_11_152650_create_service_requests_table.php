@@ -15,7 +15,7 @@ class CreateServiceRequestsTable extends Migration
     {
         Schema::create('service_requests', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('replace_service_request_id');
+            $table->unsignedBigInteger('replace_service_request_id')->nullable();
             $table->string('requisition');
             $table->unsignedBigInteger('service_request_status_id');
             $table->unsignedBigInteger('service_request_intent_id');
@@ -23,8 +23,6 @@ class CreateServiceRequestsTable extends Migration
             $table->unsignedBigInteger('service_request_category_id');
             $table->unsignedBigInteger('patient_id');
             $table->dateTime('occurrence');
-            $table->unsignedBigInteger('managing_organization_id')->nullable();
-            $table->unsignedBigInteger('part_of_location_id')->nullable();
             $table->unsignedBigInteger('requester_id')->nullable();
             $table->unsignedBigInteger('performer_id')->nullable();
             $table->unsignedBigInteger('location_id')->nullable();

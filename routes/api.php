@@ -28,6 +28,7 @@ use App\Http\Controllers\RelSpecimenSamplingIndicationController;
 use App\Http\Controllers\ResponseTimeController;
 use App\Http\Controllers\SampleQuantityController;
 use App\Http\Controllers\ServiceRequestCategoryController;
+use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\ServiceRequestIntentController;
 use App\Http\Controllers\ServiceRequestPriorityController;
 use App\Http\Controllers\ServiceRequestStatusController;
@@ -202,6 +203,10 @@ Route::group([
     Route::apiResource('practitioners', PractitionerController::class)
         ->whereNumber('practitioner')
         ->names('api.practitioners');
+
+    Route::apiResource('service-requests', ServiceRequestController::class)
+        ->whereNumber('service_request')
+        ->names('api.service-requests');
 
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);

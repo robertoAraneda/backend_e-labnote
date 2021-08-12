@@ -24,7 +24,7 @@ class HumanNameFactory extends Factory
     {
 
         return [
-            'use' => 'usual',
+            'use' => 'official',
             'given' => $this->faker->name,
             'father_family' => $this->faker->lastName,
             'mother_family' => $this->faker->lastName

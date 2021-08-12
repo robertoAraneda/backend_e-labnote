@@ -6,14 +6,20 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ServiceRequestResourceCollection extends ResourceCollection
 {
-    /**
-     * Transform the resource collection into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    public function toArray($request)
+
+    public $collects = 'App\Http\Resources\Collections\ServiceRequestResource';
+
+    public function toArray($request): array
     {
-        return parent::toArray($request);
+        return [
+            '_links' => [
+                'self' => [
+                    'href' => route('api.service-requests.index', [], false),
+                    'title' => 'Lista de solicitudes',
+                ]
+            ],
+            'count' => $this->collection->count(),
+            'collection' => $this->collection
+        ];
     }
 }

@@ -10,62 +10,29 @@ class ServiceRequestPolicy
 {
     use HandlesAuthorization;
 
-    /**
-     * Determine whether the user can view any models.
-     *
-     * @param  \App\Models\User  $user
-     * @return mixed
-     */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return in_array('serviceRequest.index', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
-    /**
-     * Determine whether the user can view the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\ServiceRequest  $serviceRequest
-     * @return mixed
-     */
-    public function view(User $user, ServiceRequest $serviceRequest)
+    public function view(User $user, ServiceRequest $serviceRequest): bool
     {
-        //
+        return in_array('serviceRequest.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
-    /**
-     * Determine whether the user can create models.
-     *
-     * @param  \App\Models\User  $user
-     * @return mixed
-     */
-    public function create(User $user)
+    public function create(User $user): bool
     {
-        //
+        return in_array('serviceRequest.create', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
-    /**
-     * Determine whether the user can update the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\ServiceRequest  $serviceRequest
-     * @return mixed
-     */
-    public function update(User $user, ServiceRequest $serviceRequest)
+    public function update(User $user, ServiceRequest $serviceRequest): bool
     {
-        //
+        return in_array('serviceRequest.update', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\ServiceRequest  $serviceRequest
-     * @return mixed
-     */
-    public function delete(User $user, ServiceRequest $serviceRequest)
+    public function delete(User $user, ServiceRequest $serviceRequest): bool
     {
-        //
+        return in_array('serviceRequest.delete', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**

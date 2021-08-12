@@ -2,8 +2,21 @@
 
 namespace Tests\Feature;
 
+use App\Models\AddressPatient;
+use App\Models\AdministrativeGender;
+use App\Models\ContactPatient;
+use App\Models\ContactPointPatient;
+use App\Models\HumanName;
+use App\Models\IdentifierPatient;
+use App\Models\Location;
+use App\Models\Patient;
+use App\Models\Practitioner;
 use App\Models\Role;
 use App\Models\ServiceRequest;
+use App\Models\ServiceRequestCategory;
+use App\Models\ServiceRequestIntent;
+use App\Models\ServiceRequestPriority;
+use App\Models\ServiceRequestStatus;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\ServiceRequestPermissionsSeeder;
@@ -22,7 +35,7 @@ class ServiceRequestTest extends TestCase
     private string $perPage;
     private string $table;
 
-    const BASE_URI = '/api/v1/service-requests';
+    private const BASE_URI = '/api/v1/service-requests';
 
     public function setUp(): void
     {
@@ -62,7 +75,6 @@ class ServiceRequestTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
-
         ServiceRequest::factory()->count(20)->create();
 
         $uri = sprintf('%s', self::BASE_URI);
@@ -80,20 +92,18 @@ class ServiceRequestTest extends TestCase
                 ->has('collection', $countModels, function ($json) {
                     $json->whereAllType([
                         'id' => 'integer',
-                        'name' => 'string',
-                        'alias' => 'string',
-                        'active' => 'boolean',
+                        'note' => 'string',
+                        'requisition' => 'string',
+                        'occurrence' => 'string',
                         '_links' => 'array'
                     ]);
                 });
         });
 
-
     }
 
     public function test_se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
-
         ServiceRequest::factory()->count(20)->create();
 
         $uri = sprintf('%s?page=1', self::BASE_URI);
@@ -109,9 +119,9 @@ class ServiceRequestTest extends TestCase
                     ->has('data.collection', $page, function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
-                            'alias' => 'string',
-                            'active' => 'boolean',
+                            'note' => 'string',
+                            'requisition' => 'string',
+                            'occurrence' => 'string',
                             '_links' => 'array'
                         ]);
                     });
@@ -120,6 +130,8 @@ class ServiceRequestTest extends TestCase
 
     public function test_se_puede_obtener_el_detalle_del_recurso(): void //show
     {
+
+        $this->withoutExceptionHandling();
         $uri = sprintf("%s/%s", self::BASE_URI, $this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
@@ -128,19 +140,40 @@ class ServiceRequestTest extends TestCase
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
-            ->where('name', $this->model->name)
-            ->where('alias', $this->model->alias)
+            ->where('note', $this->model->note)
+            ->where('requisition', $this->model->requisition)
             ->etc()
         );
     }
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
+        $patient = Patient::factory()
+            ->has(AdministrativeGender::factory())
+            ->has(IdentifierPatient::factory())
+            ->has(HumanName::factory())
+            ->has(AddressPatient::factory())
+            ->has(ContactPointPatient::factory())
+            ->has(ContactPatient::factory())->create();
+        $status = ServiceRequestStatus::factory()->create();
+        $intent = ServiceRequestIntent::factory()->create();
+        $priority = ServiceRequestPriority::factory()->create();
+        $category = ServiceRequestCategory::factory()->create();
+        $requester = Practitioner::factory()->create();
+        $performer = Practitioner::factory()->create();
+        $location = Location::factory()->create();
 
         $factoryModel = [
-            'name' => $this->faker->slug,
-            'alias' => $this->faker->text,
-            'active' => $this->faker->boolean
+            'requisition' => "23456745",
+            'note' => $this->faker->text,
+            'service_request_status_id' => $status->id,
+            'service_request_intent_id' => $intent->id,
+            'service_request_priority_id' => $priority->id,
+            'service_request_category_id' => $category->id,
+            'patient_id' => $patient->id,
+            'requester_id' => $requester->id,
+            'performer_id' => $performer->id,
+            'location_id' => $location->id,
         ];
 
         $uri = sprintf("%s", self::BASE_URI);
@@ -152,45 +185,41 @@ class ServiceRequestTest extends TestCase
         $response->assertStatus(Response::HTTP_CREATED);
 
         $response->assertJson(fn(AssertableJson $json) => $json
-            ->where('name', $factoryModel['name'])
-            ->where('alias', $factoryModel['alias'])
-            ->where('active', $factoryModel['active'])
+            ->where('requisition', $factoryModel['requisition'])
+            ->where('note', $factoryModel['note'])
             ->etc()
         );
 
         $this->assertDatabaseHas($this->table, [
-            'alias' => $factoryModel['alias'],
+            'requisition' => $factoryModel['requisition'],
         ]);
     }
 
     public function test_se_puede_modificar_un_recurso(): void // update
     {
-
         $uri = sprintf("%s/%s", self::BASE_URI, $this->model->id);
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($uri, [
-                'alias' => 'name modificado'
+                'note' => 'name modificado'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertJson(fn(AssertableJson $json) => $json
             ->where('id', $this->model->id)
-            ->where('alias', 'name modificado')
-            ->where('name', $this->model->name)
-            ->where('active', $this->model->active)
+            ->where('note', 'name modificado')
+            ->where('requisition', $this->model->requisition)
             ->etc()
         );
 
         $this->assertDatabaseHas($this->table, [
-            'alias' => 'name modificado'
+            'note' => 'name modificado'
         ]);
     }
 
     public function test_se_puede_eliminar_un_recurso(): void //destroy
     {
-
         $uri = sprintf("%s/%s", self::BASE_URI, $this->model->id);
 
         $this
@@ -205,11 +234,32 @@ class ServiceRequestTest extends TestCase
 
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
+        $patient = Patient::factory()
+            ->has(AdministrativeGender::factory())
+            ->has(IdentifierPatient::factory())
+            ->has(HumanName::factory())
+            ->has(AddressPatient::factory())
+            ->has(ContactPointPatient::factory())
+            ->has(ContactPatient::factory())->create();
+        $status = ServiceRequestStatus::factory()->create();
+        $intent = ServiceRequestIntent::factory()->create();
+        $priority = ServiceRequestPriority::factory()->create();
+        $category = ServiceRequestCategory::factory()->create();
+        $requester = Practitioner::factory()->create();
+        $performer = Practitioner::factory()->create();
+        $location = Location::factory()->create();
 
         $factoryModel = [
-            'name' => $this->faker->slug,
-            'alias' => $this->faker->title,
-            'active' => $this->faker->boolean
+            'requisition' => "23456745",
+            'note' => $this->faker->text,
+            'service_request_status_id' => $status->id,
+            'service_request_intent_id' => $intent->id,
+            'service_request_priority_id' => $priority->id,
+            'service_request_category_id' => $category->id,
+            'patient_id' => $patient->id,
+            'requester_id' => $requester->id,
+            'performer_id' => $performer->id,
+            'location_id' => $location->id,
         ];
 
         $this->role->revokePermissionTo('serviceRequest.create');
@@ -222,7 +272,7 @@ class ServiceRequestTest extends TestCase
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'alias' => $factoryModel['alias'],
+            'requisition' => $factoryModel['requisition'],
         ]);
 
     }
@@ -236,12 +286,12 @@ class ServiceRequestTest extends TestCase
         $this
             ->actingAs($this->user, 'api')
             ->putJson($uri, [
-                'alias' => 'resource modificado'
+                'note' => 'resource modificado'
             ])
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'alias' => 'resource modificado'
+            'note' => 'resource modificado'
         ]);
 
     }
@@ -258,7 +308,7 @@ class ServiceRequestTest extends TestCase
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseHas($this->table, [
-            'name' => $this->model->name,
+            'requisition' => $this->model->requisition,
         ]);
 
     }
@@ -339,9 +389,9 @@ class ServiceRequestTest extends TestCase
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
-                            'alias' => 'string',
-                            'active' => 'boolean',
+                            'requisition' => 'string',
+                            'note' => 'string',
+                            'occurrence' => 'string',
                             '_links' => 'array'
                         ]);
                     });
@@ -388,9 +438,9 @@ class ServiceRequestTest extends TestCase
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
-                            'alias' => 'string',
-                            'active' => 'boolean',
+                            'requisition' => 'string',
+                            'note' => 'string',
+                            'occurrence' => 'string',
                             '_links' => 'array'
                         ]);
                     });
@@ -398,32 +448,5 @@ class ServiceRequestTest extends TestCase
         }
 
         $this->assertDatabaseCount($this->table, $list);
-    }
-
-
-    /**
-     * @test
-     */
-    public function se_puede_modificar_el_estado_de_un_recurso()
-    {
-
-        $uri = sprintf('%s/%s/status', self::BASE_URI, $this->model->id);
-
-        if ($this->model->active) {
-            $response = $this->actingAs($this->user, 'api')
-                ->putJson($uri, [
-                    'active' => false
-                ]);
-        } else {
-            $response = $this->actingAs($this->user, 'api')
-                ->putJson($uri, [
-                    'active' => true
-                ]);
-        }
-
-        $response->assertStatus(Response::HTTP_OK);
-
-        $this->assertNotEquals($response['active'], $this->model->active);
-
     }
 }
