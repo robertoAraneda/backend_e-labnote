@@ -2,18 +2,19 @@
 
 namespace Tests\Feature;
 
+use App\Models\AdministrativeGender;
+use App\Models\Practitioner;
 use App\Models\Role;
-use App\Models\ServiceRequest;
 use App\Models\User;
+use Database\Seeders\PractitionerPermissionsSeeder;
 use Database\Seeders\RoleSeeder;
-use Database\Seeders\ServiceRequestPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class ServiceRequestTest extends TestCase
+class PractitionerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -22,7 +23,7 @@ class ServiceRequestTest extends TestCase
     private string $perPage;
     private string $table;
 
-    const BASE_URI = '/api/v1/service-requests';
+    const BASE_URI = '/api/v1/practitioners';
 
     public function setUp(): void
     {
@@ -32,26 +33,26 @@ class ServiceRequestTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(ServiceRequestPermissionsSeeder::class);
+        $this->seed(PractitionerPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('serviceRequest.create');
-        $role->givePermissionTo('serviceRequest.update');
-        $role->givePermissionTo('serviceRequest.delete');
-        $role->givePermissionTo('serviceRequest.index');
-        $role->givePermissionTo('serviceRequest.show');
+        $role->givePermissionTo('practitioner.create');
+        $role->givePermissionTo('practitioner.update');
+        $role->givePermissionTo('practitioner.delete');
+        $role->givePermissionTo('practitioner.index');
+        $role->givePermissionTo('practitioner.show');
 
         $user->assignRole($role);
 
-        $modelClass = new ServiceRequest();
+        $modelClass = new Practitioner();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = ServiceRequest::factory()->create();
+        $this->model = Practitioner::factory()->create();
         $this->perPage = $modelClass->getPerPage();
-        $this->table = 'service_requests';
+        $this->table = 'practitioners';
 
     }
 
@@ -63,10 +64,10 @@ class ServiceRequestTest extends TestCase
     public function test_se_puede_obtener_una_lista_del_recurso(): void
     {
 
-        ServiceRequest::factory()->count(20)->create();
+        Practitioner::factory()->count(20)->create();
 
         $uri = sprintf('%s', self::BASE_URI);
-        $countModels = ServiceRequest::count();
+        $countModels = Practitioner::count();
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson($uri);
@@ -80,8 +81,10 @@ class ServiceRequestTest extends TestCase
                 ->has('collection', $countModels, function ($json) {
                     $json->whereAllType([
                         'id' => 'integer',
-                        'name' => 'string',
-                        'alias' => 'string',
+                        'given' => 'string',
+                        'family' => 'string',
+                        'rut' => 'string',
+                        'email' => 'string',
                         'active' => 'boolean',
                         '_links' => 'array'
                     ]);
@@ -94,7 +97,7 @@ class ServiceRequestTest extends TestCase
     public function test_se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
 
-        ServiceRequest::factory()->count(20)->create();
+        Practitioner::factory()->count(20)->create();
 
         $uri = sprintf('%s?page=1', self::BASE_URI);
         $page = $this->perPage;
@@ -109,8 +112,10 @@ class ServiceRequestTest extends TestCase
                     ->has('data.collection', $page, function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
-                            'alias' => 'string',
+                            'given' => 'string',
+                            'family' => 'string',
+                            'rut' => 'string',
+                            'email' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);
@@ -128,8 +133,11 @@ class ServiceRequestTest extends TestCase
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
-            ->where('name', $this->model->name)
-            ->where('alias', $this->model->alias)
+            ->where('given', $this->model->given)
+            ->where('family', $this->model->family)
+            ->where('phone', $this->model->phone)
+            ->where('email', $this->model->email)
+            ->where('rut', $this->model->rut)
             ->etc()
         );
     }
@@ -137,9 +145,15 @@ class ServiceRequestTest extends TestCase
     public function test_se_puede_crear_un_recurso(): void //store
     {
 
+        $administrativeGender = AdministrativeGender::factory()->create();
+
         $factoryModel = [
-            'name' => $this->faker->slug,
-            'alias' => $this->faker->text,
+            'given' => $this->faker->name,
+            'family' => $this->faker->lastName,
+            'rut' => $this->faker->slug,
+            'email' => $this->faker->email,
+            'phone' => $this->faker->phoneNumber,
+            'administrative_gender_id' => $administrativeGender->id,
             'active' => $this->faker->boolean
         ];
 
@@ -152,14 +166,17 @@ class ServiceRequestTest extends TestCase
         $response->assertStatus(Response::HTTP_CREATED);
 
         $response->assertJson(fn(AssertableJson $json) => $json
-            ->where('name', $factoryModel['name'])
-            ->where('alias', $factoryModel['alias'])
+            ->where('given', $factoryModel['given'])
+            ->where('family', $factoryModel['family'])
+            ->where('rut', $factoryModel['rut'])
+            ->where('phone', $factoryModel['phone'])
+            ->where('email', $factoryModel['email'])
             ->where('active', $factoryModel['active'])
             ->etc()
         );
 
         $this->assertDatabaseHas($this->table, [
-            'alias' => $factoryModel['alias'],
+            'rut' => $factoryModel['rut'],
         ]);
     }
 
@@ -170,21 +187,23 @@ class ServiceRequestTest extends TestCase
 
         $response = $this->actingAs($this->user, 'api')
             ->putJson($uri, [
-                'alias' => 'name modificado'
+                'rut' => '15654738-7'
             ]);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertJson(fn(AssertableJson $json) => $json
             ->where('id', $this->model->id)
-            ->where('alias', 'name modificado')
-            ->where('name', $this->model->name)
+            ->where('rut', '15654738-7')
+            ->where('given', $this->model->given)
+            ->where('family', $this->model->family)
+            ->where('email', $this->model->email)
             ->where('active', $this->model->active)
             ->etc()
         );
 
         $this->assertDatabaseHas($this->table, [
-            'alias' => 'name modificado'
+            'rut' => '15654738-7'
         ]);
     }
 
@@ -206,13 +225,19 @@ class ServiceRequestTest extends TestCase
     public function test_se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
 
+        $administrativeGender = AdministrativeGender::factory()->create();
+
         $factoryModel = [
-            'name' => $this->faker->slug,
-            'alias' => $this->faker->title,
+            'given' => $this->faker->name,
+            'family' => $this->faker->lastName,
+            'rut' => $this->faker->slug,
+            'email' => $this->faker->email,
+            'phone' => $this->faker->phoneNumber,
+            'administrative_gender_id' => $administrativeGender->id,
             'active' => $this->faker->boolean
         ];
 
-        $this->role->revokePermissionTo('serviceRequest.create');
+        $this->role->revokePermissionTo('practitioner.create');
 
         $uri = sprintf('%s', self::BASE_URI);
 
@@ -222,33 +247,33 @@ class ServiceRequestTest extends TestCase
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'alias' => $factoryModel['alias'],
+            'rut' => $factoryModel['rut'],
         ]);
 
     }
 
     public function test_se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('serviceRequest.update');
+        $this->role->revokePermissionTo('practitioner.update');
 
         $uri = sprintf("%s/%s", self::BASE_URI, $this->model->id);
 
         $this
             ->actingAs($this->user, 'api')
             ->putJson($uri, [
-                'alias' => 'resource modificado'
+                'rut' => '15654738-7'
             ])
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'alias' => 'resource modificado'
+            'rut' => '15654738-7'
         ]);
 
     }
 
     public function test_se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('serviceRequest.delete');
+        $this->role->revokePermissionTo('practitioner.delete');
 
         $uri = sprintf("%s/%s", self::BASE_URI, $this->model->id);
 
@@ -258,7 +283,7 @@ class ServiceRequestTest extends TestCase
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseHas($this->table, [
-            'name' => $this->model->name,
+            'rut' => $this->model->rut,
         ]);
 
     }
@@ -307,9 +332,9 @@ class ServiceRequestTest extends TestCase
     public function test_se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
 
-        ServiceRequest::factory()->count(20)->create();
+        Practitioner::factory()->count(20)->create();
 
-        $list = ServiceRequest::count();
+        $list = Practitioner::count();
 
         $DEFAULT_PAGINATE = 5;
 
@@ -339,8 +364,10 @@ class ServiceRequestTest extends TestCase
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
-                            'alias' => 'string',
+                            'given' => 'string',
+                            'family' => 'string',
+                            'rut' => 'string',
+                            'email' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);
@@ -355,9 +382,9 @@ class ServiceRequestTest extends TestCase
 
     public function test_se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
     {
-        ServiceRequest::factory()->count(20)->create();
+        Practitioner::factory()->count(20)->create();
 
-        $list = ServiceRequest::count();
+        $list = Practitioner::count();
 
         $pages = intval(ceil($list / $this->perPage));
         $mod = $list % $this->perPage;
@@ -388,8 +415,10 @@ class ServiceRequestTest extends TestCase
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
-                            'alias' => 'string',
+                            'given' => 'string',
+                            'family' => 'string',
+                            'rut' => 'string',
+                            'email' => 'string',
                             'active' => 'boolean',
                             '_links' => 'array'
                         ]);

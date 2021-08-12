@@ -19,6 +19,7 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ObservationServiceRequestController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PractitionerController;
 use App\Http\Controllers\ProcessTimeController;
 use App\Http\Controllers\RelObservationServiceRequestSamplingConditionController;
 use App\Http\Controllers\RelLaboratoryModuleController;
@@ -198,6 +199,10 @@ Route::group([
         ->whereNumber('location')
         ->names('api.locations');
 
+    Route::apiResource('practitioners', PractitionerController::class)
+        ->whereNumber('practitioner')
+        ->names('api.practitioners');
+
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     //Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
@@ -268,6 +273,7 @@ Route::group([
     Route::put('location-statuses/{location_status}/status', [LocationStatusController::class, 'changeActiveAttribute']);
     Route::put('location-physical-types/{location_physical_type}/status', [LocationPhysicalTypeController::class, 'changeActiveAttribute']);
     Route::put('location-types/{location_type}/status', [LocationTypeController::class, 'changeActiveAttribute']);
+    Route::put('practitioners/{practitioner}/status', [PractitionerController::class, 'changeActiveAttribute']);
 
 
     //test routes
