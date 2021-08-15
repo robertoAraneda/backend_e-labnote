@@ -18,6 +18,8 @@ class ContainerResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'shortname' => $this->shortname,
+            'color' => $this->color,
             'active' => (bool) $this->active,
             '_links' => [
                 'self' =>[
