@@ -33,16 +33,10 @@ class ModuleTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(ModulePermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(ModulePermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('module.create');
-        $role->givePermissionTo('module.update');
-        $role->givePermissionTo('module.delete');
-        $role->givePermissionTo('module.index');
-        $role->givePermissionTo('module.show');
 
         $modelClass = new Module;
 

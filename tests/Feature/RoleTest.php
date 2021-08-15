@@ -29,16 +29,10 @@ class RoleTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(RolePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(RolePermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('role.create');
-        $role->givePermissionTo('role.update');
-        $role->givePermissionTo('role.delete');
-        $role->givePermissionTo('role.index');
-        $role->givePermissionTo('role.show');
 
         $modelClass = new Role();
 

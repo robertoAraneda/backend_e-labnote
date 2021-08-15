@@ -20,18 +20,16 @@ class UserFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
 
         return [
             'rut' => '15.654.738-7',
-            'names' => $this->faker->name(),
-            'lastname' => $this->faker->lastName(),
-            'mother_lastname' => $this->faker->lastName(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => bcrypt('password'), // password
-            'remember_token' => Str::random(10),
+            'names' => 'Roberto Alejandro',
+            'lastname' => 'Araneda',
+            'mother_lastname' => 'Espinoza',
+            'email' => $this->faker->safeEmail,
+            'password' => bcrypt('admin'), // password
         ];
     }
 

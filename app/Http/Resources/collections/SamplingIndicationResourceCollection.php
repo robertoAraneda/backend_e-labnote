@@ -12,7 +12,7 @@ class SamplingIndicationResourceCollection extends ResourceCollection
      *
      * @var string
      */
-    public $collects = 'App\Http\Resources\Collections\SpecimenResource';
+    public $collects = 'App\Http\Resources\Collections\SpecimenCodeResource';
 
 
     /**

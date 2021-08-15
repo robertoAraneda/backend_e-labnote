@@ -34,16 +34,10 @@ class ContainerTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(ContainerPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(ContainerPermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('container.create');
-        $role->givePermissionTo('container.update');
-        $role->givePermissionTo('container.delete');
-        $role->givePermissionTo('container.index');
-        $role->givePermissionTo('container.show');
 
         $user->assignRole($role);
 

@@ -31,16 +31,10 @@ class LoincTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(LoincPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(LoincPermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('loinc.create');
-        $role->givePermissionTo('loinc.update');
-        $role->givePermissionTo('loinc.delete');
-        $role->givePermissionTo('loinc.index');
-        $role->givePermissionTo('loinc.show');
 
         $user->assignRole($role);
 

@@ -27,17 +27,11 @@ class UserTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(UserPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(UserPermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
         $permission = Permission::where('name', 'user.create')->first();
-
-        $role->givePermissionTo('user.create');
-        $role->givePermissionTo('user.update');
-        $role->givePermissionTo('user.delete');
-        $role->givePermissionTo('user.index');
-        $role->givePermissionTo('user.show');
 
         $user->assignRole($role);
 

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\collections\SamplingConditionResource;
 use App\Models\Analyte;
-use App\Models\ObservationServiceRequest;
+use App\Models\ServiceRequestObservation;
 use App\Models\SamplingCondition;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -16,11 +16,11 @@ class RelObservationServiceRequestSamplingConditionController extends Controller
      * Display a listing of the resource.
      *
      * @param Request $request
-     * @param ObservationServiceRequest $observationServiceRequest
+     * @param ServiceRequestObservation $observationServiceRequest
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function index(Request $request, ObservationServiceRequest $observationServiceRequest): JsonResponse
+    public function index(Request $request, ServiceRequestObservation $observationServiceRequest): JsonResponse
     {
         $this->authorize('view', $observationServiceRequest);
 
@@ -48,10 +48,10 @@ class RelObservationServiceRequestSamplingConditionController extends Controller
      * Store a newly created resource in storage.
      *
      * @param Request $request
-     * @param ObservationServiceRequest $observationServiceRequest
+     * @param ServiceRequestObservation $observationServiceRequest
      * @return JsonResponse
      */
-    public function store(Request $request, ObservationServiceRequest $observationServiceRequest): JsonResponse
+    public function store(Request $request, ServiceRequestObservation $observationServiceRequest): JsonResponse
     {
         $observationServiceRequest->samplingConditions()->syncWithPivotValues($request->all(), ['user_id' => auth()->id()]);
 

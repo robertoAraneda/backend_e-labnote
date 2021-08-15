@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 
 class ProcessTimePermissionsSeeder extends Seeder
@@ -42,6 +43,8 @@ class ProcessTimePermissionsSeeder extends Seeder
             ],
         ];
 
+        $role = Role::where('name', 'Administrador')->first();
+
         foreach ($permissions as $permission){
             Permission::create([
                 'name' => $permission['name'],
@@ -51,6 +54,7 @@ class ProcessTimePermissionsSeeder extends Seeder
                 'description' => $permission['description'],
             ]);
 
+            $role->givePermissionTo($permission['name']);
         }
     }
 }

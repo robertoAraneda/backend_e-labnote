@@ -10,5 +10,5 @@ https://dev.to/instantwebtoolsnet/datatables-with-vuejs-vuetify-pagination-rest-
         $this->artisan("make:factory {$m}Factory");
         $this->artisan("make:request {$m}Request");
         $this->artisan("make:seeder {$m}Seeder");
-        $this->artisan("make:seeder {$m}PermissionSeeder");
+        $this->artisan("make:seeder {$m}PermissionsSeeder");
 

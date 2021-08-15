@@ -2,11 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 
 class UserPermissionSeeder extends Seeder
 {
+    private string $model = 'user';
+
+
     /**
      * Run the database seeds.
      *
@@ -15,18 +19,45 @@ class UserPermissionSeeder extends Seeder
     public function run()
     {
         $permissions = [
-            'user.create',
-            'user.update',
-            'user.delete',
-            'user.index',
-            'user.show'
+            [
+                'name' => "{$this->model}.create",
+                'action' => 'create',
+                'description' => 'Crear usuario'
+            ],
+            [
+                'name' => "{$this->model}.update",
+                'action' => 'update',
+                'description' => 'Modificar usuario'
+            ],
+            [
+                'name' => "{$this->model}.delete",
+                'action' => 'delete',
+                'description' => 'Eliminar usuario'
+            ],
+            [
+                'name' => "{$this->model}.show",
+                'action' => 'show',
+                'description' => 'Ver detalle usuario'
+            ],
+            [
+                'name' => "{$this->model}.index",
+                'action' => 'index',
+                'description' => 'Ver todos usuario'
+            ],
         ];
 
-        foreach ($permissions as $permission){
-            Permission::create([
-                'name' => $permission,
-                'guard_name' => 'api'
+        $role = Role::where('name', 'Administrador')->first();
+
+        foreach ($permissions as $key => $permission) {
+            \App\Models\Permission::create([
+                'name' => $permission['name'],
+                'guard_name' => 'api',
+                'model' => 'User',
+                'action' => $permission['action'],
+                'description' => $permission['description']
             ]);
+
+            $role->givePermissionTo($permission['name']);
         }
     }
 }

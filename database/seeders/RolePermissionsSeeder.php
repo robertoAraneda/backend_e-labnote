@@ -2,11 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
 
 class RolePermissionsSeeder extends Seeder
 {
+    private string $model = 'role';
+
+
     /**
      * Run the database seeds.
      *
@@ -14,20 +18,46 @@ class RolePermissionsSeeder extends Seeder
      */
     public function run()
     {
-
         $permissions = [
-            'role.create',
-            'role.update',
-            'role.delete',
-            'role.index',
-            'role.show'
+            [
+                'name' => "{$this->model}.create",
+                'action' => 'create',
+                'description' => 'Crear rol'
+            ],
+            [
+                'name' => "{$this->model}.update",
+                'action' => 'update',
+                'description' => 'Modificar rol'
+            ],
+            [
+                'name' => "{$this->model}.delete",
+                'action' => 'delete',
+                'description' => 'Eliminar rol'
+            ],
+            [
+                'name' => "{$this->model}.show",
+                'action' => 'show',
+                'description' => 'Ver detalle  rol'
+            ],
+            [
+                'name' => "{$this->model}.index",
+                'action' => 'index',
+                'description' => 'Ver todos rol'
+            ],
         ];
 
-        foreach ($permissions as $permission){
+        $role = Role::where('name', 'Administrador')->first();
+
+        foreach ($permissions as $key => $permission) {
             Permission::create([
-                'name' => $permission,
-                'guard_name' => 'api'
+                'name' => $permission['name'],
+                'guard_name' => 'api',
+                'model' => 'Role',
+                'action' => $permission['action'],
+                'description' => $permission['description']
             ]);
+
+            $role->givePermissionTo($permission['name']);
         }
     }
 }

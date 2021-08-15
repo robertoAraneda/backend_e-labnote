@@ -19,11 +19,14 @@ class SpecimenFactory extends Factory
      *
      * @return array
      */
+
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name,
-            'active' => $this->faker->boolean
+            'accession_identifier' => $this->faker->randomNumber(8),
+            'specimen_status_id' => 1,
+            'specimen_code_id' => 1,
+            'patient_id' => 1,
         ];
     }
 }

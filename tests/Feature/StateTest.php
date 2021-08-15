@@ -34,16 +34,10 @@ class StateTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(StatePermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(StatePermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('state.create');
-        $role->givePermissionTo('state.update');
-        $role->givePermissionTo('state.delete');
-        $role->givePermissionTo('state.index');
-        $role->givePermissionTo('state.show');
 
         $user->assignRole($role);
 

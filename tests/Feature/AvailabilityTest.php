@@ -18,9 +18,6 @@ class AvailabilityTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    /**
-     * @var
-     */
     private $role;
     private $user, $model;
     private string $perPage;
@@ -28,23 +25,17 @@ class AvailabilityTest extends TestCase
 
     private string $BASE_URI;
 
-    public function setUp():void
+    public function setUp(): void
     {
         parent::setUp();
         $this->artisan('passport:install');
 
         $user = User::factory()->create();
 
-        $this->seed(AvailabilityPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(AvailabilityPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('availability.create');
-        $role->givePermissionTo('availability.update');
-        $role->givePermissionTo('availability.delete');
-        $role->givePermissionTo('availability.index');
-        $role->givePermissionTo('availability.show');
 
         $user->assignRole($role);
 
@@ -220,7 +211,7 @@ class AvailabilityTest extends TestCase
 
         $this->role->revokePermissionTo('availability.create');
 
-        $uri = sprintf("/api/v1/{$this->table}",  $factoryModel);
+        $uri = sprintf("/api/v1/{$this->table}", $factoryModel);
 
         $this
             ->actingAs($this->user, 'api')
@@ -240,7 +231,7 @@ class AvailabilityTest extends TestCase
     {
         $this->role->revokePermissionTo('availability.update');
 
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
         $this
             ->actingAs($this->user, 'api')
@@ -261,7 +252,7 @@ class AvailabilityTest extends TestCase
     {
         $this->role->revokePermissionTo('availability.delete');
 
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,$this->model->id);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, $this->model->id);
 
         $this
             ->actingAs($this->user, 'api')
@@ -279,7 +270,7 @@ class AvailabilityTest extends TestCase
      */
     public function se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table , -5);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, -5);
 
         $this->actingAs($this->user, 'api')
             ->getJson($uri)
@@ -292,7 +283,7 @@ class AvailabilityTest extends TestCase
      */
     public function se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, -5);
 
 
         $this->actingAs($this->user, 'api')
@@ -305,7 +296,7 @@ class AvailabilityTest extends TestCase
      */
     public function se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table ,-5);
+        $uri = sprintf('/api/v1/%s/%s', $this->table, -5);
 
         $this->actingAs($this->user, 'api')
             ->deleteJson($uri)
@@ -317,7 +308,7 @@ class AvailabilityTest extends TestCase
      */
     public function se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
     {
-        $uri = sprintf('/api/v1/%s/%s',$this->table,'string');
+        $uri = sprintf('/api/v1/%s/%s', $this->table, 'string');
 
         $this->actingAs($this->user, 'api')
             ->deleteJson($uri)
@@ -431,13 +422,12 @@ class AvailabilityTest extends TestCase
         $uri = sprintf('%s/%s/status', $this->BASE_URI, $this->model->id);
 
 
-
-        if($this->model->active){
+        if ($this->model->active) {
             $response = $this->actingAs($this->user, 'api')
                 ->putJson($uri, [
                     'active' => false
                 ]);
-        }else{
+        } else {
             $response = $this->actingAs($this->user, 'api')
                 ->putJson($uri, [
                     'active' => true

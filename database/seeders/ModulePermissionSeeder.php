@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 
 class ModulePermissionSeeder extends Seeder
@@ -45,6 +46,8 @@ class ModulePermissionSeeder extends Seeder
             ],
         ];
 
+        $role = Role::where('name', 'Administrador')->first();
+
         foreach ($permissions as $key => $permission){
             Permission::create([
                 'name' => $permission['name'],
@@ -53,6 +56,8 @@ class ModulePermissionSeeder extends Seeder
                 'action' => $permission['action'],
                 'description' => $permission['description']
             ]);
+
+            $role->givePermissionTo($permission['name']);
         }
     }
 }

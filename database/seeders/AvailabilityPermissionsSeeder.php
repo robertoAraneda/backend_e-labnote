@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 
 class AvailabilityPermissionsSeeder extends Seeder
@@ -42,6 +43,8 @@ class AvailabilityPermissionsSeeder extends Seeder
             ],
         ];
 
+        $role = Role::where('name', 'Administrador')->first();
+
         foreach ($permissions as $permission){
             Permission::create([
                 'name' => $permission['name'],
@@ -50,6 +53,8 @@ class AvailabilityPermissionsSeeder extends Seeder
                 'action' => $permission['action'],
                 'description' => $permission['description'],
             ]);
+
+            $role->givePermissionTo($permission['name']);
 
         }
     }

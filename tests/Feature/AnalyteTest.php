@@ -36,16 +36,10 @@ class AnalyteTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(AnalytePermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(AnalytePermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('analyte.create');
-        $role->givePermissionTo('analyte.update');
-        $role->givePermissionTo('analyte.delete');
-        $role->givePermissionTo('analyte.index');
-        $role->givePermissionTo('analyte.show');
 
         $user->assignRole($role);
 

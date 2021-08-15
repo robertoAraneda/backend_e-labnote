@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Specimen extends Model
@@ -27,8 +26,11 @@ class Specimen extends Model
      * @var string[]
      */
     protected $fillable = [
-        'name',
-        'active',
+        'accession_identifier',
+        'specimen_status_id',
+        'specimen_code_id',
+        'patient_id',
+        'service_request_id',
         'created_user_id',
         'updated_user_id',
         'deleted_user_id',
@@ -46,16 +48,6 @@ class Specimen extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
-    }
-
-    /**
-     * @return BelongsToMany
-     */
-    public function samplingIndications(): BelongsToMany
-    {
-        return $this->belongsToMany(SamplingIndication::class, 'specimen_sampling_indication')
-            ->withPivot('user_id', 'created_at', 'updated_at')
-            ->withTimestamps();
     }
 
     /**
@@ -90,6 +82,5 @@ class Specimen extends Model
     {
         return $this->belongsTo(User::class, 'deleted_user_id');
     }
-
 
 }

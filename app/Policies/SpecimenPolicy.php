@@ -11,63 +11,68 @@ class SpecimenPolicy
     use HandlesAuthorization;
 
     /**
-     * @param User $user
-     * @return bool
+     * Determine whether the user can view any models.
+     *
+     * @param  \App\Models\User  $user
+     * @return mixed
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user)
     {
-        if (in_array('specimen.index', $user->getAllPermissions()->pluck('name')->toArray())) {
-            return true;
-        }
-        if (in_array('observationServiceRequest.create', $user->getAllPermissions()->pluck('name')->toArray())) {
-            return true;
-        }
+        //
     }
 
     /**
-     * @param User $user
-     * @param Specimen $sampleType
-     * @return bool
+     * Determine whether the user can view the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Specimen  $specimen
+     * @return mixed
      */
-    public function view(User $user, Specimen $specimen): bool
+    public function view(User $user, Specimen $specimen)
     {
-        return in_array('specimen.show', $user->getAllPermissions()->pluck('name')->toArray());
+        //
     }
 
     /**
-     * @param User $user
-     * @return bool
+     * Determine whether the user can create models.
+     *
+     * @param  \App\Models\User  $user
+     * @return mixed
      */
-    public function create(User $user): bool
+    public function create(User $user)
     {
-        return in_array('specimen.create', $user->getAllPermissions()->pluck('name')->toArray());
+        //
     }
 
     /**
-     * @param User $user
-     * @param Specimen $sampleType
-     * @return bool
+     * Determine whether the user can update the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Specimen  $specimen
+     * @return mixed
      */
-    public function update(User $user, Specimen $specimen): bool
+    public function update(User $user, Specimen $specimen)
     {
-        return in_array('specimen.update', $user->getAllPermissions()->pluck('name')->toArray());
+        //
     }
 
     /**
-     * @param User $user
-     * @param Specimen $sampleType
-     * @return bool
+     * Determine whether the user can delete the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Specimen  $specimen
+     * @return mixed
      */
-    public function delete(User $user, Specimen $specimen): bool
+    public function delete(User $user, Specimen $specimen)
     {
-        return in_array('specimen.delete', $user->getAllPermissions()->pluck('name')->toArray());
+        //
     }
 
     /**
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Specimen  $sampleType
+     * @param  \App\Models\Specimen  $specimen
      * @return mixed
      */
     public function restore(User $user, Specimen $specimen)
@@ -79,7 +84,7 @@ class SpecimenPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Specimen  $sampleType
+     * @param  \App\Models\Specimen  $specimen
      * @return mixed
      */
     public function forceDelete(User $user, Specimen $specimen)

@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Http\Controllers\LaboratoryController;
 use App\Models\Laboratory;
 use App\Models\Role;
-use App\Models\Specimen;
+use App\Models\SpecimenCode;
 use App\Models\User;
 use Database\Seeders\LaboratoryPermissionSeeder;
 use Database\Seeders\PermissionSeeder;
@@ -37,16 +37,10 @@ class LaboratoryTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(LaboratoryPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(LaboratoryPermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('laboratory.create');
-        $role->givePermissionTo('laboratory.update');
-        $role->givePermissionTo('laboratory.delete');
-        $role->givePermissionTo('laboratory.index');
-        $role->givePermissionTo('laboratory.show');
 
         $modelClass = new Laboratory();
 

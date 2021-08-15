@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 
 class ObservationServiceRequestPermissionSeeder extends Seeder
@@ -45,11 +46,13 @@ class ObservationServiceRequestPermissionSeeder extends Seeder
             ],
         ];
 
+        $role = Role::where('name', 'Administrador')->first();
+
         foreach ($permissions as $key => $permission){
             Permission::create([
                 'name' => $permission['name'],
                 'guard_name' => 'api',
-                'model' => 'ObservationServiceRequest',
+                'model' => 'ServiceRequestObservation',
                 'action' => $permission['action'],
                 'description' => $permission['description']
             ]);

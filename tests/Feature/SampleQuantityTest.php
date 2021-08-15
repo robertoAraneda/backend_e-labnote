@@ -18,12 +18,8 @@ class SampleQuantityTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    /**
-     * @var
-     */
     private $role;
     private $user, $model;
-    private SampleQuantityController $sampleQuantityController;
     private string $table;
     private string $base_url;
     private string $perPage;
@@ -35,21 +31,14 @@ class SampleQuantityTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(SampleQuantityPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(SampleQuantityPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('sampleQuantity.create');
-        $role->givePermissionTo('sampleQuantity.update');
-        $role->givePermissionTo('sampleQuantity.delete');
-        $role->givePermissionTo('sampleQuantity.index');
-        $role->givePermissionTo('sampleQuantity.show');
 
         $user->assignRole($role);
 
         $modelClass = new SampleQuantity();
-        $this->sampleQuantityController = new SampleQuantityController();
 
         $this->user = $user;
         $this->role = $role;

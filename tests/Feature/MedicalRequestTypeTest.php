@@ -18,12 +18,8 @@ class MedicalRequestTypeTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    /**
-     * @var
-     */
     private $role;
     private $user, $model;
-    private MedicalRequestTypeController $medicalRequestTypeController;
     private string $table;
     private string $base_url;
     private string $perPage;
@@ -35,21 +31,14 @@ class MedicalRequestTypeTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(MedicalRequestTypePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(MedicalRequestTypePermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('medicalRequestType.create');
-        $role->givePermissionTo('medicalRequestType.update');
-        $role->givePermissionTo('medicalRequestType.delete');
-        $role->givePermissionTo('medicalRequestType.index');
-        $role->givePermissionTo('medicalRequestType.show');
 
         $user->assignRole($role);
 
         $modelClass = new MedicalRequestType();
-        $this->medicalRequestTypeController = new MedicalRequestTypeController();
 
         $this->user = $user;
         $this->role = $role;
