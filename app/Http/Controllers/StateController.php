@@ -172,7 +172,7 @@ class StateController extends Controller
      */
     public function cities(State $state): JsonResponse
     {
-        $cities = $state->cities()->active()->orderBy('id')->get();
+        $cities = $state->cities()->active()->orderBy('code')->get();
 
         $collection = CityResource::collection($cities);
 
