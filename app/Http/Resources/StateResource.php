@@ -18,7 +18,6 @@ class StateResource extends JsonResource
         return [
             'name' => $this->name,
             'code' => $this->code,
-            'state_code' => $this->state_code,
             'active' => (bool) $this->active,
             'created_user_ip' => $this->created_user_ip,
             'updated_user_ip' => $this->updated_user_ip,
