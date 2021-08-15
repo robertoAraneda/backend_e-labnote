@@ -222,7 +222,7 @@ class ServiceRequestCategoryTest extends TestCase
             'code' => $factoryModel['code'],
         ]);
 
-        
+
 
     }
 

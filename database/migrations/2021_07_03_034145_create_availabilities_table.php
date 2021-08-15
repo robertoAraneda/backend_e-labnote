@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDisponibilitiesTable extends Migration
+class CreateAvailabilitiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -35,6 +35,6 @@ class CreateDisponibilitiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('disponibilities');
+        Schema::dropIfExists('availabilities');
     }
 }

@@ -16,23 +16,13 @@ use Carbon\Carbon;
 class AuthController extends Controller
 {
 
-      /**
-   * Property for make a response.
-   *
-   * @var  App\Helpers\Response  $response
-   */
-    protected $response;
+    protected Response $response;
 
     public function __construct(Response $response = null)
     {
         $this->response = $response;
     }
 
-    /**
-     * Validate the description field.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     */
     protected function validateData($request)
     {
         return Validator::make($request, [
@@ -45,64 +35,6 @@ class AuthController extends Controller
     ]);
     }
 
-
-    /**
-     * @OA\Post(
-     *      path="/auth/signup",
-     *      tags={"Auth"},
-     *      summary="Devuelve un usuario creado",
-     *      description="Devuelve un usuario creado",
-    *       @OA\RequestBody(
-     *    		@OA\MediaType(
-     *    			mediaType="application/json",
-     *    			@OA\Schema(
-     *    				 @OA\Property(property="names",
-     *    					type="string",
-     *    					example="",
-     *    					description=""
-     *    				),
-     *    				 @OA\Property(property="lastname",
-     *    					type="string",
-     *    					example="",
-     *    					description=""
-     *    				),
-     *     			 @OA\Property(property="mother_lastname",
-     *    					type="string",
-     *    					example="",
-     *    					description=""
-     *    				),
-     *     			 @OA\Property(property="rut",
-     *    					type="string",
-     *    					example="",
-     *    					description=""
-     *    				),
-     *     			 @OA\Property(property="email",
-     *    					type="string",
-     *    					example="",
-     *    					description=""
-     *    				),
-     *     	        @OA\Property(property="password",
-     *    					type="string",
-     *    					example="",
-     *    					description=""
-     *    				),
-     *    			),
-     *    		),
-     *    	),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Successful operation",
-     *       ),
-     *      @OA\Response(
-     *          response=401,
-     *          description="Unauthenticated",
-     *      ),
-     *      @OA\Response(
-     *          response=403,
-     *          description="Forbidden"
-     *      )
-     *     )
-     */
     public function signup(Request $request)
     {
         try {
@@ -133,44 +65,6 @@ class AuthController extends Controller
         }
     }
 
-
-    /**
-     * @OA\Post(
-     *      path="/auth/login",
-     *      tags={"Auth"},
-     *      summary="Devuelve un token jwt",
-     *      description="Devuelve un token de autenticación",
-     *       @OA\RequestBody(
-     *    		@OA\MediaType(
-     *    			mediaType="application/json",
-     *    			@OA\Schema(
-     *    				 @OA\Property(property="rut",
-     *    					type="string",
-     *    					example="",
-     *    					description=""
-     *    				),
-     *    				 @OA\Property(property="password",
-     *    					type="string",
-     *    					example="",
-     *    					description=""
-     *    				),
-     *    			),
-     *    		),
-     *    	),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Successful operation",
-     *       ),
-     *      @OA\Response(
-     *          response=401,
-     *          description="Unauthenticated",
-     *      ),
-     *      @OA\Response(
-     *          response=403,
-     *          description="Forbidden"
-     *      )
-     *     )
-     */
     public function login(AuthRequest $request): JsonResponse
     {
         if(!$request->validated()){
@@ -206,11 +100,7 @@ class AuthController extends Controller
     ]);
     }
 
-        /**
-     * Get the authenticated User
-     *
-     * @return [json] user object
-     */
+
     public function user(Request $request): JsonResponse
     {
         $user = $request->user();
