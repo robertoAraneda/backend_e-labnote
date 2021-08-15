@@ -29,6 +29,8 @@ class ContainerController extends Controller
             $items = Container::select(
                 'id',
                 'name',
+                'shortname',
+                'color',
                 'active',
             )
                 ->orderBy('id')
@@ -37,6 +39,8 @@ class ContainerController extends Controller
             $items = Container::select(
                 'id',
                 'name',
+                'shortname',
+                'color',
                 'active',
             )
                 ->orderBy('id')
