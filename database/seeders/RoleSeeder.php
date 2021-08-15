@@ -33,5 +33,9 @@ class RoleSeeder extends Seeder
                 'active' => true
             ]);
         }
+
+        $role = Role::where('name', 'Administrador')->first();
+
+        $user->assignRole($role);
     }
 }

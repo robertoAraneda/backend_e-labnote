@@ -28,11 +28,9 @@ class DatabaseSeeder extends Seeder
             SamplingConditionPermissionsSeeder::class,
             SampleQuantityPermissionsSeeder::class,
             ResponseTimePermissionsSeeder::class,
-            ProcessTimePermissionsSeeder::class,
             ProcessTimeSeeder::class,
             MedicalRequestTypePermissionsSeeder::class,
             MedicalRequestTypeSeeder::class,
-            AvailabilityPermissionsSeeder::class,
             AvailabilitySeeder::class,
             ContainerPermissionSeeder::class,
             SpecimenCodePermissionSeeder::class,
@@ -65,8 +63,6 @@ class DatabaseSeeder extends Seeder
             ServiceRequestPriorityPermissionsSeeder::class,
             ServiceRequestStatusPermissionsSeeder::class,
             ServiceRequestPermissionsSeeder::class,
-            SpecimenCodePermissionSeeder::class,
-            UserPermissionSeeder::class,
         ]);
     }
 }
