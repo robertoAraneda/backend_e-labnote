@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StateRequest;
+use App\Http\Resources\collections\CityResource;
 use App\Http\Resources\collections\DistrictResource;
 use App\Http\Resources\collections\StateResourceCollection;
 use App\Http\Resources\StateResource;
@@ -169,11 +170,11 @@ class StateController extends Controller
      * @param State $state
      * @return JsonResponse
      */
-    public function districts(State $state): JsonResponse
+    public function cities(State $state): JsonResponse
     {
-        $districts = $state->districts()->active()->orderBy('id')->get();
+        $cities = $state->cities()->active()->orderBy('id')->get();
 
-        $collection = DistrictResource::collection($districts);
+        $collection = CityResource::collection($cities);
 
         return response()->json($collection, 200);
     }

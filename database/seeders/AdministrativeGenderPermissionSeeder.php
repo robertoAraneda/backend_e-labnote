@@ -59,5 +59,7 @@ class AdministrativeGenderPermissionSeeder extends Seeder
 
             $role->givePermissionTo($permission['name']);
         }
+
+
     }
 }

@@ -65,4 +65,12 @@ class HumanName extends Model
     {
         return $this->belongsTo(User::class, 'deleted_user_id');
     }
+
+    /**
+     * @return BelongsTo
+     */
+    public function patient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class);
+    }
 }

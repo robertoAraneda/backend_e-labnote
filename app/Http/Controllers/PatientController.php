@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PatientRequest;
 use App\Http\Resources\collections\PatientResourceCollection;
 use App\Http\Resources\PatientResource;
+use App\Models\HumanName;
 use App\Models\IdentifierPatient;
 use App\Models\Patient;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -349,7 +350,7 @@ class PatientController extends Controller
         }
     }
 
-    public function searchByParams(PatientRequest $request): JsonResponse
+    public function searchByParams(PatientRequest $request)
     {
 
         if($request->query('query') == 'identifier'){
@@ -357,6 +358,23 @@ class PatientController extends Controller
 
             if(isset($identifier)){
                 return response()->json(new PatientResource($identifier->patient), Response::HTTP_OK);
+            }else{
+                return response()->json(null, Response::HTTP_OK);
+            }
+        }
+
+        if($request->query('query') == 'names'){
+
+            $names = HumanName::where('given', $request->query('given'))
+                ->orWhere('father_family', $request->query('father_family'))
+                ->orWhere('mother_family', $request->query('mother_family'))
+                ->get()
+            ->map(function($name){
+                return $name->patient;
+            });
+
+            if(isset($names)){
+                return response()->json(PatientResource::collection($names), Response::HTTP_OK);
             }else{
                 return response()->json(null, Response::HTTP_OK);
             }

@@ -221,7 +221,7 @@ Route::group([
     //rels one to many
     Route::get('roles/{role}/permissions', [RoleController::class, 'permissionsByRole']);
     Route::get('modules/{module}/menus', [ModuleController::class, 'menusByModule'])->name('api.module.menus');
-    Route::get('states/{state}/cities', [StateController::class, 'districts'])->name('api.state.districts');
+    Route::get('states/{state}/cities', [StateController::class, 'cities'])->name('api.state.cities');
     Route::get('patients/{patient}/names', [PatientController::class, 'names'])->name('api.patients.names');
     Route::get('patients/{patient}/telecoms', [PatientController::class, 'telecoms'])->name('api.patients.telecoms');
     Route::get('patients/{patient}/addresses', [PatientController::class, 'addresses'])->name('api.patients.addresses');

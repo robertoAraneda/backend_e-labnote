@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\City;
 use App\Models\District;
 use App\Models\Role;
 use App\Models\State;
@@ -408,6 +409,35 @@ class StateTest extends TestCase
         $response->assertStatus(Response::HTTP_OK);
 
         $this->assertNotEquals($response['active'], $this->model->active);
+
+    }
+
+    /**
+     * @test
+     */
+    public function se_puede_obtener_las_cuidades_de_una_region_determinada()
+    {
+
+        $state = State::factory()->has(City::factory()->count(10))->create();
+
+        $uri = sprintf('%s/%s/cities', self::BASE_URI, $state->code);
+
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson($uri);
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $response->assertJson(function (AssertableJson $json) {
+            return $json
+                ->has('0', function ($json) {
+                    $json->whereAllType([
+                        'code' => 'string',
+                        'name' => 'string',
+                        'active' => 'boolean',
+                        '_links' => 'array'
+                    ]);
+                });
+        });
 
     }
 }

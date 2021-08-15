@@ -15,20 +15,32 @@ class ModuleSeeder extends Seeder
     public function run()
     {
         Module::create(
-            [   'name' => 'Configuración',
-                'icon' => 'cog',
-                'url' => 'setting',
+            ['name' => 'Configuración',
+                'icon' => 'mdi-newspaper-variant-outline',
+                'url' => 'settings',
                 'slug' => 'configuracion'
             ]);
-        Module::create(['name' => 'Solicitud de medios',
-            'icon' => 'cog',
-            'url' => 'laboratoryRequest',
-             'slug' => 'solicitud-de-medios'
+
+        Module::create(
+            ['name' => 'Solicitud de medios',
+                'icon' => 'mdi-cog',
+                'url' => 'serviceRequest',
+                'slug' => 'solicitud-de-medios'
             ]);
-        Module::create(['name' => 'Toma de muestras',
-            'icon' => 'cog',
-            'url' => 'sampling',
-            'slug' => 'toma-de-muestras'
+
+        Module::create(
+            ['name' => 'Toma de muestras',
+                'icon' => 'mdi-opacity',
+                'url' => 'sampling',
+                'slug' => 'toma-de-muestras'
             ]);
+
+        Module::create(
+            ['name' => 'Configuración avanzada',
+                'icon' => 'mdi-cogs',
+                'url' => 'advancedSettings',
+                'slug' => 'configuracion-avanzada'
+            ]);
+
     }
 }

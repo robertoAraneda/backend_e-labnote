@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Laboratory;
+use App\Models\LaboratoryModule;
+use App\Models\Module;
 use Illuminate\Database\Seeder;
 
 class LaboratorySeeder extends Seeder
@@ -28,5 +30,15 @@ class LaboratorySeeder extends Seeder
             'redirect' => 'http://hhha.elabnote.cl',
             'email' => 'hhha@asur.cl'
         ]);
+
+        $modules = Module::all();
+
+        foreach ($modules as $key => $module){
+            LaboratoryModule::create([
+                'laboratory_id' => Laboratory::where('email', 'laboratorio@asur.cl')->first()->id,
+                'module_id' => $module->id,
+                'user_id' => 1
+            ]);
+        }
     }
 }
