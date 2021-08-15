@@ -33,16 +33,11 @@ class PractitionerTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(PractitionerPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(PractitionerPermissionsSeeder::class);
+
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('practitioner.create');
-        $role->givePermissionTo('practitioner.update');
-        $role->givePermissionTo('practitioner.delete');
-        $role->givePermissionTo('practitioner.index');
-        $role->givePermissionTo('practitioner.show');
 
         $user->assignRole($role);
 

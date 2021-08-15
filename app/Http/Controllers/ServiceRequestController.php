@@ -8,6 +8,7 @@ use App\Http\Resources\ServiceRequestResource;
 use App\Models\ServiceRequest;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class ServiceRequestController extends Controller
@@ -57,21 +58,55 @@ class ServiceRequestController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function store(ServiceRequestRequest $request): JsonResponse
+    public function store(ServiceRequestRequest $request)
     {
         $this->authorize('create', ServiceRequest::class);
 
-        $data = array_merge($request->validated(),
-            [
-                'created_user_id' => auth()->id(),
-                'created_user_ip' => $request->ip(),
-            ]);
+        $paramsValidated = (object) $request->validated();
+
         try {
+            DB::beginTransaction();
 
-            $model = ServiceRequest::create($data);
+            $serviceRequest = ServiceRequest::create(
+                array_merge($request->validated(),
+                [
+                    'created_user_id' => auth()->id(),
+                    'created_user_ip' => $request->ip(),
+                ]));
 
-            return response()->json(new ServiceRequestResource($model), Response::HTTP_CREATED);
+            $specimensCollection = collect($paramsValidated->specimens);
+
+            $specimens = $specimensCollection->map(function ($item) use ($request) {
+
+                return array_merge($item,
+                    [
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip()
+                    ]);
+            });
+
+            $serviceRequest->specimens()->createMany($specimens);
+
+            $observationsCollection = collect($paramsValidated->observations);
+
+            $observations = $observationsCollection->map(function ($item) use ($request) {
+
+                return array_merge($item,
+                    [
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip()
+                    ]);
+            });
+
+            $serviceRequest->observations()->createMany($observations);
+
+
+            DB::commit();
+
+            return response()->json(new ServiceRequestResource($serviceRequest), Response::HTTP_CREATED);
         } catch (\Exception $ex) {
+
+            DB::rollBack();
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -164,6 +199,33 @@ class ServiceRequestController extends Controller
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * @param ServiceRequest $serviceRequest
+     * @return JsonResponse
+     */
+    public function observations(ServiceRequest $serviceRequest): JsonResponse
+    {
+        $observations= $serviceRequest->observations()->active()->orderBy('id')->get();
+
+        $collection = \App\Http\Resources\collections\ServiceRequestResource::collection($observations);
+
+        return response()->json($collection, 200);
+    }
+
+
+    /**
+     * @param ServiceRequest $serviceRequest
+     * @return JsonResponse
+     */
+    public function specimens(ServiceRequest $serviceRequest): JsonResponse
+    {
+        $specimens = $serviceRequest->specimens()->active()->orderBy('id')->get();
+
+        $collection = \App\Http\Resources\collections\ServiceRequestResource::collection($specimens);
+
+        return response()->json($collection, 200);
     }
 
 }

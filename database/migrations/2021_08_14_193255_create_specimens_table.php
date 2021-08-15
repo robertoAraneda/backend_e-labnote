@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSampleTypesTable extends Migration
+class CreateSpecimensTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,8 +15,13 @@ class CreateSampleTypesTable extends Migration
     {
         Schema::create('specimens', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->boolean('active')->default(true);
+            $table->unsignedBigInteger('service_request_id');
+            $table->string('accession_identifier');
+            $table->unsignedBigInteger('specimen_status_id');
+            $table->unsignedBigInteger('specimen_code_id');
+            $table->unsignedBigInteger('patient_id');
+            $table->unsignedBigInteger('collector_id')->nullable();
+            $table->dateTime('collected_at')->nullable();
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
             $table->unsignedBigInteger('deleted_user_id')->nullable();
@@ -24,7 +29,7 @@ class CreateSampleTypesTable extends Migration
             $table->string('updated_user_ip', 15)->nullable();
             $table->string('deleted_user_ip', 15)->nullable();
             $table->timestamps();
-            $table->softDeletes();;
+            $table->softDeletes();
         });
     }
 

@@ -36,16 +36,10 @@ class MenuTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(MenuPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(MenuPermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('menu.create');
-        $role->givePermissionTo('menu.update');
-        $role->givePermissionTo('menu.delete');
-        $role->givePermissionTo('menu.index');
-        $role->givePermissionTo('menu.show');
 
         $modelClass = new Menu;
 

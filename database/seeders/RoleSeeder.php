@@ -18,7 +18,9 @@ class RoleSeeder extends Seeder
         $roles = [
             'Administrador',
             'Secretaria',
-            'Tecnólogo Médico'
+            'Tecnólogo Médico',
+            'Developer',
+            'super-admin'
         ];
 
         $user = User::factory()->create();

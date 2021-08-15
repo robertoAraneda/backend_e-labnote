@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\ObservationServiceRequestController;
+use App\Http\Controllers\ServiceRequestObservationCodeController;
 use App\Models\Analyte;
 use App\Models\Availability;
 use App\Models\Container;
@@ -11,25 +11,26 @@ use App\Models\Loinc;
 use App\Models\MedicalRequestType;
 use App\Models\ProcessTime;
 use App\Models\Role;
-use App\Models\Specimen;
+use App\Models\SpecimenCode;
 use App\Models\User;
-use App\Models\ObservationServiceRequest;
+use App\Models\ServiceRequestObservationCode;
 use App\Models\Workarea;
-use Database\Seeders\ObservationServiceRequestPermissionSeeder;
+use Database\Seeders\ServiceRequestObservationCodePermissionSeeder;
 use Database\Seeders\RoleSeeder;
+use Database\Seeders\ServiceRequestObservationCodePermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class ObservationServiceRequestTest extends TestCase
+class ServiceRequestObservationCodeTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
     private $role;
     private $user, $model;
-    private ObservationServiceRequestController $controller;
+    private ServiceRequestObservationCodeController $controller;
     private string $perPage;
     private string $table;
     private string $BASE_URI;
@@ -43,28 +44,22 @@ class ObservationServiceRequestTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(ObservationServiceRequestPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(ServiceRequestObservationCodePermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('observationServiceRequest.create');
-        $role->givePermissionTo('observationServiceRequest.update');
-        $role->givePermissionTo('observationServiceRequest.delete');
-        $role->givePermissionTo('observationServiceRequest.index');
-        $role->givePermissionTo('observationServiceRequest.show');
-
         $user->assignRole($role);
 
-        $modelClass = new ObservationServiceRequest();
-        $this->controller = new ObservationServiceRequestController();
+        $modelClass = new ServiceRequestObservationCode();
+        $this->controller = new ServiceRequestObservationCodeController();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = ObservationServiceRequest::factory()->create();
+        $this->model = ServiceRequestObservationCode::factory()->create();
         $this->perPage = $modelClass->getPerPage();
         $this->table = $modelClass->getTable();
-        $this->BASE_URI = "/api/v1/observation-service-requests";
+        $this->BASE_URI = "/api/v1/service-request-observation-codes";
     }
 
     /**
@@ -81,11 +76,13 @@ class ObservationServiceRequestTest extends TestCase
     public function se_puede_obtener_una_lista_del_recurso(): void
     {
 
-        ObservationServiceRequest::factory()->count(20)->create();
+        $this->withoutExceptionHandling();
+
+        ServiceRequestObservationCode::factory()->count(20)->create();
 
         $uri = $this->BASE_URI;
 
-        $countModels = ObservationServiceRequest::count();
+        $countModels = ServiceRequestObservationCode::count();
 
 
         $response = $this->actingAs($this->user, 'api')
@@ -114,7 +111,7 @@ class ObservationServiceRequestTest extends TestCase
     public function se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
 
-        ObservationServiceRequest::factory()->count(20)->create();
+        ServiceRequestObservationCode::factory()->count(20)->create();
 
         $uri = sprintf('/%s?page=1', $this->BASE_URI);
         $page = $this->perPage;
@@ -162,8 +159,10 @@ class ObservationServiceRequestTest extends TestCase
      */
     public function se_puede_crear_un_recurso(): void //store
     {
+
+        $this->withoutExceptionHandling();
+
         $container = Container::factory()->create();
-        $specimen = Specimen::factory()->create();
         $availability = Availability::factory()->create();
         $laboratory = Laboratory::factory()->create();
         $loinc = Loinc::factory()->create();
@@ -176,7 +175,6 @@ class ObservationServiceRequestTest extends TestCase
             'clinical_information' => $this->faker->text,
             'name' => $this->faker->name,
             'container_id' => $container->id,
-            'specimen_id' => $specimen->id,
             'availability_id' => $availability->id,
             'laboratory_id' => $laboratory->id,
             'loinc_num' => $loinc->loinc_num,
@@ -258,7 +256,6 @@ class ObservationServiceRequestTest extends TestCase
     {
 
         $container = Container::factory()->create();
-        $specimen = Specimen::factory()->create();
         $availability = Availability::factory()->create();
         $laboratory = Laboratory::factory()->create();
         $loinc = Loinc::factory()->create();
@@ -271,7 +268,6 @@ class ObservationServiceRequestTest extends TestCase
             'clinical_information' => $this->faker->text,
             'name' => $this->faker->name,
             'container_id' => $container->id,
-            'specimen_id' => $specimen->id,
             'availability_id' => $availability->id,
             'laboratory_id' => $laboratory->id,
             'loinc_num' => $loinc->loinc_num,
@@ -282,7 +278,7 @@ class ObservationServiceRequestTest extends TestCase
             'active' => $this->faker->boolean
         ];
 
-        $this->role->revokePermissionTo('observationServiceRequest.create');
+        $this->role->revokePermissionTo('serviceRequestObservationCode.create');
 
         $uri = $this->BASE_URI;
 
@@ -302,7 +298,7 @@ class ObservationServiceRequestTest extends TestCase
      */
     public function se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('observationServiceRequest.update');
+        $this->role->revokePermissionTo('serviceRequestObservationCode.update');
 
         $uri = sprintf('%s/%s', $this->BASE_URI, $this->model->id);
 
@@ -323,7 +319,7 @@ class ObservationServiceRequestTest extends TestCase
      */
     public function se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('observationServiceRequest.delete');
+        $this->role->revokePermissionTo('serviceRequestObservationCode.delete');
 
         $uri = sprintf('%s/%s', $this->BASE_URI, $this->model->id);
 
@@ -380,8 +376,8 @@ class ObservationServiceRequestTest extends TestCase
      */
     public function se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
-        ObservationServiceRequest::factory()->count(20)->create();
-        $list = ObservationServiceRequest::count();
+        ServiceRequestObservationCode::factory()->count(20)->create();
+        $list = ServiceRequestObservationCode::count();
         $DEFAULT_PAGINATE = 5;
         $mod = $list % $DEFAULT_PAGINATE;
         $pages = intval(ceil($list / $DEFAULT_PAGINATE));
@@ -425,9 +421,9 @@ class ObservationServiceRequestTest extends TestCase
      */
     public function se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
     {
-        ObservationServiceRequest::factory()->count(20)->create();
+        ServiceRequestObservationCode::factory()->count(20)->create();
 
-        $list = ObservationServiceRequest::count();
+        $list = ServiceRequestObservationCode::count();
 
         $pages = intval(ceil($list / $this->perPage));
         $mod = $list % $this->perPage;
@@ -503,8 +499,6 @@ class ObservationServiceRequestTest extends TestCase
             ->putJson($uri, [
                 'active' => !$status,
             ]);
-
-        $response->dump();
 
         $this->assertNotEquals($this->model->active, (bool)$response['active']);
     }

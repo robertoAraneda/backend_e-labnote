@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ServiceRequest extends Model
@@ -99,5 +100,15 @@ class ServiceRequest extends Model
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class, 'location_id');
+    }
+
+    public function observations(): HasMany
+    {
+        return $this->hasMany(ServiceRequestObservation::class, 'service_request_id', 'id');
+    }
+
+    public function specimens(): HasMany
+    {
+        return $this->hasMany(Specimen::class, 'service_request_id', 'id');
     }
 }

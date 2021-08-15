@@ -35,16 +35,10 @@ class CityTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(CityPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(CityPermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('city.create');
-        $role->givePermissionTo('city.update');
-        $role->givePermissionTo('city.delete');
-        $role->givePermissionTo('city.index');
-        $role->givePermissionTo('city.show');
 
         $user->assignRole($role);
 

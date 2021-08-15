@@ -32,16 +32,10 @@ class LocationTypeTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(LocationTypePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(LocationTypePermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('locationType.create');
-        $role->givePermissionTo('locationType.update');
-        $role->givePermissionTo('locationType.delete');
-        $role->givePermissionTo('locationType.index');
-        $role->givePermissionTo('locationType.show');
 
         $user->assignRole($role);
 

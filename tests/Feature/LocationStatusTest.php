@@ -32,16 +32,10 @@ class LocationStatusTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(LocationStatusPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(LocationStatusPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('locationStatus.create');
-        $role->givePermissionTo('locationStatus.update');
-        $role->givePermissionTo('locationStatus.delete');
-        $role->givePermissionTo('locationStatus.index');
-        $role->givePermissionTo('locationStatus.show');
 
         $user->assignRole($role);
 

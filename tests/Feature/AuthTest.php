@@ -25,7 +25,7 @@ class AuthTest extends TestCase
 
         $response = $this->postJson('/api/v1/auth/login',[
             'rut' => '15.654.738-7',
-            'password' => 'password',
+            'password' => 'admin',
             'remember_me' => true
         ]);
        $response->assertStatus(200);

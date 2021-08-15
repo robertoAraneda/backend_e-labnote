@@ -30,9 +30,10 @@ use App\Http\Controllers\SampleQuantityController;
 use App\Http\Controllers\ServiceRequestCategoryController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\ServiceRequestIntentController;
+use App\Http\Controllers\ServiceRequestObservationCodeController;
 use App\Http\Controllers\ServiceRequestPriorityController;
 use App\Http\Controllers\ServiceRequestStatusController;
-use App\Http\Controllers\SpecimenController;
+use App\Http\Controllers\SpecimenCodeController;
 use App\Http\Controllers\SamplingConditionController;
 use App\Http\Controllers\SamplingIndicationController;
 use App\Http\Controllers\StateController;
@@ -138,9 +139,9 @@ Route::group([
         ->whereNumber('container')
         ->names('api.containers');
 
-    Route::apiResource('specimens', SpecimenController::class)
-        ->whereNumber('specimen')
-        ->names('api.specimens');
+    Route::apiResource('specimen-codes', SpecimenCodeController::class)
+        ->whereNumber('specimen_code')
+        ->names('api.specimen-codes');
 
     Route::apiResource('sampling-indications', SamplingIndicationController::class)
         ->whereNumber('sampling_indication')
@@ -208,6 +209,10 @@ Route::group([
         ->whereNumber('service_request')
         ->names('api.service-requests');
 
+    Route::apiResource('service-request-observation-codes', ServiceRequestObservationCodeController::class)
+        ->whereNumber('service_request_observation_code')
+        ->names('api.service-request-observation-codes');
+
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     //Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
@@ -221,6 +226,8 @@ Route::group([
     Route::get('patients/{patient}/telecoms', [PatientController::class, 'telecoms'])->name('api.patients.telecoms');
     Route::get('patients/{patient}/addresses', [PatientController::class, 'addresses'])->name('api.patients.addresses');
     Route::get('patients/{patient}/contacts', [PatientController::class, 'contacts'])->name('api.patients.contacts');
+    Route::get('service-requests/{service_request}/observations', [ServiceRequestController::class, 'observations'])->name('api.service-request.observations');
+    Route::get('service-requests/{service_request}/specimens', [ServiceRequestController::class, 'specimens'])->name('api.service-request.specimens');
 
 
     //rels many to many
@@ -247,7 +254,7 @@ Route::group([
     //search queries
     Route::get('modules/search', [ModuleController::class, 'searchByParams']);
     Route::get('patients/search', [PatientController::class, 'searchByParams']);
-    Route::get('observation-service-requests/search', [ObservationServiceRequestController::class, 'searchByParams']);
+    Route::get('service-request-observation-codes/search', [ServiceRequestObservationCodeController::class, 'searchByParams']);
 
 
     //change active attribute mode
@@ -263,6 +270,8 @@ Route::group([
     Route::put('medical-request-types/{medical_request_type}/status', [MedicalRequestTypeController::class, 'changeActiveAttribute']);
     Route::put('sample-quantities/{sample_quantity}/status', [SampleQuantityController::class, 'changeActiveAttribute']);
     Route::put('sampling-conditions/{sampling_condition}/status', [SamplingConditionController::class, 'changeActiveAttribute']);
+    Route::put('sampling-indications/{sampling_indication}/status', [SamplingIndicationController::class, 'changeActiveAttribute']);
+
     Route::put('fonasas/{fonasa}/status', [FonasaController::class, 'changeActiveAttribute']);
     Route::put('menus/{menu}/status', [MenuController::class, 'changeActiveAttribute']);
     Route::put('modules/{module}/status', [ModuleController::class, 'changeActiveAttribute']);
@@ -279,6 +288,7 @@ Route::group([
     Route::put('location-physical-types/{location_physical_type}/status', [LocationPhysicalTypeController::class, 'changeActiveAttribute']);
     Route::put('location-types/{location_type}/status', [LocationTypeController::class, 'changeActiveAttribute']);
     Route::put('practitioners/{practitioner}/status', [PractitionerController::class, 'changeActiveAttribute']);
+    Route::put('service-request-observation-codes/{service_request_observation_code}/status', [ServiceRequestObservationCodeController::class, 'changeActiveAttribute']);
 
 
     //test routes

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateObservationServiceRequestsTable extends Migration
+class CreateServiceRequestObservationCodesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreateObservationServiceRequestsTable extends Migration
      */
     public function up()
     {
-        Schema::create('observation_service_requests', function (Blueprint $table) {
+        Schema::create('service_request_observation_codes', function (Blueprint $table) {
             $table->id();
             $table->text('clinical_information');
             $table->string('name');
             $table->string('slug');
             $table->unsignedBigInteger('container_id');
-            $table->unsignedBigInteger('specimen_id');
             $table->unsignedBigInteger('availability_id');
             $table->unsignedBigInteger('laboratory_id');
             $table->string('loinc_num');
@@ -35,7 +34,7 @@ class CreateObservationServiceRequestsTable extends Migration
             $table->string('updated_user_ip', 15)->nullable();
             $table->string('deleted_user_ip', 15)->nullable();
             $table->timestamps();
-            $table->softDeletes();;
+            $table->softDeletes();
         });
     }
 
@@ -46,6 +45,6 @@ class CreateObservationServiceRequestsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('observation_service_requests');
+        Schema::dropIfExists('service_request_observation_codes');
     }
 }

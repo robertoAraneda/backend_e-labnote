@@ -20,7 +20,6 @@ class SamplingIndicationTest extends TestCase
 
     private $role;
     private $user, $model;
-    private SamplingIndicationController $samplingIndicationController;
     private string $perPage;
     private string $table;
     private string $BASE_URI;
@@ -34,21 +33,14 @@ class SamplingIndicationTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(SamplingIndicationPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(SamplingIndicationPermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('samplingIndication.create');
-        $role->givePermissionTo('samplingIndication.update');
-        $role->givePermissionTo('samplingIndication.delete');
-        $role->givePermissionTo('samplingIndication.index');
-        $role->givePermissionTo('samplingIndication.show');
 
         $user->assignRole($role);
 
         $modelClass = new SamplingIndication();
-        $this->samplingIndicationController = new SamplingIndicationController();
 
         $this->user = $user;
         $this->role = $role;
@@ -406,5 +398,30 @@ class SamplingIndicationTest extends TestCase
         $this->assertDatabaseCount($this->table, $list);
     }
 
+    /**
+     * @test
+     */
+    public function se_puede_modificar_el_estado_de_un_recurso()
+    {
+
+        $uri = sprintf('%s/%s/status', $this->BASE_URI, $this->model->id);
+
+        if ($this->model->active) {
+            $response = $this->actingAs($this->user, 'api')
+                ->putJson($uri, [
+                    'active' => false
+                ]);
+        } else {
+            $response = $this->actingAs($this->user, 'api')
+                ->putJson($uri, [
+                    'active' => true
+                ]);
+        }
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $this->assertNotEquals($response['active'], $this->model->active);
+
+    }
 
 }

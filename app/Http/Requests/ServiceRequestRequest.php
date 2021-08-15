@@ -20,7 +20,12 @@ class ServiceRequestRequest extends FormRequest
                     'patient_id' => 'integer',
                     'requester_id' => 'integer',
                     'performer_id' => 'integer',
-                    'location_id' => 'integer'
+                    'location_id' => 'integer',
+                    'specimens.*.accession_identifier' => 'string',
+                    'specimens.*.specimen_status_id' => 'integer',
+                    'specimens.*.specimen_code_id' => 'integer',
+                    'specimens.*.patient_id' => 'integer',
+                    'observations.*.service_request_observation_code_id' => 'integer',
                 ];
             case 'POST':
                 return [
@@ -33,7 +38,12 @@ class ServiceRequestRequest extends FormRequest
                     'patient_id' => 'required|integer',
                     'requester_id' => 'required|integer',
                     'performer_id' => 'required|integer',
-                    'location_id' => 'required|integer'
+                    'location_id' => 'required|integer',
+                    'specimens.*.accession_identifier' => 'required|string',
+                    'specimens.*.specimen_status_id' => 'required|integer',
+                    'specimens.*.specimen_code_id' => 'required|integer',
+                    'specimens.*.patient_id' => 'required|integer',
+                    'observations.*.service_request_observation_code_id' => 'integer',
                 ];
             default:
                 return [];

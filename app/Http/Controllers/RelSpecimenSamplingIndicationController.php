@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\collections\SamplingIndicationResource;
-use App\Models\Specimen;
+use App\Models\SpecimenCode;
 use App\Models\SamplingIndication;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -15,11 +15,11 @@ class RelSpecimenSamplingIndicationController extends Controller
      * Display a listing of the resource.
      *
      * @param Request $request
-     * @param Specimen $specimen
+     * @param SpecimenCode $specimen
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function index(Request $request, Specimen $specimen): JsonResponse
+    public function index(Request $request, SpecimenCode $specimen): JsonResponse
     {
         $this->authorize('view', $specimen);
 
@@ -47,10 +47,10 @@ class RelSpecimenSamplingIndicationController extends Controller
      * Store a newly created resource in storage.
      *
      * @param Request $request
-     * @param Specimen $specimen
+     * @param SpecimenCode $specimen
      * @return JsonResponse
      */
-    public function store(Request $request, Specimen $specimen): JsonResponse
+    public function store(Request $request, SpecimenCode $specimen): JsonResponse
     {
         $specimen->samplingIndications()->syncWithPivotValues($request->all(), ['user_id' => auth()->id()]);
 

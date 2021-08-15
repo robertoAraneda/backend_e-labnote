@@ -19,12 +19,8 @@ class WorkareaTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    /**
-     * @var
-     */
     private $role;
     private $user, $model;
-    private WorkareaController $workareaController;
     private string $perPage;
     private string $table;
 
@@ -35,21 +31,14 @@ class WorkareaTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(WorkareaPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(WorkareaPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('workarea.create');
-        $role->givePermissionTo('workarea.update');
-        $role->givePermissionTo('workarea.delete');
-        $role->givePermissionTo('workarea.index');
-        $role->givePermissionTo('workarea.show');
 
         $user->assignRole($role);
 
         $modelClass = new Workarea();
-        $this->workareaController = new WorkareaController();
 
         $this->user = $user;
         $this->role = $role;

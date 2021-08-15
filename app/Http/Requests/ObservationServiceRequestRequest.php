@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\ObservationServiceRequest;
+use App\Models\ServiceRequestObservation;
 use Illuminate\Support\Str;
 
 class ObservationServiceRequestRequest extends FormRequest
@@ -56,7 +56,7 @@ class ObservationServiceRequestRequest extends FormRequest
      */
     public function getPaginate(): int
     {
-        return $this->get('paginate', (new ObservationServiceRequest())->getPerPage());
+        return $this->get('paginate', (new ServiceRequestObservation())->getPerPage());
     }
 
     public function messages(): array

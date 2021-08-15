@@ -2,25 +2,24 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\SpecimenController;
+use App\Http\Controllers\SpecimenCodeController;
 use App\Models\Role;
-use App\Models\Specimen;
+use App\Models\SpecimenCode;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
-use Database\Seeders\SpecimenPermissionSeeder;
+use Database\Seeders\SpecimenCodePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class SpecimenTest extends TestCase
+class SpecimenCodeTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
     private $role;
     private $user, $model;
-    private SpecimenController $sampleTypeController;
     private string $perPage;
     private string $table;
     private string $BASE_URI;
@@ -34,28 +33,21 @@ class SpecimenTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(SpecimenPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(SpecimenCodePermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
-        $role->givePermissionTo('specimen.create');
-        $role->givePermissionTo('specimen.update');
-        $role->givePermissionTo('specimen.delete');
-        $role->givePermissionTo('specimen.index');
-        $role->givePermissionTo('specimen.show');
-
         $user->assignRole($role);
 
-        $modelClass = new Specimen();
-        $this->sampleTypeController = new SpecimenController();
+        $modelClass = new SpecimenCode();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = Specimen::factory()->create();
+        $this->model = SpecimenCode::factory()->create();
         $this->perPage = $modelClass->getPerPage();
         $this->table = $modelClass->getTable();
-        $this->BASE_URI = "/api/v1/specimens";
+        $this->BASE_URI = "/api/v1/specimen-codes";
     }
 
     /**
@@ -73,11 +65,11 @@ class SpecimenTest extends TestCase
     public function se_puede_obtener_una_lista_del_recurso(): void
     {
 
-        Specimen::factory()->count(20)->create();
+        SpecimenCode::factory()->count(20)->create();
 
         $uri = $this->BASE_URI;
 
-        $countModels = Specimen::count();
+        $countModels = SpecimenCode::count();
 
         $this->actingAs($this->user, 'api')
             ->getJson($uri)
@@ -103,7 +95,7 @@ class SpecimenTest extends TestCase
     public function se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
 
-        Specimen::factory()->count(20)->create();
+        SpecimenCode::factory()->count(20)->create();
 
         $uri = sprintf('/%s?page=1', $this->BASE_URI);
         $page = $this->perPage;
@@ -131,6 +123,8 @@ class SpecimenTest extends TestCase
      */
     public function se_puede_obtener_el_detalle_del_recurso(): void //show
     {
+        $this->withoutExceptionHandling();
+
         $uri = sprintf("%s/%s", $this->BASE_URI, $this->model->id);
 
         $this->actingAs($this->user, 'api')
@@ -225,7 +219,7 @@ class SpecimenTest extends TestCase
             'active' => $this->faker->boolean
         ];
 
-        $this->role->revokePermissionTo('specimen.create');
+        $this->role->revokePermissionTo('specimenCode.create');
 
         $uri = $this->BASE_URI;
 
@@ -245,7 +239,7 @@ class SpecimenTest extends TestCase
      */
     public function se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('specimen.update');
+        $this->role->revokePermissionTo('specimenCode.update');
 
         $uri = sprintf('%s/%s', $this->BASE_URI, $this->model->id);
 
@@ -267,7 +261,7 @@ class SpecimenTest extends TestCase
      */
     public function se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('specimen.delete');
+        $this->role->revokePermissionTo('specimenCode.delete');
 
         $uri = sprintf('%s/%s', $this->BASE_URI, $this->model->id);
 
@@ -324,8 +318,8 @@ class SpecimenTest extends TestCase
      */
     public function se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
-        Specimen::factory()->count(20)->create();
-        $list = Specimen::count();
+        SpecimenCode::factory()->count(20)->create();
+        $list = SpecimenCode::count();
         $DEFAULT_PAGINATE = 5;
         $mod = $list % $DEFAULT_PAGINATE;
         $pages = intval(ceil($list / $DEFAULT_PAGINATE));
@@ -368,9 +362,9 @@ class SpecimenTest extends TestCase
      */
     public function se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
     {
-        Specimen::factory()->count(20)->create();
+        SpecimenCode::factory()->count(20)->create();
 
-        $list = Specimen::count();
+        $list = SpecimenCode::count();
 
         $pages = intval(ceil($list / $this->perPage));
         $mod = $list % $this->perPage;

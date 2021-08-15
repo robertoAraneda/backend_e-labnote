@@ -19,7 +19,7 @@ class LaboratorySeeder extends Seeder
             'address' => 'Los pablos 999',
             'phone' => '+5699876565',
             'redirect' => 'http://labisur.elabnote.cl',
-            'email' => 'laboratorio@asur.cl'
+            'email' => 'laboratorio@asur.cl',
         ]);
         Laboratory::create([
             'name' => 'Laboratorio Hospital HHHA',

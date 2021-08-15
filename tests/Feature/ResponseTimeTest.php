@@ -18,12 +18,8 @@ class ResponseTimeTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    /**
-     * @var
-     */
     private $role;
     private $user, $model;
-    private ResponseTimeController $responseTimeController;
     private string $table;
     private string $base_url;
     private string $perPage;
@@ -35,21 +31,14 @@ class ResponseTimeTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(ResponseTimePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(ResponseTimePermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('responseTime.create');
-        $role->givePermissionTo('responseTime.update');
-        $role->givePermissionTo('responseTime.delete');
-        $role->givePermissionTo('responseTime.index');
-        $role->givePermissionTo('responseTime.show');
 
         $user->assignRole($role);
 
         $modelClass = new ResponseTime();
-        $this->responseTimeController = new ResponseTimeController();
 
         $this->user = $user;
         $this->role = $role;

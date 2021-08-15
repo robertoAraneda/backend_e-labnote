@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 
 class PractitionerPermissionsSeeder extends Seeder
@@ -44,6 +45,7 @@ class PractitionerPermissionsSeeder extends Seeder
                 'description' => 'Listar profesional'
             ],
         ];
+        $role = Role::where('name', 'Administrador')->first();
 
         foreach ($permissions as $key => $permission) {
             Permission::create([
@@ -53,6 +55,7 @@ class PractitionerPermissionsSeeder extends Seeder
                 'action' => $permission['action'],
                 'description' => $permission['description']
             ]);
+            $role->givePermissionTo($permission['name']);
         }
     }
 }

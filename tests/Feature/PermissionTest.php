@@ -32,16 +32,10 @@ class PermissionTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(PermissionPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(PermissionPermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('permission.create');
-        $role->givePermissionTo('permission.update');
-        $role->givePermissionTo('permission.delete');
-        $role->givePermissionTo('permission.index');
-        $role->givePermissionTo('permission.show');
 
         $modelClass = new Permission();
 

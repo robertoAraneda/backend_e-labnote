@@ -32,16 +32,10 @@ class ServiceRequestStatusTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(ServiceRequestStatusPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(ServiceRequestStatusPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('serviceRequestStatus.create');
-        $role->givePermissionTo('serviceRequestStatus.update');
-        $role->givePermissionTo('serviceRequestStatus.delete');
-        $role->givePermissionTo('serviceRequestStatus.index');
-        $role->givePermissionTo('serviceRequestStatus.show');
 
         $user->assignRole($role);
 

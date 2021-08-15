@@ -33,16 +33,10 @@ class ServiceRequestCategoryTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(ServiceRequestCategoryPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(ServiceRequestCategoryPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('serviceRequestCategory.create');
-        $role->givePermissionTo('serviceRequestCategory.update');
-        $role->givePermissionTo('serviceRequestCategory.delete');
-        $role->givePermissionTo('serviceRequestCategory.index');
-        $role->givePermissionTo('serviceRequestCategory.show');
 
         $user->assignRole($role);
 
@@ -52,7 +46,7 @@ class ServiceRequestCategoryTest extends TestCase
         $this->role = $role;
         $this->model = ServiceRequestCategory::factory()->create();
         $this->perPage = $modelClass->getPerPage();
-        $this->table = 'service_request_categories';
+        $this->table = $modelClass->getTable();;
 
     }
 
@@ -162,7 +156,7 @@ class ServiceRequestCategoryTest extends TestCase
         );
 
         $this->assertDatabaseHas($this->table, [
-            'display' => $factoryModel['display'],
+            'code' => $factoryModel['code'],
         ]);
     }
 
@@ -225,7 +219,7 @@ class ServiceRequestCategoryTest extends TestCase
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'display' => $factoryModel['display'],
+            'code' => $factoryModel['code'],
         ]);
 
     }

@@ -26,6 +26,14 @@ class ServiceRequestResource extends JsonResource
                         ['service_request' => $this->id],
                         false),
                 ],
+                'observations'  => [
+                    'href' => route('api.service-request.observations', ['service_request' => $this->id], false),
+                    'collection' => $this->observations
+                ],
+                'specimens'  => [
+                    'href' => route('api.service-request.specimens', ['service_request' => $this->id], false),
+                    'collection' => $this->specimens
+                ]
             ],
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),

@@ -23,7 +23,6 @@ class ProcessTimeTest extends TestCase
      */
     private $role;
     private $user, $model;
-    private ProcessTimeController $processTimeController;
     private string $table;
     private string $base_url;
     private string $perPage;
@@ -35,21 +34,14 @@ class ProcessTimeTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(ProcessTimePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(ProcessTimePermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('processTime.create');
-        $role->givePermissionTo('processTime.update');
-        $role->givePermissionTo('processTime.delete');
-        $role->givePermissionTo('processTime.index');
-        $role->givePermissionTo('processTime.show');
 
         $user->assignRole($role);
 
         $modelClass = new ProcessTime();
-        $this->processTimeController = new ProcessTimeController();
 
         $this->user = $user;
         $this->role = $role;

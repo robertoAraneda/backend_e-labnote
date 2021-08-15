@@ -43,16 +43,10 @@ class PatientTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(PatientPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(PatientPermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('patient.create');
-        $role->givePermissionTo('patient.update');
-        $role->givePermissionTo('patient.delete');
-        $role->givePermissionTo('patient.index');
-        $role->givePermissionTo('patient.show');
 
         $user->assignRole($role);
 
@@ -808,8 +802,6 @@ class PatientTest extends TestCase
 
         $response = $this->actingAs($this->user, 'api')
             ->getJson($uri);
-
-        $response->dump();
 
         $response->assertStatus(Response::HTTP_OK);
 

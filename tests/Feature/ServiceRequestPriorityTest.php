@@ -33,16 +33,10 @@ class ServiceRequestPriorityTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(ServiceRequestPriorityPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(ServiceRequestPriorityPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('serviceRequestPriority.create');
-        $role->givePermissionTo('serviceRequestPriority.update');
-        $role->givePermissionTo('serviceRequestPriority.delete');
-        $role->givePermissionTo('serviceRequestPriority.index');
-        $role->givePermissionTo('serviceRequestPriority.show');
 
         $user->assignRole($role);
 

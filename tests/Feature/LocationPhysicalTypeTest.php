@@ -32,16 +32,10 @@ class LocationPhysicalTypeTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(LocationPhysicalTypePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(LocationPhysicalTypePermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('locationPhysicalType.create');
-        $role->givePermissionTo('locationPhysicalType.update');
-        $role->givePermissionTo('locationPhysicalType.delete');
-        $role->givePermissionTo('locationPhysicalType.index');
-        $role->givePermissionTo('locationPhysicalType.show');
 
         $user->assignRole($role);
 

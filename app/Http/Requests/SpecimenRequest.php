@@ -2,55 +2,29 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Specimen;
+use Illuminate\Foundation\Http\FormRequest;
 
 class SpecimenRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return false;
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array
      */
-    public function rules(): array
-    {
-        switch ($this->getMethod()){
-            case 'PUT':
-                return [
-                    'name' => 'string',
-                    'active' => 'boolean'
-                ];
-            case 'POST':
-                return [
-                    'name' => 'required|string',
-                    'active' =>  'required|boolean'
-                ];
-            default:
-                return [];
-        }
-    }
-
-
-    /**
-     * @return int
-     */
-    public function getPaginate(): int
-    {
-        return $this->get('paginate', (new Specimen())->getPerPage());
-    }
-
-
-    /**
-     * Get custom messages for validator errors.
-     *
-     * @return array
-     */
-    public function messages(): array
+    public function rules()
     {
         return [
-            'name.required' => $this->getRequiredMessage(),
-            'active.required' => $this->getRequiredMessage(),
-            'name.string' => $this->getStringMessage(),
-            'active.boolean' => $this->getBooleanMessage(),
+            //
         ];
     }
 }

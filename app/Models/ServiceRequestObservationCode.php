@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ObservationServiceRequest extends Model
+class ServiceRequestObservationCode extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $table = "service_request_observation_codes";
 
 
     /**
@@ -125,7 +127,7 @@ class ObservationServiceRequest extends Model
      */
     public function specimen(): BelongsTo
     {
-        return $this->belongsTo(Specimen::class);
+        return $this->belongsTo(SpecimenCode::class);
     }
 
     /**

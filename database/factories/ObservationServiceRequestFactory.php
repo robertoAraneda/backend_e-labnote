@@ -8,9 +8,9 @@ use App\Models\Container;
 use App\Models\Laboratory;
 use App\Models\Loinc;
 use App\Models\MedicalRequestType;
-use App\Models\ObservationServiceRequest;
+use App\Models\ServiceRequestObservation;
 use App\Models\ProcessTime;
-use App\Models\Specimen;
+use App\Models\SpecimenCode;
 use App\Models\Workarea;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,7 +21,7 @@ class ObservationServiceRequestFactory extends Factory
      *
      * @var string
      */
-    protected $model = ObservationServiceRequest::class;
+    protected $model = ServiceRequestObservation::class;
 
     /**
      * Define the model's default state.
@@ -36,7 +36,7 @@ class ObservationServiceRequestFactory extends Factory
             'name' => $this->faker->name,
             'slug' => $this->faker->slug,
             'container_id' => Container::factory(),
-            'specimen_id' => Specimen::factory(),
+            'specimen_id' => SpecimenCode::factory(),
             'availability_id' => Availability::factory(),
             'laboratory_id' => Laboratory::factory(),
             'loinc_num' => Loinc::factory(),

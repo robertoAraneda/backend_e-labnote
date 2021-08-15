@@ -18,12 +18,8 @@ class SamplingConditionTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    /**
-     * @var
-     */
     private $role;
     private $user, $model;
-    private SamplingConditionController $samplingConditionController;
     private string $table;
     private string $base_url;
     private string $perPage;
@@ -35,21 +31,14 @@ class SamplingConditionTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(SamplingConditionPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(SamplingConditionPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('samplingCondition.create');
-        $role->givePermissionTo('samplingCondition.update');
-        $role->givePermissionTo('samplingCondition.delete');
-        $role->givePermissionTo('samplingCondition.index');
-        $role->givePermissionTo('samplingCondition.show');
 
         $user->assignRole($role);
 
         $modelClass = new SamplingCondition();
-        $this->samplingConditionController = new SamplingConditionController();
 
         $this->user = $user;
         $this->role = $role;

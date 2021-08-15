@@ -33,8 +33,8 @@ class RolePermissionTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(RolePermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(RolePermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 

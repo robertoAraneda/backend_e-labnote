@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\ObservationServiceRequest;
+use App\Models\ServiceRequestObservation;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -21,10 +21,10 @@ class ObservationServiceRequestPolicy
 
     /**
      * @param User $user
-     * @param ObservationServiceRequest $observationServiceRequest
+     * @param ServiceRequestObservation $observationServiceRequest
      * @return bool
      */
-    public function view(User $user, ObservationServiceRequest $observationServiceRequest): bool
+    public function view(User $user, ServiceRequestObservation $observationServiceRequest): bool
     {
         return in_array('observationServiceRequest.show', $user->getAllPermissions()->pluck('name')->toArray());
     }
@@ -40,20 +40,20 @@ class ObservationServiceRequestPolicy
 
     /**
      * @param User $user
-     * @param ObservationServiceRequest $observationServiceRequest
+     * @param ServiceRequestObservation $observationServiceRequest
      * @return bool
      */
-    public function update(User $user, ObservationServiceRequest $observationServiceRequest): bool
+    public function update(User $user, ServiceRequestObservation $observationServiceRequest): bool
     {
         return in_array('observationServiceRequest.update', $user->getAllPermissions()->pluck('name')->toArray());
     }
 
     /**
      * @param User $user
-     * @param ObservationServiceRequest $observationServiceRequest
+     * @param ServiceRequestObservation $observationServiceRequest
      * @return bool
      */
-    public function delete(User $user, ObservationServiceRequest $observationServiceRequest): bool
+    public function delete(User $user, ServiceRequestObservation $observationServiceRequest): bool
     {
         return in_array('observationServiceRequest.delete', $user->getAllPermissions()->pluck('name')->toArray());
     }
@@ -62,10 +62,10 @@ class ObservationServiceRequestPolicy
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\ObservationServiceRequest  $observationServiceRequest
+     * @param  \App\Models\ServiceRequestObservation  $observationServiceRequest
      * @return mixed
      */
-    public function restore(User $user, ObservationServiceRequest $observationServiceRequest)
+    public function restore(User $user, ServiceRequestObservation $observationServiceRequest)
     {
         //
     }
@@ -74,10 +74,10 @@ class ObservationServiceRequestPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\ObservationServiceRequest  $observationServiceRequest
+     * @param  \App\Models\ServiceRequestObservation  $observationServiceRequest
      * @return mixed
      */
-    public function forceDelete(User $user, ObservationServiceRequest $observationServiceRequest)
+    public function forceDelete(User $user, ServiceRequestObservation $observationServiceRequest)
     {
         //
     }

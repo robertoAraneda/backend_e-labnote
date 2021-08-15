@@ -45,16 +45,10 @@ class ServiceRequestTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(ServiceRequestPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(ServiceRequestPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('serviceRequest.create');
-        $role->givePermissionTo('serviceRequest.update');
-        $role->givePermissionTo('serviceRequest.delete');
-        $role->givePermissionTo('serviceRequest.index');
-        $role->givePermissionTo('serviceRequest.show');
 
         $user->assignRole($role);
 
@@ -148,6 +142,8 @@ class ServiceRequestTest extends TestCase
 
     public function test_se_puede_crear_un_recurso(): void //store
     {
+        $this->withoutExceptionHandling();
+
         $patient = Patient::factory()
             ->has(AdministrativeGender::factory())
             ->has(IdentifierPatient::factory())
@@ -163,8 +159,10 @@ class ServiceRequestTest extends TestCase
         $performer = Practitioner::factory()->create();
         $location = Location::factory()->create();
 
+        $requisition = (string) $this->faker->randomNumber(8);
+
         $factoryModel = [
-            'requisition' => "23456745",
+            'requisition' => $requisition,
             'note' => $this->faker->text,
             'service_request_status_id' => $status->id,
             'service_request_intent_id' => $intent->id,
@@ -174,6 +172,31 @@ class ServiceRequestTest extends TestCase
             'requester_id' => $requester->id,
             'performer_id' => $performer->id,
             'location_id' => $location->id,
+            'specimens' => [
+                [
+                    'accession_identifier' => $requisition."-01",
+                    'specimen_status_id' => 1,
+                    'specimen_code_id' => 1,
+                    'patient_id' => $patient->id,
+                ],
+                [
+                    'accession_identifier' =>  $requisition."-02",
+                    'specimen_status_id' => 1,
+                    'specimen_code_id' => 1,
+                    'patient_id' => $patient->id,
+                ]
+            ],
+            'observations' => [
+                [
+                    'service_request_observation_code_id' => 1,
+                ],
+                [
+                    'service_request_observation_code_id' => 2,
+                ],
+                [
+                    'service_request_observation_code_id' => 3,
+                ]
+            ]
         ];
 
         $uri = sprintf("%s", self::BASE_URI);
@@ -369,7 +392,7 @@ class ServiceRequestTest extends TestCase
 
         for ($i = 1; $i <= $pages; $i++) {
             $response = $this->actingAs($this->user, 'api')
-                ->getJson(sprintf('%s?page=%s&paginate=%s',self::BASE_URI, $i, $DEFAULT_PAGINATE))
+                ->getJson(sprintf('%s?page=%s&paginate=%s', self::BASE_URI, $i, $DEFAULT_PAGINATE))
                 ->assertStatus(Response::HTTP_OK);
 
             if ($i < $pages) {

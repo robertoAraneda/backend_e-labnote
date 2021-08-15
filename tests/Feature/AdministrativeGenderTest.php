@@ -33,16 +33,10 @@ class AdministrativeGenderTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(AdministrativeGenderPermissionSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(AdministrativeGenderPermissionSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('administrativeGender.create');
-        $role->givePermissionTo('administrativeGender.update');
-        $role->givePermissionTo('administrativeGender.delete');
-        $role->givePermissionTo('administrativeGender.index');
-        $role->givePermissionTo('administrativeGender.show');
 
         $user->assignRole($role);
 

@@ -33,16 +33,10 @@ class ServiceRequestIntentTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(ServiceRequestIntentPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(ServiceRequestIntentPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('serviceRequestIntent.create');
-        $role->givePermissionTo('serviceRequestIntent.update');
-        $role->givePermissionTo('serviceRequestIntent.delete');
-        $role->givePermissionTo('serviceRequestIntent.index');
-        $role->givePermissionTo('serviceRequestIntent.show');
 
         $user->assignRole($role);
 

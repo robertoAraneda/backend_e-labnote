@@ -32,16 +32,10 @@ class OrganizationTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(OrganizationPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(OrganizationPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('organization.create');
-        $role->givePermissionTo('organization.update');
-        $role->givePermissionTo('organization.delete');
-        $role->givePermissionTo('organization.index');
-        $role->givePermissionTo('organization.show');
 
         $user->assignRole($role);
 

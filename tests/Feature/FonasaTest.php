@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Http\Controllers\FonasaController;
 use App\Models\Fonasa;
 use App\Models\Role;
-use App\Models\Specimen;
+use App\Models\SpecimenCode;
 use App\Models\User;
 use Database\Seeders\FonasaPermissionsSeeder;
 use Database\Seeders\RoleSeeder;
@@ -37,16 +37,10 @@ class FonasaTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->seed(FonasaPermissionsSeeder::class);
         $this->seed(RoleSeeder::class);
+        $this->seed(FonasaPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
-
-        $role->givePermissionTo('fonasa.create');
-        $role->givePermissionTo('fonasa.update');
-        $role->givePermissionTo('fonasa.delete');
-        $role->givePermissionTo('fonasa.index');
-        $role->givePermissionTo('fonasa.show');
 
         $user->assignRole($role);
 

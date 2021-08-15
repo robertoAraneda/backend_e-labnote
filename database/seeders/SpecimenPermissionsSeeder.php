@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Permission;
 use Illuminate\Database\Seeder;
 
-class SpecimenPermissionSeeder extends Seeder
+class SpecimenPermissionsSeeder extends Seeder
 {
     private string $model = 'specimen';
 
@@ -21,27 +21,27 @@ class SpecimenPermissionSeeder extends Seeder
             [
                 'name' => "{$this->model}.create",
                 'action' => 'create',
-                'description' => 'Crear tipo muestra'
+                'description' => 'Crear muestra'
             ],
             [
                 'name' => "{$this->model}.update",
                 'action' => 'update',
-                'description' => 'Modificar tipo muestra'
+                'description' => 'Modificar muestra'
             ],
             [
                 'name' => "{$this->model}.delete",
                 'action' => 'delete',
-                'description' => 'Eliminar tipo muestra'
+                'description' => 'Eliminar muestra'
             ],
             [
                 'name' => "{$this->model}.show",
                 'action' => 'show',
-                'description' => 'Ver detalle de un tipo muestra'
+                'description' => 'Ver detalle muestra'
             ],
             [
                 'name' => "{$this->model}.index",
                 'action' => 'index',
-                'description' => 'Ver todos los tipos de muestras'
+                'description' => 'Ver todas muestra'
             ],
         ];
 
