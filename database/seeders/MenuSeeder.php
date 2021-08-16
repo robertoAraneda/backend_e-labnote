@@ -10,7 +10,7 @@ use Illuminate\Database\Seeder;
 class MenuSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the database seeds.trel
      *
      * @return void
      */
@@ -18,12 +18,13 @@ class MenuSeeder extends Seeder
     {
         $configurationId = Module::where('name', 'Configuración')->first()->id;
         $serviceRequestId = Module::where('name', 'Solicitud de medios')->first()->id;
-        $advandedSettingId = Module::where('name', 'Configuración avanzada')->first()->id;
+        $advancedSettingId = Module::where('name', 'Configuración avanzada')->first()->id;
+
         Menu::create([
             'name' => 'Roles',
             'icon' => 'mdi-account-cog',
             'url' => 'roles',
-            'module_id' => $advandedSettingId,
+            'module_id' => $advancedSettingId,
             'permission_id' => Permission::where('name', 'role.index')->first()->id,
             'order' => 1
         ]);
@@ -32,18 +33,20 @@ class MenuSeeder extends Seeder
             'name' => 'Permisos',
             'icon' => 'mdi-gate',
             'url' => 'permissions',
-            'module_id' => $advandedSettingId,
+            'module_id' => $advancedSettingId,
             'permission_id' => Permission::where('name', 'permission.index')->first()->id,
             'order' => 2
         ]);
+
         Menu::create([
             'name' => 'Módulos',
             'icon' => 'mdi-view-module',
             'url' => 'modules',
-            'module_id' => $advandedSettingId,
+            'module_id' => $advancedSettingId,
             'permission_id' => Permission::where('name', 'module.index')->first()->id,
             'order' => 2
         ]);
+
         Menu::create([
             'name' => 'Usuarios',
             'icon' => 'mdi-account-group',
@@ -56,18 +59,20 @@ class MenuSeeder extends Seeder
             'name' => 'Laboratorios',
             'icon' => 'mdi-hospital-building',
             'url' => 'laboratories',
-            'module_id' => $advandedSettingId,
+            'module_id' => $advancedSettingId,
             'permission_id' => Permission::where('name', 'laboratory.index')->first()->id,
             'order' => 2
         ]);
+
         Menu::create([
             'name' => 'Menus',
             'icon' => 'mdi-menu',
             'url' => 'menus',
-            'module_id' => $advandedSettingId,
+            'module_id' => $advancedSettingId,
             'permission_id' => Permission::where('name', 'menu.index')->first()->id,
             'order' => 2
         ]);
+
         Menu::create([
             'name' => 'Areas de trabajo',
             'icon' => 'mdi-floor-plan',
@@ -76,14 +81,16 @@ class MenuSeeder extends Seeder
             'permission_id' => Permission::where('name', 'workarea.index')->first()->id,
             'order' => 2
         ]);
+
         Menu::create([
             'name' => 'Exámenes',
             'icon' => 'mdi-gate',
             'url' => 'analytes',
-            'module_id' => $advandedSettingId,
+            'module_id' => $advancedSettingId,
             'permission_id' => Permission::where('name', 'analyte.index')->first()->id,
             'order' => 2
         ]);
+
         Menu::create([
             'name' => 'Prestaciones',
             'icon' => 'mdi-test-tube',
@@ -92,6 +99,7 @@ class MenuSeeder extends Seeder
             'permission_id' => Permission::where('name', 'serviceRequestObservationCode.index')->first()->id,
             'order' => 2
         ]);
+
         Menu::create([
             'name' => 'Tipos disponibilidad',
             'icon' => 'mdi-check-all',
@@ -100,6 +108,7 @@ class MenuSeeder extends Seeder
             'permission_id' => Permission::where('name', 'availability.index')->first()->id,
             'order' => 2
         ]);
+
         Menu::create([
             'name' => 'Tipos tiempo proceso',
             'icon' => 'mdi-clock-time-eight-outline',
@@ -108,6 +117,7 @@ class MenuSeeder extends Seeder
             'permission_id' => Permission::where('name', 'processTime.index')->first()->id,
             'order' => 2
         ]);
+
         Menu::create([
             'name' => 'Tipos tiempo respuesta',
             'icon' => 'mdi-clock-fast',
@@ -116,6 +126,7 @@ class MenuSeeder extends Seeder
             'permission_id' => Permission::where('name', 'responseTime.index')->first()->id,
             'order' => 2
         ]);
+
         Menu::create([
             'name' => 'Tipos solicitud médica',
             'icon' => 'mdi-file-settings-outline',
@@ -124,6 +135,7 @@ class MenuSeeder extends Seeder
             'permission_id' => Permission::where('name', 'medicalRequestType.index')->first()->id,
             'order' => 2
         ]);
+
         Menu::create([
             'name' => 'Tipos cantidad muestra',
             'icon' => 'mdi-cup',
@@ -132,6 +144,7 @@ class MenuSeeder extends Seeder
             'permission_id' => Permission::where('name', 'sampleQuantity.index')->first()->id,
             'order' => 2
         ]);
+
         Menu::create([
             'name' => 'Tipos condición toma muestra',
             'icon' => 'mdi-check',
@@ -181,7 +194,7 @@ class MenuSeeder extends Seeder
             'name' => 'Regiones',
             'icon' => 'mdi-cog',
             'url' => 'states',
-            'module_id' => $advandedSettingId,
+            'module_id' => $advancedSettingId,
             'permission_id' => Permission::where('name', 'state.index')->first()->id,
             'order' => 4
         ]);
@@ -190,7 +203,7 @@ class MenuSeeder extends Seeder
             'name' => 'Comunas',
             'icon' => 'mdi-cog',
             'url' => 'cities',
-            'module_id' => $advandedSettingId,
+            'module_id' => $advancedSettingId,
             'permission_id' => Permission::where('name', 'city.index')->first()->id,
             'order' => 4
         ]);
