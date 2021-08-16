@@ -164,7 +164,7 @@ class MenuSeeder extends Seeder
             'icon' => 'mdi-cog',
             'url' => 'specimens',
             'module_id' => $configurationId,
-            'permission_id' => Permission::where('name', 'specimensCode.index')->first()->id,
+            'permission_id' => Permission::where('name', 'specimenCode.index')->first()->id,
             'order' => 4
         ]);
 
