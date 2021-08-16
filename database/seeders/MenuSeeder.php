@@ -158,5 +158,41 @@ class MenuSeeder extends Seeder
             'permission_id' => Permission::where('name', 'serviceRequest.index')->first()->id,
             'order' => 4
         ]);
+
+        Menu::create([
+            'name' => 'Tipo de muestra',
+            'icon' => 'mdi-cog',
+            'url' => 'specimens',
+            'module_id' => $configurationId,
+            'permission_id' => Permission::where('name', 'specimensCode.index')->first()->id,
+            'order' => 4
+        ]);
+
+        Menu::create([
+            'name' => 'Tipo contenedor',
+            'icon' => 'mdi-cog',
+            'url' => 'containers',
+            'module_id' => $configurationId,
+            'permission_id' => Permission::where('name', 'container.index')->first()->id,
+            'order' => 4
+        ]);
+
+        Menu::create([
+            'name' => 'Regiones',
+            'icon' => 'mdi-cog',
+            'url' => 'states',
+            'module_id' => $advandedSettingId,
+            'permission_id' => Permission::where('name', 'state.index')->first()->id,
+            'order' => 4
+        ]);
+
+        Menu::create([
+            'name' => 'Comunas',
+            'icon' => 'mdi-cog',
+            'url' => 'cities',
+            'module_id' => $advandedSettingId,
+            'permission_id' => Permission::where('name', 'city.index')->first()->id,
+            'order' => 4
+        ]);
     }
 }
