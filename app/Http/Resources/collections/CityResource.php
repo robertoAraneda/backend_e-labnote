@@ -18,6 +18,7 @@ class CityResource extends JsonResource
         return [
             'code' => $this->code,
             'name' => $this->name,
+            'state_code' => $this->state->code,
             'active' => (bool) $this->active,
             '_links' => [
                 'self' =>[

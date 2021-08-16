@@ -12,6 +12,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class PatientController extends Controller
@@ -365,9 +366,14 @@ class PatientController extends Controller
 
         if($request->query('query') == 'names'){
 
-            $names = HumanName::where('given', $request->query('given'))
-                ->orWhere('father_family', $request->query('father_family'))
-                ->orWhere('mother_family', $request->query('mother_family'))
+            $given = Str::upper($request->query('given'));
+            $father_family = Str::upper($request->query('father_family'));
+            $mother_family = Str::upper($request->query('mother_family'));
+
+
+            $names = HumanName::where('given', $given)
+                ->orWhere('father_family', 'like',  "%$father_family%")
+                ->orWhere('mother_family',$mother_family )
                 ->get()
             ->map(function($name){
                 return $name->patient;
