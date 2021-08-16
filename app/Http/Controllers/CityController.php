@@ -29,6 +29,7 @@ class CityController extends Controller
             $items = City::select(
                 'code',
                 'name',
+                'state_code',
                 'active',
             )
                 ->orderBy('code')
@@ -37,6 +38,7 @@ class CityController extends Controller
             $items = City::select(
                 'code',
                 'name',
+                'state_code',
                 'active',
             )
                 ->orderBy('code')
