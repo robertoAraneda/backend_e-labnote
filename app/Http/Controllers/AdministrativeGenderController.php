@@ -29,6 +29,7 @@ class AdministrativeGenderController extends Controller
             $items = AdministrativeGender::select(
                 'id',
                 'display',
+                'code',
                 'active',
             )
                 ->orderBy('id')
@@ -37,6 +38,7 @@ class AdministrativeGenderController extends Controller
             $items = AdministrativeGender::select(
                 'id',
                 'display',
+                'code',
                 'active',
             )
                 ->orderBy('id')

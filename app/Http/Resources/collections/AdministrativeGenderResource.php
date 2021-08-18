@@ -18,6 +18,7 @@ class AdministrativeGenderResource extends JsonResource
         return [
             'id' => $this->id,
             'display' => $this->display,
+            'code' => $this->code,
             'active' => (bool) $this->active,
             '_links' => [
                 'self' =>[
