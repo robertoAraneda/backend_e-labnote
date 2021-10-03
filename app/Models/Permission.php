@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Permission extends \Spatie\Permission\Models\Permission
 {
@@ -33,5 +35,13 @@ class Permission extends \Spatie\Permission\Models\Permission
         return env('DEFAULT_PER_PAGE');
 
     }
+
+    public function modules()
+    {
+        return $this->belongsToMany(Module::class, 'module_permission');
+    }
+
+
+
 
 }

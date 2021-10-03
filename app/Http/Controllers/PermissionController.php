@@ -31,6 +31,7 @@ class PermissionController extends Controller
                 'guard_name',
                 'action',
                 'model',
+                'active',
                 'description',
             )
                 ->orderBy('id')
@@ -42,6 +43,7 @@ class PermissionController extends Controller
                 'guard_name',
                 'action',
                 'model',
+                'active',
                 'description',
             )
                 ->orderBy('id')
@@ -98,4 +100,5 @@ class PermissionController extends Controller
 
 
     }
+
 }

@@ -2,60 +2,62 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SpecimenCodeRequest;
-use App\Http\Resources\collections\SpecimenCodeResourceCollection;
-use App\Http\Resources\SpecimenCodeResource;
-use App\Models\SpecimenCode;
+use App\Http\Requests\SpecimenStatusRequest;
+use App\Http\Resources\collections\SpecimenStatusResourceCollection;
+use App\Http\Resources\SpecimenStatusResource;
+use App\Models\SpecimenStatus;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class SpecimenCodeController extends Controller
+class SpecimenStatusController extends Controller
 {
     /**
-     * @param SpecimenCodeRequest $request
+     * @param SpecimenStatusRequest $request
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function index(SpecimenCodeRequest $request): JsonResponse
+    public function index(SpecimenStatusRequest $request): JsonResponse
     {
-        $this->authorize('viewAny', SpecimenCode::class);
+        $this->authorize('viewAny', SpecimenStatus::class);
 
         $page = $request->input('page');
 
         if(isset($page)){
-            $items = SpecimenCode::select(
+            $items = SpecimenStatus::select(
                 'id',
+                'code',
                 'display',
                 'active',
             )
                 ->orderBy('id')
                 ->paginate($request->getPaginate());
         }else{
-            $items = SpecimenCode::select(
+            $items = SpecimenStatus::select(
                 'id',
+                'code',
                 'display',
                 'active',
             )
                 ->orderBy('id')
                 ->get();
         }
-        $collection = new SpecimenCodeResourceCollection($items);
+        $collection = new SpecimenStatusResourceCollection($items);
         return
             response()
                 ->json($collection->response()->getData(true), Response::HTTP_OK);
     }
 
     /**
-     * @param SpecimenCodeRequest $request
+     * @param SpecimenStatusRequest $request
      * @return JsonResponse
      * @throws AuthorizationException
      * @author ELABNOTE
      */
-    public function store(SpecimenCodeRequest $request): JsonResponse
+    public function store(SpecimenStatusRequest $request): JsonResponse
     {
-        $this->authorize('create', SpecimenCode::class);
+        $this->authorize('create', SpecimenStatus::class);
 
         $data = array_merge($request->validated(),
             [
@@ -64,35 +66,35 @@ class SpecimenCodeController extends Controller
             ]);
         try {
 
-            $model = SpecimenCode::create($data);
+            $model = SpecimenStatus::create($data);
 
-            return response()->json(new SpecimenCodeResource($model) , Response::HTTP_CREATED);
+            return response()->json(new SpecimenStatusResource($model) , Response::HTTP_CREATED);
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * @param SpecimenCode $specimenCode
+     * @param SpecimenStatus $specimenStatus
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function show(SpecimenCode $specimenCode): JsonResponse
+    public function show(SpecimenStatus $specimenStatus): JsonResponse
     {
-        $this->authorize('view', $specimenCode);
+        $this->authorize('view', $specimenStatus);
 
-        return response()->json(new SpecimenCodeResource($specimenCode), Response::HTTP_OK);
+        return response()->json(new SpecimenStatusResource($specimenStatus), Response::HTTP_OK);
     }
 
     /**
-     * @param SpecimenCodeRequest $request
-     * @param SpecimenCode $specimenCode
+     * @param SpecimenStatusRequest $request
+     * @param SpecimenStatus $specimenStatus
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function update(SpecimenCodeRequest $request, SpecimenCode $specimenCode): JsonResponse
+    public function update(SpecimenStatusRequest $request, SpecimenStatus $specimenStatus): JsonResponse
     {
-        $this->authorize('update', $specimenCode);
+        $this->authorize('update', $specimenStatus);
 
         $data = array_merge($request->validated(),
             [
@@ -101,32 +103,32 @@ class SpecimenCodeController extends Controller
             ]);
 
         try {
-            $specimenCode->update($data);
+            $specimenStatus->update($data);
 
-            return response()->json(new SpecimenCodeResource($specimenCode) , Response::HTTP_OK);
+            return response()->json(new SpecimenStatusResource($specimenStatus) , Response::HTTP_OK);
         }catch (\Exception $ex){
             return response()->json($ex->getMessage() , Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * @param SpecimenCodeRequest $request
-     * @param SpecimenCode $specimenCode
+     * @param SpecimenStatusRequest $request
+     * @param SpecimenStatus $specimenStatus
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(SpecimenCodeRequest $request, SpecimenCode $specimenCode): JsonResponse
+    public function destroy(SpecimenStatusRequest $request, SpecimenStatus $specimenStatus): JsonResponse
     {
-        $this->authorize('delete', $specimenCode);
+        $this->authorize('delete', $specimenStatus);
 
         try {
 
-            $specimenCode->update([
+            $specimenStatus->update([
                 'deleted_user_id' => auth()->id(),
                 'deleted_user_ip' => $request->ip()
             ]);
 
-            $specimenCode->delete();
+            $specimenStatus->delete();
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
 
@@ -136,21 +138,21 @@ class SpecimenCodeController extends Controller
     }
 
     /**
-     * @param SpecimenCodeRequest $request
-     * @param SpecimenCode $specimenCode
+     * @param SpecimenStatusRequest $request
+     * @param SpecimenStatus $specimenStatus
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function changeActiveAttribute(SpecimenCodeRequest $request, SpecimenCode $specimenCode): JsonResponse
+    public function changeActiveAttribute(SpecimenStatusRequest $request, SpecimenStatus $specimenStatus): JsonResponse
     {
-        $this->authorize('update', $specimenCode);
+        $this->authorize('update', $specimenStatus);
 
         $status = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
 
         try {
-            $specimenCode->update(['active' => $status, 'updated_user_id' => auth()->id()]);
+            $specimenStatus->update(['active' => $status, 'updated_user_id' => auth()->id()]);
 
-            return response()->json(new SpecimenCodeResource($specimenCode), Response::HTTP_OK);
+            return response()->json(new SpecimenStatusResource($specimenStatus), Response::HTTP_OK);
         }catch (\Exception $ex){
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

@@ -6,6 +6,7 @@ use App\Models\Analyte;
 use App\Models\Availability;
 use App\Models\Container;
 use App\Models\Laboratory;
+use App\Models\Location;
 use App\Models\Loinc;
 use App\Models\MedicalRequestType;
 use App\Models\ProcessTime;
@@ -39,8 +40,9 @@ class ServiceRequestObservationCodeFactory extends Factory
             'availability_id' => Availability::factory(),
             'laboratory_id' => Laboratory::factory(),
             'loinc_num' => Loinc::factory(),
+            'specimen_code_id' => SpecimenCode::factory(),
             'analyte_id' => Analyte::factory(),
-            'workarea_id' => Workarea::factory(),
+            'location_id' => Location::factory(),
             'process_time_id' => ProcessTime::factory(),
             'medical_request_type_id' => MedicalRequestType::factory(),
             'active' => $this->faker->boolean

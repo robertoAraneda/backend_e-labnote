@@ -41,6 +41,22 @@ class RelModulePermissionController extends Controller
         return response()->json(PermissionResource::collection($permissions), 200);
     }
 
+    public function allModulesWithPermissions(Request $request){
+
+        $modules = $request->input('modules');
+
+        if(is_array($modules)){
+            $modulesResponse = [];
+
+            foreach ($modules as $module){
+                $modulesResponse[$module] = Module::where('slug', $module)->first()->menus;
+            }
+
+          return $modulesResponse;
+        }
+        return [];
+    }
+
     /**
      * Store a newly created resource in storage.
      *

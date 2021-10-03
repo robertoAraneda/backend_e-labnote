@@ -9,6 +9,7 @@ use App\Models\Loinc;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Http;
 
 class LoincController extends Controller
 {
@@ -25,13 +26,13 @@ class LoincController extends Controller
 
         $page = $request->input('page');
 
-        if(isset($page)){
+        if (isset($page)) {
             $items = Loinc::select(
                 'loinc_num',
                 'long_common_name'
             )
                 ->paginate($request->getPaginate());
-        }else{
+        } else {
             $items = Loinc::select(
                 'loinc_num',
                 'long_common_name'
@@ -59,14 +60,14 @@ class LoincController extends Controller
 
         $data = array_merge($request->validated(),
             [
-/*                'created_user_id' => auth()->id(),
-                'created_user_ip' => $request->ip(),*/
+                /*                'created_user_id' => auth()->id(),
+                                'created_user_ip' => $request->ip(),*/
             ]);
         try {
 
             $model = Loinc::create($data);
 
-            return response()->json(new LoincResource($model) , Response::HTTP_CREATED);
+            return response()->json(new LoincResource($model), Response::HTTP_CREATED);
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -100,16 +101,16 @@ class LoincController extends Controller
 
         $data = array_merge($request->validated(),
             [
-    /*            'updated_user_id' => auth()->id(),
-                'updated_user_ip' => $request->ip(),*/
+                /*            'updated_user_id' => auth()->id(),
+                            'updated_user_ip' => $request->ip(),*/
             ]);
 
         try {
             $loinc->update($data);
 
-            return response()->json(new LoincResource($loinc) , Response::HTTP_OK);
-        }catch (\Exception $ex){
-            return response()->json($ex->getMessage() , Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(new LoincResource($loinc), Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -128,16 +129,30 @@ class LoincController extends Controller
         try {
 
             $loinc->update([
-    /*            'deleted_user_id' => auth()->id(),
-                'deleted_user_ip' => $request->ip()*/
+                /*            'deleted_user_id' => auth()->id(),
+                            'deleted_user_ip' => $request->ip()*/
             ]);
 
             $loinc->delete();
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
 
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public function findLoincCodeFHIR($code): JsonResponse
+    {
+        $response = Http::withBasicAuth('TMroberto', '05080Universo')
+            ->get('https://fhir.loinc.org/CodeSystem/$lookup?system=http://loinc.org&code=' . $code);
+
+        $loinc = $response->json();
+
+        return response()->json([
+            'loinc_code' => $code,
+            'long_common_name' => $loinc['parameter'][1]['valueString'],
+            'raw' => $loinc
+        ]);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Models\SpecimenCode;
+use App\Models\SpecimenStatus;
 
-class SpecimenCodeRequest extends FormRequest
+class SpecimenStatusRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -16,11 +16,13 @@ class SpecimenCodeRequest extends FormRequest
         switch ($this->getMethod()){
             case 'PUT':
                 return [
+                    'code' => 'string',
                     'display' => 'string',
                     'active' => 'boolean'
                 ];
             case 'POST':
                 return [
+                    'code' => 'required|string',
                     'display' => 'required|string',
                     'active' =>  'required|boolean'
                 ];
@@ -35,7 +37,7 @@ class SpecimenCodeRequest extends FormRequest
      */
     public function getPaginate(): int
     {
-        return $this->get('paginate', (new SpecimenCode())->getPerPage());
+        return $this->get('paginate', (new SpecimenStatus())->getPerPage());
     }
 
 

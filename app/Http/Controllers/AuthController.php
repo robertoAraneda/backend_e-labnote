@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Helpers\Response;
 use App\Models\User;
 use Carbon\Carbon;
+use App\Http\Resources\collections\PermissionResourceCollection;
 
 class AuthController extends Controller
 {
@@ -114,7 +115,7 @@ class AuthController extends Controller
         return response()->json([
             'user' => $searchUser,
             'role' => $role,
-            'permissions' => $searchUser->getAllPermissions()
+            'permissions' => new PermissionResourceCollection($searchUser->getAllPermissions())
     ], 200);
     }
 }

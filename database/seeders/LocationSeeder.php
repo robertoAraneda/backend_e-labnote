@@ -43,5 +43,50 @@ class LocationSeeder extends Seeder
             'location_physical_type_id' => 1,
         ]);
 
+        Location::create([
+            'location_status_id' => 1,
+            'name' => 'BIOQUIMICA',
+            'alias' => 'BIOQUIMICA',
+            'description' => 'BIOQUIMICA',
+            'location_type_id' => 1,
+            'location_physical_type_id' => 1,
+        ]);
+
+        Location::create([
+            'location_status_id' => 1,
+            'name' => 'HEMATOLOGIA',
+            'alias' => 'HEMATOLOGIA',
+            'description' => 'HEMATOLOGIA',
+            'location_type_id' => 1,
+            'location_physical_type_id' => 1,
+        ]);
+
+        Location::create([
+            'location_status_id' => 1,
+            'name' => 'INMUNOLOGIA',
+            'alias' => 'INMUNOLOGIA',
+            'description' => 'INMUNOLOGIA',
+            'location_type_id' => 1,
+            'location_physical_type_id' => 1,
+        ]);
+
+        Location::create([
+            'location_status_id' => 1,
+            'name' => 'MICROBIOLOGIA',
+            'alias' => 'MICROBIOLOGIA',
+            'description' => 'MICROBIOLOGIA',
+            'location_type_id' => 1,
+            'location_physical_type_id' => 1,
+        ]);
+
+        Location::create([
+            'location_status_id' => 1,
+            'name' => 'BIOLOGIA MOLECULAR',
+            'alias' => 'BIOLOGIA MOLECULAR',
+            'description' => 'BIOLOGIA MOLECULAR',
+            'location_type_id' => 1,
+            'location_physical_type_id' => 1,
+        ]);
+
     }
 }

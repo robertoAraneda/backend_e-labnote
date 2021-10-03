@@ -17,11 +17,12 @@ class CreateSpecimensTable extends Migration
             $table->id();
             $table->unsignedBigInteger('service_request_id');
             $table->string('accession_identifier');
-            $table->unsignedBigInteger('specimen_status_id');
+            $table->unsignedBigInteger('specimen_status_id')->nullable();
             $table->unsignedBigInteger('specimen_code_id');
             $table->unsignedBigInteger('patient_id');
             $table->unsignedBigInteger('collector_id')->nullable();
             $table->dateTime('collected_at')->nullable();
+            $table->unsignedBigInteger('container_id')->nullable();
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
             $table->unsignedBigInteger('deleted_user_id')->nullable();

@@ -23,7 +23,8 @@ class CreateServiceRequestObservationCodesTable extends Migration
             $table->unsignedBigInteger('laboratory_id');
             $table->string('loinc_num');
             $table->unsignedBigInteger('analyte_id');
-            $table->unsignedBigInteger('workarea_id');
+            $table->unsignedBigInteger('specimen_code_id');
+            $table->unsignedBigInteger('location_id');
             $table->unsignedBigInteger('process_time_id');
             $table->unsignedBigInteger('medical_request_type_id');
             $table->boolean('active')->default(true);

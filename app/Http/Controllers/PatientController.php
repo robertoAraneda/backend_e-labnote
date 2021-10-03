@@ -155,7 +155,7 @@ class PatientController extends Controller
         } catch (\Exception $ex) {
 
             DB::rollBack();
-            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json($ex->getTrace(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

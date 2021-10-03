@@ -2,6 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ServiceRequestObservationCode;
+use App\Models\SpecimenCode;
+use App\Models\SpecimenStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,7 +20,7 @@ class ServiceRequestResource extends JsonResource
             'occurrence' => Carbon::parse($this->occurrence)->format('d/m/Y h:i:s'),
             'created_user_ip' => $this->created_user_ip,
             'updated_user_ip' => $this->updated_user_ip,
-            'created_at' => $this->date($this->created_at),
+            'authored_on' => $this->date($this->authored_on),
             'updated_at' => $this->date($this->updated_at),
             '_links' => [
                 'self' => [
@@ -28,12 +31,20 @@ class ServiceRequestResource extends JsonResource
                 ],
                 'observations'  => [
                     'href' => route('api.service-request.observations', ['service_request' => $this->id], false),
-                    'collection' => $this->observations
+                    'collection' => $this->observations->map(function($observation){
+                        return  $observation->code;
+                    })
                 ],
                 'specimens'  => [
                     'href' => route('api.service-request.specimens', ['service_request' => $this->id], false),
-                    'collection' => $this->specimens
-                ]
+                    'collection' => $this->specimens->map(function($specimen){
+                        return [
+                            'specimen' => $specimen,
+                            'specimen_code' => $specimen->code,
+                            'specimen_status' => $specimen->status,
+                            'container' => $specimen->container, ];
+                    })
+                ],
             ],
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),
@@ -55,7 +66,7 @@ class ServiceRequestResource extends JsonResource
     {
         if (!isset($date)) return null;
 
-        return $date->format('d/m/Y h:i:s');
+        return $date->format('d/m/Y H:i:s');
     }
 
 
@@ -131,14 +142,16 @@ class ServiceRequestResource extends JsonResource
 
     private function requester($payload): ?array
     {
+
         if (!isset($payload)) return null;
 
         return [
-            'given' => $payload->given,
-            'family' => $payload->family,
+            'name' => $payload->names,
+            'father_family' => $payload->lastname,
+            'mother_family' => $payload->mother_lastname,
             '_links' => [
                 'self' => [
-                    'href' => route('api.practitioners.show', ['practitioner' => $payload->id], false)
+                    'href' => route('api.users.show', ['user' => $payload->id], false)
                 ]
             ]
         ];
@@ -157,6 +170,7 @@ class ServiceRequestResource extends JsonResource
                 ]
             ]
         ];
+
     }
 
     private function location($payload): ?array
@@ -188,6 +202,19 @@ class ServiceRequestResource extends JsonResource
                         'given' => $name->given,
                         'father_family' => $name->father_family,
                         'mother_family' => $name->mother_family];
+                }),
+            'birthdate' => Carbon::parse($payload->birthdate)->format('d/m/Y'),
+            'administrative_gender' => $payload->administrativeGender->display,
+            'identifier' => $payload->identifierPatient
+                ->filter(function($identifier){
+                    return $identifier->identifierUse->code == 'usual' || $identifier->identifierUse->code == 'official' ;
+                })
+                ->map(function($identifier){
+                    return [
+                        'use' => $identifier->identifierUse->display,
+                        'type' => $identifier->identifierType->display,
+                        'value' => $identifier->value,
+                    ];
                 }),
             '_links' => [
                 'self' => [

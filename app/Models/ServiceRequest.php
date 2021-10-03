@@ -13,14 +13,14 @@ class ServiceRequest extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $dateFormat = 'U';
-
-    const CREATED_AT = 'occurrence';
+    const CREATED_AT = 'authored_on';
 
     protected $fillable = [
         'requisition',
         'occurrence',
         'note',
+        'date_requisition_fragment',
+        'correlative_number',
         'service_request_status_id',
         'service_request_intent_id',
         'service_request_priority_id',
@@ -89,7 +89,7 @@ class ServiceRequest extends Model
 
     public function requester(): BelongsTo
     {
-        return $this->belongsTo(Practitioner::class, 'requester_id');
+        return $this->belongsTo(User::class, 'requester_id');
     }
 
     public function performer(): BelongsTo

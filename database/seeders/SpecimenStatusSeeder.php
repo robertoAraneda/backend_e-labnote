@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\SpecimenCode;
+use App\Models\SpecimenStatus;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
-class SpecimenCodeSeeder extends Seeder
+class SpecimenStatusSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,19 +16,17 @@ class SpecimenCodeSeeder extends Seeder
     public function run()
     {
         $specimenCodes = [
-            'SANGRE TOTAL',
-            'SANGRE ARTERIAL',
-            'SANGRE VENOSA',
-            'SANGRE CORDON',
-            'ABSCESO',
-            'ASPIRADO',
-            'LIQUIDO AMNIÓTICO',
-            'EXPECTORACIÓN',
+            'PENDIENTE',
+            'DISPONIBLE',
+            'NO DISPONIBLE',
+            'INSATISFACTORIA',
+            'ERROR',
         ];
 
         foreach ($specimenCodes as $item)
-            SpecimenCode::create([
-                'display' => 	$item,
+            SpecimenStatus::create([
+                'code' => Str::slug( Str::lower($item), '-'),
+                'display' => $item,
                 'active' => true,
                 'created_user_id' => 1,
                 'created_user_ip' => '127.0.0.1'

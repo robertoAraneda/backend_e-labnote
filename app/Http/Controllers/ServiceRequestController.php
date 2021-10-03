@@ -5,11 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ServiceRequestRequest;
 use App\Http\Resources\collections\ServiceRequestResourceCollection;
 use App\Http\Resources\ServiceRequestResource;
+use App\Models\IdentifierPatient;
+use App\Models\Patient;
 use App\Models\ServiceRequest;
+use App\Models\SpecimenStatus;
+use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
+use function Symfony\Component\String\s;
 
 class ServiceRequestController extends Controller
 {
@@ -67,19 +72,44 @@ class ServiceRequestController extends Controller
         try {
             DB::beginTransaction();
 
+            $currentDate = Carbon::now()->format('ymd');
+
+
+            $findLastCorrelativeNumber = ServiceRequest::where('date_requisition_fragment',$currentDate)->orderBy('correlative_number', 'desc')->first();
+
+            if(!isset($findLastCorrelativeNumber)){
+                $correlativeNumber = 1;
+            }else{
+                $correlativeNumber = $findLastCorrelativeNumber->correlative_number + 1;
+            }
+
+            $secuenceString = str_pad($correlativeNumber, 5, "0", STR_PAD_LEFT);
+
+            $requisition = (string)$currentDate . (string)$secuenceString;
+
+
             $serviceRequest = ServiceRequest::create(
                 array_merge($request->validated(),
                 [
+                    'requisition' => $requisition,
+                    'date_requisition_fragment' => $currentDate,
+                    'correlative_number' => $correlativeNumber,
+                    'service_request_status_id' => 1,
+                    'service_request_intent_id' => 4,
+                    'service_request_category_id' => 1,
+                    'requester_id' => auth()->id(),
                     'created_user_id' => auth()->id(),
                     'created_user_ip' => $request->ip(),
                 ]));
 
             $specimensCollection = collect($paramsValidated->specimens);
 
-            $specimens = $specimensCollection->map(function ($item) use ($request) {
+            $specimens = $specimensCollection->map(function ($item) use ($request, $requisition) {
 
                 return array_merge($item,
                     [
+                        'accession_identifier' => $requisition,
+                        'specimen_status_id' => SpecimenStatus::where('code', 'pendiente')->first()->id,
                         'created_user_id' => auth()->id(),
                         'created_user_ip' => $request->ip()
                     ]);
@@ -226,6 +256,53 @@ class ServiceRequestController extends Controller
         $collection = \App\Http\Resources\collections\ServiceRequestResource::collection($specimens);
 
         return response()->json($collection, 200);
+    }
+
+    public function searchByParams(ServiceRequestRequest $request): JsonResponse
+    {
+
+        if($request->identifier){
+            $serviceRequests= $this->findByIdentifier($request->identifier);
+
+            return response()->json(ServiceRequestResource::collection($serviceRequests), Response::HTTP_OK);
+        }
+
+        if($request->patient && $request->type){
+
+            $serviceRequests= $this->findByPatient($request->patient,$request->type);
+
+            return response()->json(ServiceRequestResource::collection($serviceRequests), Response::HTTP_OK);
+        }
+
+
+        if($request->patientId){
+
+            $serviceRequests= $this->findByPatientId($request->patientId);
+
+            return response()->json(ServiceRequestResource::collection($serviceRequests), Response::HTTP_OK);
+        }
+
+
+        return response()->json([], Response::HTTP_OK);
+    }
+
+    private function findByIdentifier($identifier){
+
+
+        return ServiceRequest::where('requisition', $identifier)->get();
+    }
+
+    private function findByPatient($identifier, $type){
+
+        $identifier = IdentifierPatient::where('value', $identifier)->where('identifier_type_id', $type)->first();
+
+        return $identifier->patient->serviceRequests;
+    }
+
+    private function findByPatientId($id){
+
+        return ServiceRequest::where('patient_id', $id)->get();
+
     }
 
 }

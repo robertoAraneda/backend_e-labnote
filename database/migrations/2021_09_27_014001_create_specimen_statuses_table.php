@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSpecimenCodesTable extends Migration
+class CreateSpecimenStatusesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class CreateSpecimenCodesTable extends Migration
      */
     public function up()
     {
-        Schema::create('specimen_codes', function (Blueprint $table) {
+        Schema::create('specimen_statuses', function (Blueprint $table) {
             $table->id();
+            $table->string('code');
             $table->string('display');
             $table->boolean('active')->default(true);
             $table->unsignedBigInteger('created_user_id')->nullable();
@@ -24,7 +25,7 @@ class CreateSpecimenCodesTable extends Migration
             $table->string('updated_user_ip', 15)->nullable();
             $table->string('deleted_user_ip', 15)->nullable();
             $table->timestamps();
-            $table->softDeletes();;
+            $table->softDeletes();
         });
     }
 
@@ -35,6 +36,6 @@ class CreateSpecimenCodesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('specimen_codes');
+        Schema::dropIfExists('specimen_statuses');
     }
 }

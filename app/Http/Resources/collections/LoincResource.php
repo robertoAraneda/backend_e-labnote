@@ -20,7 +20,7 @@ class LoincResource extends JsonResource
             'long_common_name' => $this->long_common_name,
             '_links' => [
                 'self' =>[
-                    'href' => route('api.loincs.show', ['loinc' => $this->loinc_num], false),
+                    'href' => route('api.loinc.show', ['loinc' => $this->loinc_num], false),
                 ] ,
             ],
         ];

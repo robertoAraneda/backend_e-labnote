@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CityController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *

@@ -81,4 +81,9 @@ class ServiceRequestObservation extends Model
     {
         return $this->belongsTo(Availability::class);
     }
+
+    public function code(): BelongsTo
+    {
+        return $this->belongsTo(ServiceRequestObservationCode::class, 'service_request_observation_code_id');
+    }
 }

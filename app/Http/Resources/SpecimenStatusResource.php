@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SpecimenCodeResource extends JsonResource
+class SpecimenStatusResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,6 +17,7 @@ class SpecimenCodeResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'code' => $this->code,
             'display' => $this->display,
             'active' => (bool)$this->active,
             'created_user_ip' => $this->created_user_ip,
@@ -25,7 +26,7 @@ class SpecimenCodeResource extends JsonResource
             'updated_at' => $this->date($this->updated_at),
             '_links' => [
                 'self' => [
-                    'href' => route('api.specimen-codes.show', ['specimen_code' => $this->id], false),
+                    'href' => route('api.specimen-statuses.show', ['specimen_status' => $this->id], false),
                 ],
             ],
             '_embedded' => [
@@ -66,5 +67,4 @@ class SpecimenCodeResource extends JsonResource
             ]
         ];
     }
-
 }

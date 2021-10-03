@@ -50,6 +50,7 @@ class DatabaseSeeder extends Seeder
             ServiceRequestPriorityPermissionsSeeder::class,
             ServiceRequestStatusPermissionsSeeder::class,
             ServiceRequestPermissionsSeeder::class,
+            SpecimenStatusPermissionsSeeder::class,
             ModuleSeeder::class,
             LaboratorySeeder::class,
             MenuSeeder::class,
@@ -62,11 +63,15 @@ class DatabaseSeeder extends Seeder
             MedicalRequestTypeSeeder::class,
             ProcessTimeSeeder::class,
             AdministrativeGenderSeeder::class,
+            LocationSeeder::class,
             LocationPhysicalTypeSeeder::class,
             LocationStatusSeeder::class,
             LocationTypeSeeder::class,
             IdentifierTypeSeeder::class,
             IdentifierUseSeeder::class,
+            SpecimenCodeSeeder::class,
+            ContainerSeeder::class,
+            SpecimenStatusSeeder::class
         ]);
     }
 }

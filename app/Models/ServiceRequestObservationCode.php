@@ -27,14 +27,14 @@ class ServiceRequestObservationCode extends Model
         'slug',
         'loinc_num',
         'process_time_id',
-        'workarea_id',
+        'location_id',
         'analyte_id',
         'container_id',
         'laboratory_id',
         'availability_id',
         'process_time_id',
         'medical_request_type_id',
-        'specimen_id',
+        'specimen_code_id',
         'medical_request_type_id',
         'active',
         'created_user_id',
@@ -117,15 +117,15 @@ class ServiceRequestObservationCode extends Model
     /**
      * @return BelongsTo
      */
-    public function workarea(): BelongsTo
+    public function location(): BelongsTo
     {
-        return $this->belongsTo(Workarea::class);
+        return $this->belongsTo(Location::class);
     }
 
     /**
      * @return BelongsTo
      */
-    public function specimen(): BelongsTo
+    public function specimenCode(): BelongsTo
     {
         return $this->belongsTo(SpecimenCode::class);
     }

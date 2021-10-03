@@ -6,6 +6,7 @@ use App\Models\AddressPatient;
 use App\Models\AdministrativeGender;
 use App\Models\ContactPatient;
 use App\Models\ContactPointPatient;
+use App\Models\Container;
 use App\Models\HumanName;
 use App\Models\IdentifierPatient;
 use App\Models\Location;
@@ -18,6 +19,7 @@ use App\Models\ServiceRequestIntent;
 use App\Models\ServiceRequestPriority;
 use App\Models\ServiceRequestStatus;
 use App\Models\User;
+use Carbon\Carbon;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\ServiceRequestPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -140,6 +142,39 @@ class ServiceRequestTest extends TestCase
         );
     }
 
+    public function test_se_puede_obtener_un_listado_de_solicitudes_por_paciente(): void //show
+    {
+
+        $this->withoutExceptionHandling();
+
+        $uri = sprintf("%s%s", self::BASE_URI, '?patient=15654738-7&type=1');
+
+        $countModels = ServiceRequest::count();
+
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson($uri);
+
+        $response->assertStatus(Response::HTTP_OK);
+
+        $response->dump();
+
+        $response->assertJson(function (AssertableJson $json) use ($countModels) {
+            return $json
+                ->has('_links')
+                ->has('count')
+                ->has('collection', $countModels, function ($json) {
+                    $json->whereAllType([
+                        'id' => 'integer',
+                        'note' => 'string',
+                        'requisition' => 'string',
+                        'occurrence' => 'string',
+                        '_links' => 'array'
+                    ]);
+                });
+        });
+    }
+
+
     public function test_se_puede_crear_un_recurso(): void //store
     {
         $this->withoutExceptionHandling();
@@ -171,6 +206,7 @@ class ServiceRequestTest extends TestCase
             'patient_id' => $patient->id,
             'requester_id' => $requester->id,
             'performer_id' => $performer->id,
+            'occurrence' => Carbon::now()->format('y-m-d'),
             'location_id' => $location->id,
             'specimens' => [
                 [
@@ -178,12 +214,14 @@ class ServiceRequestTest extends TestCase
                     'specimen_status_id' => 1,
                     'specimen_code_id' => 1,
                     'patient_id' => $patient->id,
+                    'container_id' => 1
                 ],
                 [
                     'accession_identifier' =>  $requisition."-02",
                     'specimen_status_id' => 1,
                     'specimen_code_id' => 1,
                     'patient_id' => $patient->id,
+                    'container_id' => 2
                 ]
             ],
             'observations' => [
@@ -205,16 +243,17 @@ class ServiceRequestTest extends TestCase
             ->actingAs($this->user, 'api')
             ->postJson($uri, $factoryModel);
 
+        $response->dump();
+
         $response->assertStatus(Response::HTTP_CREATED);
 
         $response->assertJson(fn(AssertableJson $json) => $json
-            ->where('requisition', $factoryModel['requisition'])
             ->where('note', $factoryModel['note'])
             ->etc()
         );
 
         $this->assertDatabaseHas($this->table, [
-            'requisition' => $factoryModel['requisition'],
+            'note' => $factoryModel['note'],
         ]);
     }
 

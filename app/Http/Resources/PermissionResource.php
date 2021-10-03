@@ -22,6 +22,7 @@ class PermissionResource extends JsonResource
                 'model' => $this->model,
                 'action' => $this->action,
                 'guard_name' => $this->guard_name,
+                'active' => $this->active,
                 'description' => $this->description,
                 'checkbox' =>(bool) $this->checkbox,
                 '_links' => [
@@ -36,6 +37,7 @@ class PermissionResource extends JsonResource
             'name' => $this->name,
             'model' => $this->model,
             'action' => $this->action,
+            'active' => $this->active,
             'guard_name' => $this->guard_name,
             'description' => $this->description,
             '_links' => [
