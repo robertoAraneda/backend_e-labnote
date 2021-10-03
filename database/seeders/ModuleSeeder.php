@@ -42,5 +42,7 @@ class ModuleSeeder extends Seeder
                 'slug' => 'configuracion-avanzada'
             ]);
 
+
+
     }
 }

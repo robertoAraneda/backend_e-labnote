@@ -34,7 +34,8 @@ class ServiceRequestObservationCodeResource extends JsonResource
                 'createdUser' => $this->user($this->createdUser),
                 'updatedUser' => $this->user($this->updatedUser),
                 'processTime' => $this->processTime($this->processTime),
-                'workarea' => $this->workarea($this->workarea),
+                'specimenCode' => $this->specimenCode($this->specimenCode),
+                'location' => $this->location($this->location),
                 'medicalRequestType' => $this->medicalRequestType($this->medicalRequestType),
                 'availability' => $this->availability($this->availability),
                 'container' => $this->container($this->container),
@@ -153,7 +154,7 @@ class ServiceRequestObservationCodeResource extends JsonResource
             'loinc_num' => $loinc->loinc_num,
             '_links' => [
                 'self' => [
-                    'href' => route('api.loincs.show', ['loinc' => $loinc->loinc_num], false)
+                    'href' => route('api.loinc.show', ['loinc' => $loinc->loinc_num], false)
                 ]
             ]
         ];
@@ -179,21 +180,36 @@ class ServiceRequestObservationCodeResource extends JsonResource
         ];
     }
 
+    private function specimenCode($model): ?array
+    {
+        if (!isset($model)) return null;
+
+        return [
+            'display' => $model->display,
+            'id' => $model->id,
+            '_links' => [
+                'self' => [
+                    'href' => route('api.specimen-codes.show', ['specimen_code' => $model->id], false)
+                ]
+            ]
+        ];
+    }
+
     /**
-     * @param $workarea
+     * @param $location
      * @return array|null
      */
 
-    private function workarea($workarea): ?array
+    private function location($location): ?array
     {
-        if (!isset($workarea)) return null;
+        if (!isset($location)) return null;
 
         return [
-            'name' => $workarea->name,
-            'id' => $workarea->id,
+            'name' => $location->name,
+            'id' => $location->id,
             '_links' => [
                 'self' => [
-                    'href' => route('api.workareas.show', ['workarea' => $workarea->id], false)
+                    'href' => route('api.locations.show', ['location' => $location->id], false)
                 ]
             ]
         ];

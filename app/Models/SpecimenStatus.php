@@ -6,25 +6,29 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Menu extends Model
+class SpecimenStatus extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'menus';
+    /**
+     * The number of models to return for pagination.
+     *
+     * @var int
+     */
+    protected $perPage = 10;
+
+
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var string[]
      */
-    protected  $fillable = [
-        'name',
-        'url',
-        'icon',
-        'module_id',
-        'permission_id',
-        'order',
+    protected $fillable = [
+        'code',
+        'display',
         'active',
         'created_user_id',
         'updated_user_id',
@@ -35,30 +39,6 @@ class Menu extends Model
     ];
 
     /**
-     * @return string
-     */
-    public function getPerPage(): string
-    {
-        return env('DEFAULT_PER_PAGE');
-    }
-
-
-    public function getTable():string
-    {
-        return $this->table;
-    }
-
-    public function module(): BelongsTo
-    {
-        return $this->belongsTo(Module::class);
-    }
-
-    public function permission()
-    {
-        return $this->belongsTo(Permission::class);
-    }
-
-    /**
      * Scope a query to only include active users.
      *
      * @param Builder $query
@@ -67,6 +47,15 @@ class Menu extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
+    }
+
+    /**
+     * @return string
+     */
+    public function getPerPage(): string
+    {
+        return env('DEFAULT_PER_PAGE');
+
     }
 
     /**
@@ -92,4 +81,5 @@ class Menu extends Model
     {
         return $this->belongsTo(User::class, 'deleted_user_id');
     }
+
 }

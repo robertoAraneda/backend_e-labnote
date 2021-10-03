@@ -27,7 +27,7 @@ class ServiceRequestFactory extends Factory
     {
         return [
             'requisition' => $this->faker->creditCardNumber,
-            //'occurrence' => $this->faker->dateTime,
+            'occurrence' => $this->faker->dateTime,
             'note' => $this->faker->text,
             'service_request_status_id' => ServiceRequestStatus::factory(),
             'service_request_intent_id' => ServiceRequestIntent::factory(),

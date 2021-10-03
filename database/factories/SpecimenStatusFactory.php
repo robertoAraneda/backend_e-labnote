@@ -2,17 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Models\SpecimenCode;
+use App\Models\SpecimenStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class SpecimenCodeFactory extends Factory
+class SpecimenStatusFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = SpecimenCode::class;
+    protected $model = SpecimenStatus::class;
 
     /**
      * Define the model's default state.
@@ -22,6 +22,7 @@ class SpecimenCodeFactory extends Factory
     public function definition(): array
     {
         return [
+            'code' => $this->faker->slug,
             'display' => $this->faker->text,
             'active' => $this->faker->boolean
         ];

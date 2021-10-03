@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\collections;
 
+use App\Models\Menu;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,8 +20,11 @@ class PermissionResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'model' => $this->model,
+            'menu' => $this->menu($this->id),
+            'module' => $this->module($this->id),
             'guard_name' => $this->guard_name,
             'action' => $this->action,
+            'active' => $this->active,
             'description' => $this->description,
             '_links' => [
                 'self' =>[
@@ -28,5 +32,20 @@ class PermissionResource extends JsonResource
                 ] ,
             ],
         ];
+    }
+
+    public function menu($permission_id){
+
+       return Menu::where('permission_id', $permission_id)->first();
+
+    }
+
+    public function module($permission_id){
+
+        $menu = Menu::where('permission_id', $permission_id)->first();
+        if(isset($menu)){
+            return $menu->module;
+        }
+        return $menu;
     }
 }

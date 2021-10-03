@@ -92,6 +92,14 @@ class Patient extends Model
     /**
      * @return HasMany
      */
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class, 'patient_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
     public function identifierPatient(): HasMany
     {
         return $this->hasMany(IdentifierPatient::class, 'patient_id', 'id');

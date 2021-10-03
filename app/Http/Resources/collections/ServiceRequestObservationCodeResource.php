@@ -12,6 +12,12 @@ class ServiceRequestObservationCodeResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'loinc_num' => $this->loinc_num,
+            'specimen_code' => $this->specimenCode->display,
+            'specimen_id' => $this->specimenCode->id,
+            'core_name' => $this->analyte->name,
+            'container' => $this->container->name,
+            'container_id' => $this->container->id,
             'slug' => $this->slug,
             'active' => (bool)$this->active,
             '_links' => [

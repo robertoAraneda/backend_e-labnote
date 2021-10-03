@@ -30,23 +30,27 @@ class ServiceRequestObservationCodeController extends Controller
                 'id',
                 'name',
                 'slug',
-                'specimen_id',
+                'loinc_num',
+                'container_id',
                 'analyte_id',
+                'specimen_code_id',
+                'location_id',
                 'active',
             )
-                ->with(['specimen', 'analyte'])
                 ->orderBy('id')
                 ->paginate($request->getPaginate());
         }else{
             $items = ServiceRequestObservationCode::select(
                 'id',
                 'name',
-                'slug',
-                'specimen_id',
+                'loinc_num',
+                'container_id',
                 'analyte_id',
+                'specimen_code_id',
+                'location_id',
+                'slug',
                 'active',
             )
-                ->with(['specimen', 'analyte'])
                 ->orderBy('id')
                 ->get();
         }

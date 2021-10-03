@@ -36,6 +36,7 @@ use App\Http\Controllers\ServiceRequestStatusController;
 use App\Http\Controllers\SpecimenCodeController;
 use App\Http\Controllers\SamplingConditionController;
 use App\Http\Controllers\SamplingIndicationController;
+use App\Http\Controllers\SpecimenStatusController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\WorkareaController;
 use Illuminate\Support\Facades\Route;
@@ -65,7 +66,12 @@ Route::group([
         'middleware' => 'auth:api'
     ], function () {
         Route::get('user', [App\Http\Controllers\AuthController::class, 'user']);
+        Route::post('menus', [RelModulePermissionController::class, 'allModulesWithPermissions']);
+
         // Route::get('logout', 'AuthController@logout');
+
+
+
     });
 });
 
@@ -132,8 +138,8 @@ Route::group([
         ->whereNumber('analyte')
         ->names('api.analytes');
 
-    Route::apiResource('loincs', LoincController::class)
-        ->names('api.loincs');
+    Route::apiResource('loinc', LoincController::class)
+        ->names('api.loinc');
 
     Route::apiResource('containers', ContainerController::class)
         ->whereNumber('container')
@@ -213,6 +219,10 @@ Route::group([
         ->whereNumber('service_request_observation_code')
         ->names('api.service-request-observation-codes');
 
+    Route::apiResource('specimen-statuses', SpecimenStatusController::class)
+        ->whereNumber('specimen_status')
+        ->names('api.specimen-statuses');
+
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     //Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
@@ -255,6 +265,9 @@ Route::group([
     Route::get('modules/search', [ModuleController::class, 'searchByParams']);
     Route::get('patients/search', [PatientController::class, 'searchByParams']);
     Route::get('service-request-observation-codes/search', [ServiceRequestObservationCodeController::class, 'searchByParams']);
+    Route::get('service-requests/search', [ServiceRequestController::class, 'searchByParams']);
+
+    Route::get('loinc/search/{code}', [LoincController::class, 'findLoincCodeFHIR']);
 
 
     //change active attribute mode
@@ -290,6 +303,8 @@ Route::group([
     Route::put('practitioners/{practitioner}/status', [PractitionerController::class, 'changeActiveAttribute']);
     Route::put('service-request-observation-codes/{service_request_observation_code}/status', [ServiceRequestObservationCodeController::class, 'changeActiveAttribute']);
 
+    Route::put('specimen-statuses/{specimen_status}/status', [SpecimenStatusController::class, 'changeActiveAttribute']);
+
 
     //test routes
     Route::get('roles/assign/super-admin', [RoleController::class, 'assignSuperUser']);
@@ -320,6 +335,7 @@ Route::group([
 
         return response()->json(['collection' => $identifierUses], 200);
     });
+
 
 
 });

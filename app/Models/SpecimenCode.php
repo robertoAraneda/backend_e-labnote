@@ -27,7 +27,7 @@ class SpecimenCode extends Model
      * @var string[]
      */
     protected $fillable = [
-        'name',
+        'display',
         'active',
         'created_user_id',
         'updated_user_id',

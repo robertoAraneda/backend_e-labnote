@@ -94,7 +94,7 @@ class MenuSeeder extends Seeder
         Menu::create([
             'name' => 'Prestaciones',
             'icon' => 'mdi-test-tube',
-            'url' => 'observationServiceRequests',
+            'url' => 'serviceRequestObservationCode',
             'module_id' => $configurationId,
             'permission_id' => Permission::where('name', 'serviceRequestObservationCode.index')->first()->id,
             'order' => 2
@@ -171,6 +171,16 @@ class MenuSeeder extends Seeder
             'permission_id' => Permission::where('name', 'serviceRequest.index')->first()->id,
             'order' => 4
         ]);
+
+        Menu::create([
+            'name' => 'Buscar solicitud',
+            'icon' => 'mdi-cog',
+            'url' => 'searchServiceRequest',
+            'module_id' => $serviceRequestId,
+            'permission_id' => Permission::where('name', 'serviceRequest.index')->first()->id,
+            'order' => 5
+        ]);
+
 
         Menu::create([
             'name' => 'Tipo de muestra',

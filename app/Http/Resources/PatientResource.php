@@ -36,6 +36,7 @@ class PatientResource extends JsonResource
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),
                 'updatedUser' => $this->user($this->updatedUser),
+                'administrativeGender' => $this->administrativeGender($this->administrativeGender)
             ],
         ];
     }
@@ -66,6 +67,20 @@ class PatientResource extends JsonResource
 
     }
 
+    private function administrativeGender($payload): ?array
+    {
+        if(!isset($payload)) return null;
+
+        return [
+            'display' => $payload->display,
+            '_links' => [
+                'self' => [
+                    'href' => route('api.administrative-genders.show', ['administrative_gender' => $payload->id], false)
+                ]
+            ]
+        ];
+    }
+
     private function address($array){
         if(count($array) === 0) return $array;
 
@@ -74,8 +89,8 @@ class PatientResource extends JsonResource
                 'id' => $item->id,
                 'use' => $item->use,
                 'text' => $item->text,
-                'city_code'  => $item->city->code,
-                'state_code' => $item->state->code,
+                'city_code'  => (string) $item->city_code,
+                'state_code' => (string) $item->state_code,
             ];
         });
 
@@ -88,7 +103,9 @@ class PatientResource extends JsonResource
             return [
                 'id' => $item->id,
                 'identifier_use_id' => $item->identifierUse->id,
+                'identifierUse' => $item->identifierUse,
                 'identifier_type_id' => $item->identifierType->id,
+                'identifierType' => $item->identifierType,
                 'value'  => $item->value,
             ];
         });

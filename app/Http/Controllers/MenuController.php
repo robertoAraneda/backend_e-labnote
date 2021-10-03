@@ -6,6 +6,8 @@ use App\Http\Requests\MenuRequest;
 use App\Http\Resources\collections\MenuResourceCollection;
 use App\Http\Resources\MenuResource;
 use App\Models\Menu;
+use App\Models\Module;
+use App\Models\Permission;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -68,9 +70,11 @@ class MenuController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function store(MenuRequest $request):JsonResponse
+    public function store(MenuRequest $request)
     {
         $this->authorize('create', Menu::class);
+
+
 
         $data = array_merge($request->validated(),
             [
@@ -80,6 +84,17 @@ class MenuController extends Controller
         try {
 
             $model = Menu::create($data);
+
+            $params = $request->validated();
+
+            $permission = Permission::find($params['permission_id']);
+            $module = Module::find($params['module_id']);
+
+            $currentPermissions = $module->permissions()->get()->pluck('id')->all();
+
+            $arrayPermissions = Permission::where('model', $permission->model)->get()->pluck('id')->all();
+
+            $module->permissions()->syncWithPivotValues(array_merge($arrayPermissions, $currentPermissions), ['user_id' => auth()->id()]);
 
             return response()->json(new MenuResource($model) , Response::HTTP_CREATED);
         } catch (\Exception $ex) {
@@ -110,7 +125,7 @@ class MenuController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function update(MenuRequest $request, Menu $menu): JsonResponse
+    public function update(MenuRequest $request, Menu $menu)
     {
 
         $this->authorize('update', $menu);
@@ -123,6 +138,17 @@ class MenuController extends Controller
 
         try {
             $menu->update($data);
+
+            $params = $request->validated();
+
+            $permission = Permission::find($params['permission_id']);
+            $module = Module::find($params['module_id']);
+
+            $currentPermissions = $module->permissions()->get()->pluck('id')->all();
+
+            $arrayPermissions = Permission::where('model', $permission->model)->get()->pluck('id')->all();
+
+            $module->permissions()->syncWithPivotValues(array_merge($arrayPermissions, $currentPermissions), ['user_id' => auth()->id()]);
 
             return response()->json(new MenuResource($menu) , Response::HTTP_OK);
         }catch (\Exception $ex){

@@ -29,7 +29,6 @@ class LocationController extends Controller
             $items = Location::select(
                 'id',
                 'name',
-                'active',
             )
                 ->orderBy('id')
                 ->paginate($request->getPaginate());
@@ -37,7 +36,6 @@ class LocationController extends Controller
             $items = Location::select(
                 'id',
                 'name',
-                'active',
             )
                 ->orderBy('id')
                 ->get();

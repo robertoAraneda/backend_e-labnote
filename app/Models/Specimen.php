@@ -30,6 +30,7 @@ class Specimen extends Model
         'specimen_status_id',
         'specimen_code_id',
         'patient_id',
+        'container_id',
         'service_request_id',
         'created_user_id',
         'updated_user_id',
@@ -57,6 +58,21 @@ class Specimen extends Model
     {
         return env('DEFAULT_PER_PAGE');
 
+    }
+
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(SpecimenStatus::class, 'specimen_status_id');
+    }
+
+    public function code(): BelongsTo
+    {
+        return $this->belongsTo(SpecimenCode::class, 'specimen_code_id');
+    }
+
+    public function container(): BelongsTo
+    {
+        return $this->belongsTo(Container::class, 'container_id');
     }
 
     /**

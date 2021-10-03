@@ -162,13 +162,15 @@ class RoleController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function permissionsByRole(Request $request, Role $role): JsonResponse
+    public function permissionsByRole(Request $request, Role $role)
     {
         $this->authorize('view', $role);
 
         if($request->input('cross')){
 
             $module = Module::find($request->input('module_id'));
+
+           return $role;
 
             $roles_permissions = $role->permissions()->orderBy('id')->get()->pluck('id');
 
