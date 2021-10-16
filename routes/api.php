@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\AnalyteController;
+use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\AppointmentStatusController;
+use App\Http\Controllers\AppointmentTypeController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\AvailabilityController;
@@ -33,6 +36,7 @@ use App\Http\Controllers\ServiceRequestIntentController;
 use App\Http\Controllers\ServiceRequestObservationCodeController;
 use App\Http\Controllers\ServiceRequestPriorityController;
 use App\Http\Controllers\ServiceRequestStatusController;
+use App\Http\Controllers\SlotController;
 use App\Http\Controllers\SpecimenCodeController;
 use App\Http\Controllers\SamplingConditionController;
 use App\Http\Controllers\SamplingIndicationController;
@@ -223,8 +227,27 @@ Route::group([
         ->whereNumber('specimen_status')
         ->names('api.specimen-statuses');
 
+    Route::apiResource('slots', SlotController::class)
+        ->whereNumber('slot')
+        ->names('api.slots');
+
+    Route::apiResource('appointments', AppointmentController::class)
+        ->whereNumber('appointment')
+        ->names('api.appointments');
+
+    Route::apiResource('appointment-statuses', AppointmentStatusController::class)
+        ->whereNumber('appointment_status')
+        ->names('api.appointment-statuses');
+
+    Route::apiResource('appointment-types', AppointmentTypeController::class)
+        ->whereNumber('appointment_type')
+        ->names('api.appointment-types');
+
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
+    Route::post('slots/range-dates', [SlotController::class, 'createWithRangeDates']);
+    Route::delete('slots/batch/{ids}',[SlotController::class, 'deleteInBatch'] );
+    Route::put('slots/batch/{ids}',[SlotController::class, 'updateInBatch'] );
     //Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
 
 
@@ -266,7 +289,6 @@ Route::group([
     Route::get('patients/search', [PatientController::class, 'searchByParams']);
     Route::get('service-request-observation-codes/search', [ServiceRequestObservationCodeController::class, 'searchByParams']);
     Route::get('service-requests/search', [ServiceRequestController::class, 'searchByParams']);
-
     Route::get('loinc/search/{code}', [LoincController::class, 'findLoincCodeFHIR']);
 
 

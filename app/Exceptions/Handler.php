@@ -2,7 +2,13 @@
 
 namespace App\Exceptions;
 
+use App\Http\Requests\FormRequest;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\UnauthorizedException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -34,8 +40,23 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->reportable(function (Throwable $exception) {
+
         });
     }
+
+    public function render($request, Throwable $e)
+    {
+
+        if ($e instanceof AuthorizationException) {
+            return response()->json(['status' => 403, 'message' => $e->getMessage()], 403);
+        } else if ($e instanceof ModelNotFoundException) {
+            return response()->json(['status' => 404 ,'message' => 'Entry for '.str_replace('App\\Models\\', '', $e->getModel()).' not found'], 404);
+        } else if ($e instanceof AuthenticationException) {
+            return response()->json(['status' => 401, 'message' => $e->getMessage()], 401);
+        }
+
+        return parent::render($request, $e);
+    }
+
 }

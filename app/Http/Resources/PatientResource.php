@@ -90,7 +90,9 @@ class PatientResource extends JsonResource
                 'use' => $item->use,
                 'text' => $item->text,
                 'city_code'  => (string) $item->city_code,
+                'city_name' => (string) $item->city->name,
                 'state_code' => (string) $item->state_code,
+                'state_name' => (string) $item->state->name,
             ];
         });
 
