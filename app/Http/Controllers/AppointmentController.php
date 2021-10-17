@@ -7,6 +7,7 @@ use App\Enums\AppointmentTypeEnum;
 use App\Http\Requests\AppointmentRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Http\Resources\collections\AppointmentResourceCollection;
+use App\Jobs\SendMailAppointmentCreated;
 use App\Mail\AppointmentCreated;
 use App\Models\Appointment;
 use App\Models\AppointmentStatus;
@@ -124,12 +125,9 @@ class AppointmentController extends Controller
             //TODO agregar ENUM de slot_status_id
             $slot->update(['slot_status_id' => 2, 'updated_user_id' => auth()->id(), 'updated_user_ip' => $request->ip()]);
 
-
-
             $appointmentResource = new AppointmentResource($model);
-            Mail::to('c.alarconlazo@gmail.com')
-                ->cc('robaraneda@gmail.com')
-                ->send(new AppointmentCreated($model));
+
+            SendMailAppointmentCreated::dispatch($model)->delay(now()->addMinutes(1));
 
             return response()->json($appointmentResource, Response::HTTP_CREATED);
         } catch (\Exception $ex) {
