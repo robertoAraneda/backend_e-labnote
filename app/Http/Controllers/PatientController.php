@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PatientRequest;
 use App\Http\Resources\collections\PatientResourceCollection;
 use App\Http\Resources\PatientResource;
+use App\Jobs\SendMailPatientUpdated;
 use App\Mail\AppointmentCreated;
 use App\Mail\PatientUpdated;
 use App\Models\HumanName;
@@ -290,11 +291,10 @@ class PatientController extends Controller
                 ]
             );
 
-            Mail::to('c.alarconlazo@gmail.com')
-                ->cc('robaraneda@gmail.com')
-                ->send(new PatientUpdated($patient));
-
             DB::commit();
+
+            SendMailPatientUpdated::dispatch($patient)->delay(now()->addMinute());
+
             return response()->json(new PatientResource($patient), Response::HTTP_OK);
         } catch (\Exception $ex) {
 

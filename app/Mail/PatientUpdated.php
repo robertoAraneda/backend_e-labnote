@@ -32,21 +32,11 @@ class PatientUpdated extends Mailable
      */
     public function build()
     {
-        $months = array("enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre");
-        $daysOfWeeks = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-
-        $date = Carbon::now();
-        $month = $months[($date->format('n')) -1];
-        $day = $daysOfWeeks[$date->dayOfWeek - 1];
-        $formatDate = $day." ".$date->format('d')." de ". $month. ", ". $date->format('Y');
-
-
         return $this
             ->from('robaraneda@gmail.com', 'Roberto Araneda')
             ->subject('LABISUR - Aviso modificación de datos personales')
             ->markdown('emails.patient.edited')
             ->with([
-                'date' => $formatDate,
                 'patient' => $this->patient->humanNames,
             ]);
     }
