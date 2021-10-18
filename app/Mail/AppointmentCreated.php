@@ -38,7 +38,7 @@ class AppointmentCreated extends Mailable
 
         $date = Carbon::parse($this->appointment->slot->start);
         $month = $months[($date->format('n')) -1];
-        $day = $daysOfWeeks[$date->dayOfWeek - 1];
+        $day = $daysOfWeeks[$date->dayOfWeek];
         $formatDate = $day." ".$date->format('d')." de ". $month. ", ". $date->format('Y');
 
 
