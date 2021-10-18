@@ -2,11 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ServiceRequestCategoryEnum;
+use App\Enums\ServiceRequestIntentEnum;
+use App\Enums\ServiceRequestStatusEnum;
+use App\Enums\SpecimenStatusEnum;
 use App\Http\Requests\ServiceRequestRequest;
 use App\Http\Resources\collections\ServiceRequestResourceCollection;
 use App\Http\Resources\ServiceRequestResource;
+use App\Models\Container;
 use App\Models\IdentifierPatient;
 use App\Models\ServiceRequest;
+use App\Models\ServiceRequestCategory;
+use App\Models\ServiceRequestIntent;
+use App\Models\ServiceRequestStatus;
 use App\Models\SpecimenStatus;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -94,9 +102,9 @@ class ServiceRequestController extends Controller
                     'requisition' => $requisition,
                     'date_requisition_fragment' => $currentDate,
                     'correlative_number' => $correlativeNumber,
-                    'service_request_status_id' => 1,
-                    'service_request_intent_id' => 4,
-                    'service_request_category_id' => 1,
+                    'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::ACTIVE)->first()->id ,
+                    'service_request_intent_id' => ServiceRequestIntent::where('code', ServiceRequestIntentEnum::ORDER)->first()->id,
+                    'service_request_category_id' => ServiceRequestCategory::where('code', ServiceRequestCategoryEnum::LABORATORY)->first()->id,
                     'requester_id' => auth()->id(),
                     'created_user_id' => auth()->id(),
                     'created_user_ip' => $request->ip(),
@@ -106,10 +114,12 @@ class ServiceRequestController extends Controller
 
             $specimens = $specimensCollection->map(function ($item) use ($request, $requisition) {
 
+                $container = Container::find($item['container_id']);
+
                 return array_merge($item,
                     [
-                        'accession_identifier' => $requisition,
-                        'specimen_status_id' => SpecimenStatus::where('code', 'pendiente')->first()->id,
+                        'accession_identifier' => $requisition.$container->suffix,
+                        'specimen_status_id' => SpecimenStatus::where('code', SpecimenStatusEnum::PENDING)->first()->id,
                         'created_user_id' => auth()->id(),
                         'created_user_ip' => $request->ip()
                     ]);

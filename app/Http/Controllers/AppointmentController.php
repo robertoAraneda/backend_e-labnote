@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\AppointmentStatusEnum;
 use App\Enums\AppointmentTypeEnum;
+use App\Events\PatientArrived;
 use App\Http\Requests\AppointmentRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Http\Resources\collections\AppointmentResourceCollection;
@@ -128,6 +129,7 @@ class AppointmentController extends Controller
             $appointmentResource = new AppointmentResource($model);
 
             SendMailAppointmentCreated::dispatch($model)->delay(now()->addMinutes(1));
+            event(new PatientArrived('HELOOOO!!!!'));
 
             return response()->json($appointmentResource, Response::HTTP_CREATED);
         } catch (\Exception $ex) {
@@ -144,7 +146,7 @@ class AppointmentController extends Controller
     }
 
 
-    public function update(AppointmentRequest $request, Appointment $appointment): JsonResponse
+    public function update(AppointmentRequest $request, Appointment $appointment)
     {
         $this->authorize('update', $appointment);
 
@@ -157,6 +159,11 @@ class AppointmentController extends Controller
         try {
             $appointment->update($data);
 
+            if($appointment->appointment_status_id == AppointmentStatus::where('code', AppointmentStatusEnum::ARRIVED)->first()->id){
+                    '';
+            }
+
+            event(new PatientArrived('HELOOOO!!!!'));
             return response()->json(new AppointmentResource($appointment), Response::HTTP_OK);
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);

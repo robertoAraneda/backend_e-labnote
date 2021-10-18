@@ -18,6 +18,7 @@ class CreateContainersTable extends Migration
             $table->string('name');
             $table->string('shortname')->nullable();
             $table->string('color')->nullable();
+            $table->string('suffix')->nullable();
             $table->boolean('active')->default(true);
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();

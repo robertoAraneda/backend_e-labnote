@@ -34,7 +34,7 @@ class AppointmentCreated extends Mailable
     public function build()
     {
         $months = array("enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre");
-        $daysOfWeeks = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+        $daysOfWeeks = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
         $date = Carbon::parse($this->appointment->slot->start);
         $month = $months[($date->format('n')) -1];
