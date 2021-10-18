@@ -359,5 +359,9 @@ Route::group([
     });
 
 
-
+    //pdf
+    Route::get('service-requests/view-pdf/{service_request}', [ServiceRequestController::class, 'viewPdf']);
+    Route::get('service-requests/generate-codbar/{service_request}', [ServiceRequestController::class, 'generateCodbar']);
 });
+
+Route::get('service-requests/view-pdf/{service_request}', [ServiceRequestController::class, 'viewPdf']);

@@ -7,12 +7,15 @@ use App\Enums\AppointmentTypeEnum;
 use App\Http\Requests\AppointmentRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Http\Resources\collections\AppointmentResourceCollection;
+use App\Jobs\SendMailAppointmentCreated;
+use App\Mail\AppointmentCreated;
 use App\Models\Appointment;
 use App\Models\AppointmentStatus;
 use App\Models\AppointmentType;
 use App\Models\Slot;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response;
 
 class AppointmentController extends Controller
@@ -122,7 +125,11 @@ class AppointmentController extends Controller
             //TODO agregar ENUM de slot_status_id
             $slot->update(['slot_status_id' => 2, 'updated_user_id' => auth()->id(), 'updated_user_ip' => $request->ip()]);
 
-            return response()->json(new AppointmentResource($model), Response::HTTP_CREATED);
+            $appointmentResource = new AppointmentResource($model);
+
+            SendMailAppointmentCreated::dispatch($model)->delay(now()->addMinutes(1));
+
+            return response()->json($appointmentResource, Response::HTTP_CREATED);
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

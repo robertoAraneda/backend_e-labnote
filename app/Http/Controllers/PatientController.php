@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PatientRequest;
 use App\Http\Resources\collections\PatientResourceCollection;
 use App\Http\Resources\PatientResource;
+use App\Jobs\SendMailPatientUpdated;
+use App\Mail\AppointmentCreated;
+use App\Mail\PatientUpdated;
 use App\Models\HumanName;
 use App\Models\IdentifierPatient;
 use App\Models\Patient;
@@ -12,6 +15,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -288,6 +292,9 @@ class PatientController extends Controller
             );
 
             DB::commit();
+
+            SendMailPatientUpdated::dispatch($patient)->delay(now()->addMinute());
+
             return response()->json(new PatientResource($patient), Response::HTTP_OK);
         } catch (\Exception $ex) {
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Appointment;
+use App\Models\AppointmentStatus;
 
 class AppointmentRequest extends FormRequest
 {
@@ -46,4 +47,15 @@ class AppointmentRequest extends FormRequest
     {
         return $this->get('paginate', (new Appointment())->getPerPage());
     }
+
+
+    protected function prepareForValidation()
+    {
+        if($this->status){
+            $this->merge([
+                'appointment_status_id' => AppointmentStatus::where('code', $this->status)->first()->id
+            ]);
+        }
+    }
+
 }
