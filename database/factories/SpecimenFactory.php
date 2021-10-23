@@ -27,6 +27,7 @@ class SpecimenFactory extends Factory
             'specimen_status_id' => 1,
             'specimen_code_id' => 1,
             'patient_id' => 1,
+            'service_request_id' => 1,
         ];
     }
 }

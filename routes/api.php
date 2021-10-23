@@ -40,6 +40,7 @@ use App\Http\Controllers\SlotController;
 use App\Http\Controllers\SpecimenCodeController;
 use App\Http\Controllers\SamplingConditionController;
 use App\Http\Controllers\SamplingIndicationController;
+use App\Http\Controllers\SpecimenController;
 use App\Http\Controllers\SpecimenStatusController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\WorkareaController;
@@ -243,6 +244,10 @@ Route::group([
         ->whereNumber('appointment_type')
         ->names('api.appointment-types');
 
+    Route::apiResource('specimens', SpecimenController::class)
+        ->whereNumber('specimen')
+        ->names('api.specimens');
+
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     Route::post('slots/range-dates', [SlotController::class, 'createWithRangeDates']);
@@ -290,6 +295,12 @@ Route::group([
     Route::get('service-request-observation-codes/search', [ServiceRequestObservationCodeController::class, 'searchByParams']);
     Route::get('service-requests/search', [ServiceRequestController::class, 'searchByParams']);
     Route::get('loinc/search/{code}', [LoincController::class, 'findLoincCodeFHIR']);
+    Route::get('specimens/search', [SpecimenController::class, 'searchByParams']);
+
+
+    //change tracking models
+    Route::get('specimens/tracking', [SpecimenController::class, 'changeTracking']);
+
 
 
     //change active attribute mode
@@ -354,6 +365,7 @@ Route::group([
                 'display' => $identifier->display
             ];
         });
+
 
         return response()->json(['collection' => $identifierUses], 200);
     });

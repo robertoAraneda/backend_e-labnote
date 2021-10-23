@@ -38,6 +38,8 @@ class ServiceRequestController extends Controller
         $this->authorize('viewAny', ServiceRequest::class);
 
         $page = $request->input('page');
+        $date = $request->input('date');
+
 
         if (isset($page)) {
             $items = ServiceRequest::select(
@@ -48,6 +50,10 @@ class ServiceRequestController extends Controller
             )
                 ->orderBy('id')
                 ->paginate($request->getPaginate());
+        } else if (isset($date)) {
+            $items = ServiceRequest::where('occurrence', 'like', $date . "%")
+                ->orderBy('id')
+                ->get();
         } else {
             $items = ServiceRequest::select(
                 'id',
@@ -58,6 +64,9 @@ class ServiceRequestController extends Controller
                 ->orderBy('id')
                 ->get();
         }
+
+        if (isset($date)) return response()->json(ServiceRequestResource::collection($items), Response::HTTP_OK);
+
         $collection = new ServiceRequestResourceCollection($items);
         return
             response()
@@ -75,7 +84,7 @@ class ServiceRequestController extends Controller
     {
         $this->authorize('create', ServiceRequest::class);
 
-        $paramsValidated = (object) $request->validated();
+        $paramsValidated = (object)$request->validated();
 
         try {
             DB::beginTransaction();
@@ -83,11 +92,11 @@ class ServiceRequestController extends Controller
             $currentDate = Carbon::now()->format('ymd');
 
 
-            $findLastCorrelativeNumber = ServiceRequest::where('date_requisition_fragment',$currentDate)->orderBy('correlative_number', 'desc')->first();
+            $findLastCorrelativeNumber = ServiceRequest::where('date_requisition_fragment', $currentDate)->orderBy('correlative_number', 'desc')->first();
 
-            if(!isset($findLastCorrelativeNumber)){
+            if (!isset($findLastCorrelativeNumber)) {
                 $correlativeNumber = 1;
-            }else{
+            } else {
                 $correlativeNumber = $findLastCorrelativeNumber->correlative_number + 1;
             }
 
@@ -98,17 +107,17 @@ class ServiceRequestController extends Controller
 
             $serviceRequest = ServiceRequest::create(
                 array_merge($request->validated(),
-                [
-                    'requisition' => $requisition,
-                    'date_requisition_fragment' => $currentDate,
-                    'correlative_number' => $correlativeNumber,
-                    'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::ACTIVE)->first()->id ,
-                    'service_request_intent_id' => ServiceRequestIntent::where('code', ServiceRequestIntentEnum::ORDER)->first()->id,
-                    'service_request_category_id' => ServiceRequestCategory::where('code', ServiceRequestCategoryEnum::LABORATORY)->first()->id,
-                    'requester_id' => auth()->id(),
-                    'created_user_id' => auth()->id(),
-                    'created_user_ip' => $request->ip(),
-                ]));
+                    [
+                        'requisition' => $requisition,
+                        'date_requisition_fragment' => $currentDate,
+                        'correlative_number' => $correlativeNumber,
+                        'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::ACTIVE)->first()->id,
+                        'service_request_intent_id' => ServiceRequestIntent::where('code', ServiceRequestIntentEnum::ORDER)->first()->id,
+                        'service_request_category_id' => ServiceRequestCategory::where('code', ServiceRequestCategoryEnum::LABORATORY)->first()->id,
+                        'requester_id' => auth()->id(),
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip(),
+                    ]));
 
             $specimensCollection = collect($paramsValidated->specimens);
 
@@ -118,7 +127,7 @@ class ServiceRequestController extends Controller
 
                 return array_merge($item,
                     [
-                        'accession_identifier' => $requisition.$container->suffix,
+                        'accession_identifier' => $requisition . $container->suffix,
                         'specimen_status_id' => SpecimenStatus::where('code', SpecimenStatusEnum::PENDING)->first()->id,
                         'created_user_id' => auth()->id(),
                         'created_user_ip' => $request->ip()
@@ -247,7 +256,7 @@ class ServiceRequestController extends Controller
      */
     public function observations(ServiceRequest $serviceRequest): JsonResponse
     {
-        $observations= $serviceRequest->observations()->active()->orderBy('id')->get();
+        $observations = $serviceRequest->observations()->active()->orderBy('id')->get();
 
         $collection = \App\Http\Resources\collections\ServiceRequestResource::collection($observations);
 
@@ -271,23 +280,23 @@ class ServiceRequestController extends Controller
     public function searchByParams(ServiceRequestRequest $request): JsonResponse
     {
 
-        if($request->identifier){
-            $serviceRequests= $this->findByIdentifier($request->identifier);
+        if ($request->identifier) {
+            $serviceRequests = $this->findByIdentifier($request->identifier);
 
             return response()->json(ServiceRequestResource::collection($serviceRequests), Response::HTTP_OK);
         }
 
-        if($request->patient && $request->type){
+        if ($request->patient && $request->type) {
 
-            $serviceRequests= $this->findByPatient($request->patient,$request->type);
+            $serviceRequests = $this->findByPatient($request->patient, $request->type);
 
             return response()->json(ServiceRequestResource::collection($serviceRequests), Response::HTTP_OK);
         }
 
 
-        if($request->patientId){
+        if ($request->patientId) {
 
-            $serviceRequests= $this->findByPatientId($request->patientId);
+            $serviceRequests = $this->findByPatientId($request->patientId);
 
             return response()->json(ServiceRequestResource::collection($serviceRequests), Response::HTTP_OK);
         }
@@ -296,28 +305,32 @@ class ServiceRequestController extends Controller
         return response()->json([], Response::HTTP_OK);
     }
 
-    private function findByIdentifier($identifier){
+    private function findByIdentifier($identifier)
+    {
 
 
         return ServiceRequest::where('requisition', $identifier)->get();
     }
 
-    private function findByPatient($identifier, $type){
+    private function findByPatient($identifier, $type)
+    {
 
         $identifier = IdentifierPatient::where('value', $identifier)->where('identifier_type_id', $type)->first();
 
         return $identifier->patient->serviceRequests;
     }
 
-    private function findByPatientId($id){
+    private function findByPatientId($id)
+    {
 
         return ServiceRequest::where('patient_id', $id)->get();
 
     }
 
-    public function viewPdf( ServiceRequest $serviceRequest){
+    public function viewPdf(ServiceRequest $serviceRequest)
+    {
 
-       // PDF::setOptions(['dpi' => 150, 'defaultFont' => 'sans-serif']);
+        // PDF::setOptions(['dpi' => 150, 'defaultFont' => 'sans-serif']);
 
         $var = new BarcodeGenerator();
         $var->setText($serviceRequest->requisition);
@@ -338,12 +351,31 @@ class ServiceRequestController extends Controller
 
     }
 
-    public function generateCodbar(ServiceRequest $serviceRequest){
+    public function generateCodbar(ServiceRequestRequest $request, ServiceRequest $serviceRequest)
+    {
 
+       $accession_identifier = $request->input('accession_identifier');
 
-        $payload = [
-            'serviceRequest' => $this->toArray($serviceRequest),
-        ];
+        if(isset($accession_identifier)){
+
+            $mappedServiceRequest = $this->toArray($serviceRequest);
+
+            $container = collect($mappedServiceRequest['_links']['specimens']['collection'])->filter(function($specimen) use ($accession_identifier){
+                return $specimen['specimen']['accession_identifier'] == $accession_identifier;
+            });
+
+            $mappedServiceRequest['_links']['specimens']['collection'] = $container;
+
+            $payload = [
+                'serviceRequest' => $mappedServiceRequest,
+            ];
+
+        }else{
+            $payload = [
+                'serviceRequest' => $this->toArray($serviceRequest),
+            ];
+        }
+
 
         $pdf = PDF::loadView('pdf.specimenLabel', $payload);
 
@@ -353,14 +385,6 @@ class ServiceRequestController extends Controller
 
     public function toArray($serviceRequest): array
     {
-        $var = new BarcodeGenerator();
-        $var->setText($serviceRequest->requisition);
-        $var->setType(BarcodeGenerator::Code128);
-        $var->setScale(2);
-        $var->setThickness(30);
-        $var->setFontSize(12);
-        $code = $var->generate();
-
         return [
             'id' => $serviceRequest->id,
             'note' => $serviceRequest->note,
@@ -377,15 +401,15 @@ class ServiceRequestController extends Controller
                         ['service_request' => $serviceRequest->id],
                         false),
                 ],
-                'observations'  => [
+                'observations' => [
                     'href' => route('api.service-request.observations', ['service_request' => $serviceRequest->id], false),
-                    'collection' => $serviceRequest->observations->map(function($observation){
-                        return  $observation->code;
+                    'collection' => $serviceRequest->observations->map(function ($observation) {
+                        return $observation->code;
                     })
                 ],
-                'specimens'  => [
+                'specimens' => [
                     'href' => route('api.service-request.specimens', ['service_request' => $serviceRequest->id], false),
-                    'collection' => $serviceRequest->specimens->map(function($specimen){
+                    'collection' => $serviceRequest->specimens->map(function ($specimen) {
                         $var = new BarcodeGenerator();
                         $var->setText($specimen->accession_identifier);
                         $var->setType(BarcodeGenerator::Code128);
@@ -396,10 +420,10 @@ class ServiceRequestController extends Controller
                         $code = $var->generate();
                         return [
                             'specimen' => $specimen,
-                            'barcode' =>  "data:image/png;base64," . $code,
+                            'barcode' => "data:image/png;base64," . $code,
                             'specimen_code' => $specimen->code,
                             'specimen_status' => $specimen->status,
-                            'container' => $specimen->container, ];
+                            'container' => $specimen->container,];
                     })
                 ],
             ],
@@ -563,10 +587,10 @@ class ServiceRequestController extends Controller
             'birthdate' => Carbon::parse($payload->birthdate)->format('d/m/Y'),
             'administrative_gender' => $payload->administrativeGender->display,
             'identifier' => $payload->identifierPatient
-                ->filter(function($identifier){
-                    return $identifier->identifierUse->code == 'usual' || $identifier->identifierUse->code == 'official' ;
+                ->filter(function ($identifier) {
+                    return $identifier->identifierUse->code == 'usual' || $identifier->identifierUse->code == 'official';
                 })
-                ->map(function($identifier){
+                ->map(function ($identifier) {
                     return [
                         'use' => $identifier->identifierUse->display,
                         'type' => $identifier->identifierType->display,

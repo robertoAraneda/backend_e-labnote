@@ -12,24 +12,15 @@ class Specimen extends Model
 {
     use HasFactory, SoftDeletes;
 
-    /**
-     * The number of models to return for pagination.
-     *
-     * @var int
-     */
     protected $perPage = 10;
 
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var string[]
-     */
     protected $fillable = [
         'accession_identifier',
         'specimen_status_id',
         'specimen_code_id',
         'patient_id',
+        'collector_id',
+        'collected_at',
         'container_id',
         'service_request_id',
         'created_user_id',
@@ -40,24 +31,14 @@ class Specimen extends Model
         'deleted_user_ip'
     ];
 
-    /**
-     * Scope a query to only include active users.
-     *
-     * @param Builder $query
-     * @return Builder
-     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
     }
 
-    /**
-     * @return string
-     */
     public function getPerPage(): string
     {
         return env('DEFAULT_PER_PAGE');
-
     }
 
     public function status(): BelongsTo
@@ -75,25 +56,31 @@ class Specimen extends Model
         return $this->belongsTo(Container::class, 'container_id');
     }
 
-    /**
-     * @return BelongsTo
-     */
+    public function serviceRequest(): BelongsTo
+    {
+        return $this->belongsTo(ServiceRequest::class, 'service_request_id');
+    }
+
+    public function patient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class, 'patient_id');
+    }
+
+    public function collector(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'collector_id');
+    }
+
     public function createdUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_user_id');
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function updatedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_user_id');
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function deletedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_user_id');

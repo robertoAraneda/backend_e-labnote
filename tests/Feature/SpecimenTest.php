@@ -3,17 +3,17 @@
 namespace Tests\Feature;
 
 use App\Models\Role;
-use App\Models\SpecimenStatus;
+use App\Models\Specimen;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
-use Database\Seeders\SpecimenStatusPermissionsSeeder;
+use Database\Seeders\SpecimenPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class SpecimenStatusTest extends TestCase
+class SpecimenTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -23,30 +23,28 @@ class SpecimenStatusTest extends TestCase
     private string $base_url;
     private string $perPage;
 
-    public function setUp():void
+    public function setUp(): void
     {
         parent::setUp();
         $this->artisan('passport:install');
 
         $user = User::factory()->create();
 
-
         $this->seed(RoleSeeder::class);
-        $this->seed(SpecimenStatusPermissionsSeeder::class);
+        $this->seed(SpecimenPermissionsSeeder::class);
 
         $role = Role::where('name', 'Administrador')->first();
 
         $user->assignRole($role);
 
-        $modelClass = new SpecimenStatus();
+        $modelClass = new Specimen();
 
         $this->user = $user;
         $this->role = $role;
-        $this->model = SpecimenStatus::factory()->create();
+        $this->model = Specimen::factory()->create();
         $this->table = $modelClass->getTable();
-        $this->base_url = '/api/v1/specimen-statuses';
+        $this->base_url = '/api/v1/specimens';
         $this->perPage = $modelClass->getPerPage();
-
     }
 
     /**
@@ -63,28 +61,30 @@ class SpecimenStatusTest extends TestCase
     public function se_puede_obtener_una_lista_del_recurso(): void
     {
 
-        SpecimenStatus::factory()->count(20)->create();
+        $this->withoutExceptionHandling();
+
+        Specimen::factory()->count(20)->create();
 
         $uri = sprintf('%s', $this->base_url);
-        $countModels = SpecimenStatus::count();
+        $countModels = Specimen::count();
 
-        $this->actingAs($this->user, 'api')
-            ->getJson($uri)
-            ->assertStatus(Response::HTTP_OK)
-            ->assertJson(function (AssertableJson $json) use ($countModels) {
-                return $json
-                    ->has('_links')
-                    ->has('count')
-                    ->has('collection', $countModels, function ($json) {
-                        $json->whereAllType([
-                            'id' => 'integer',
-                            'code' => 'string',
-                            'display' => 'string',
-                            'active' => 'boolean',
-                            '_links' => 'array'
-                        ]);
-                    });
-            });
+        $response = $this->actingAs($this->user, 'api')
+            ->getJson($uri);
+
+        $response->assertStatus(Response::HTTP_OK);
+        $response->assertJson(function (AssertableJson $json) use ($countModels) {
+            return $json
+                ->has('_links')
+                ->has('count')
+                ->has('collection', $countModels, function ($json) {
+                    $json->whereAllType([
+                        'id' => 'integer',
+                        'accession_identifier' => 'string',
+                        'collected_at' => 'string',
+                        '_links' => 'array'
+                    ]);
+                });
+        });
     }
 
     /**
@@ -92,7 +92,7 @@ class SpecimenStatusTest extends TestCase
      */
     public function se_puede_obtener_una_lista_paginada_del_recurso(): void
     {
-        SpecimenStatus::factory()->count(20)->create();
+        Specimen::factory()->count(20)->create();
 
         $uri = sprintf('%s?page=1', $this->base_url);
         $page = $this->perPage;
@@ -107,8 +107,8 @@ class SpecimenStatusTest extends TestCase
                     ->has('data.collection', $page, function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'name' => 'string',
-                            'active' => 'boolean',
+                            'accession_identifier' => 'string',
+                            'collected_at' => 'string',
                             '_links' => 'array'
                         ]);
                     });
@@ -126,7 +126,7 @@ class SpecimenStatusTest extends TestCase
             ->getJson($uri)
             ->assertStatus(Response::HTTP_OK)
             ->assertJson(fn(AssertableJson $json) => $json->where('id', $this->model->id)
-                ->where('display', $this->model->display)
+                ->where('accession_identifier', (string)$this->model->accession_identifier)
                 ->etc()
             );
     }
@@ -136,26 +136,30 @@ class SpecimenStatusTest extends TestCase
      */
     public function se_puede_crear_un_recurso(): void //store
     {
+        $this->withoutExceptionHandling();
+
         $factoryModel = [
-            'code' => $this->faker->slug,
-            'display' => $this->faker->name,
-            'active' => $this->faker->boolean
+            'accession_identifier' => 'accession_number',
+            'specimen_status_id' => 1,
+            'specimen_code_id' => 1,
+            'patient_id' => 1,
+            'service_request_id' => 1,
         ];
 
         $uri = sprintf("%s", $this->base_url);
 
-        $this
+        $response = $this
             ->actingAs($this->user, 'api')
-            ->postJson($uri, $factoryModel)
-            ->assertStatus(Response::HTTP_CREATED)
-            ->assertJson(fn(AssertableJson $json) => $json
-                ->where('display', $factoryModel['display'])
-                ->where('active', $factoryModel['active'])
-                ->etc()
-            );
+            ->postJson($uri, $factoryModel);
+
+        $response->assertStatus(Response::HTTP_CREATED);
+        $response->assertJson(fn(AssertableJson $json) => $json
+            ->where('accession_identifier', $factoryModel['accession_identifier'])
+            ->etc()
+        );
 
         $this->assertDatabaseHas($this->table, [
-            'display' => $factoryModel['display'],
+            'accession_identifier' => $factoryModel['accession_identifier'],
         ]);
     }
 
@@ -168,18 +172,17 @@ class SpecimenStatusTest extends TestCase
 
         $this->actingAs($this->user, 'api')
             ->putJson($uri, [
-                'display' => 'name modificado'
+                'accession_identifier' => 'name modificado'
             ])
             ->assertStatus(Response::HTTP_OK)
             ->assertJson(fn(AssertableJson $json) => $json
                 ->where('id', $this->model->id)
-                ->where('display', 'name modificado')
-                ->where('active', $this->model->active)
+                ->where('accession_identifier', 'name modificado')
                 ->etc()
             );
 
         $this->assertDatabaseHas($this->table, [
-            'display' => 'name modificado'
+            'accession_identifier' => 'name modificado'
         ]);
     }
 
@@ -205,12 +208,14 @@ class SpecimenStatusTest extends TestCase
     public function se_genera_error_http_forbidden_al_crear_un_recurso_sin_privilegios(): void
     {
         $factoryModel = [
-            'code' => $this->faker->slug,
-            'display' => $this->faker->name,
-            'active' => true
+            'accession_identifier' => $this->faker->slug,
+            'specimen_status_id' => 1,
+            'specimen_code_id' => 1,
+            'patient_id' => 1,
+            'service_request_id' => 1,
         ];
 
-        $this->role->revokePermissionTo('specimenStatus.create');
+        $this->role->revokePermissionTo('specimen.create');
 
         $uri = sprintf("%s", $this->base_url);
 
@@ -220,7 +225,7 @@ class SpecimenStatusTest extends TestCase
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'display' => $factoryModel['display'],
+            'accession_identifier' => $factoryModel['accession_identifier'],
         ]);
 
     }
@@ -230,19 +235,19 @@ class SpecimenStatusTest extends TestCase
      */
     public function se_genera_error_http_forbidden_al_modificar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('specimenStatus.update');
+        $this->role->revokePermissionTo('specimen.update');
 
-        $uri = sprintf('%s/%s',$this->base_url, $this->model->id);
+        $uri = sprintf('%s/%s', $this->base_url, $this->model->id);
 
         $this
             ->actingAs($this->user, 'api')
             ->putJson($uri, [
-                'display' => 'SpecimenStatus modificado'
+                'accession_identifier' => 'Specimen modificado'
             ])
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseMissing($this->table, [
-            'display' => 'SpecimenStatus modificado'
+            'accession_identifier' => 'Specimen modificado'
         ]);
     }
 
@@ -251,9 +256,9 @@ class SpecimenStatusTest extends TestCase
      */
     public function se_genera_error_http_forbidden_al_eliminar_un_recurso_sin_privilegios(): void
     {
-        $this->role->revokePermissionTo('specimenStatus.delete');
+        $this->role->revokePermissionTo('specimen.delete');
 
-        $uri = sprintf('%s/%s',$this->base_url ,$this->model->id);
+        $uri = sprintf('%s/%s', $this->base_url, $this->model->id);
 
         $this
             ->actingAs($this->user, 'api')
@@ -261,7 +266,7 @@ class SpecimenStatusTest extends TestCase
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseHas($this->table, [
-            'display' => $this->model->display,
+            'accession_identifier' => $this->model->accession_identifier,
         ]);
 
     }
@@ -271,7 +276,7 @@ class SpecimenStatusTest extends TestCase
      */
     public function se_obtiene_error_http_not_found_al_mostrar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('%s/%s',$this->base_url , -5);
+        $uri = sprintf('%s/%s', $this->base_url, -5);
 
         $this->actingAs($this->user, 'api')
             ->getJson($uri)
@@ -284,7 +289,7 @@ class SpecimenStatusTest extends TestCase
      */
     public function se_obtiene_error_http_not_found_al_editar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('%s/%s',$this->base_url ,-5);
+        $uri = sprintf('%s/%s', $this->base_url, -5);
 
         $this->actingAs($this->user, 'api')
             ->putJson($uri)
@@ -297,7 +302,7 @@ class SpecimenStatusTest extends TestCase
      */
     public function se_obtiene_error_http_not_found_al_eliminar_si_no_se_encuentra_el_recurso(): void
     {
-        $uri = sprintf('%s/%s',$this->base_url ,-5);
+        $uri = sprintf('%s/%s', $this->base_url, -5);
 
         $this->actingAs($this->user, 'api')
             ->deleteJson($uri)
@@ -310,7 +315,7 @@ class SpecimenStatusTest extends TestCase
      */
     public function se_obtiene_error_http_not_aceptable_si_parametro_no_es_numerico_al_buscar(): void
     {
-        $uri = sprintf('%s/%s',$this->base_url ,'string');
+        $uri = sprintf('%s/%s', $this->base_url, 'string');
 
         $this->actingAs($this->user, 'api')
             ->deleteJson($uri)
@@ -322,9 +327,9 @@ class SpecimenStatusTest extends TestCase
      */
     public function se_puede_obtener_una_lista_cuando_se_modifica_el_limite_del_paginador(): void
     {
-        SpecimenStatus::factory()->count(20)->create();
+        Specimen::factory()->count(20)->create();
 
-        $list = SpecimenStatus::count();
+        $list = Specimen::count();
 
         $DEFAULT_PAGINATE = 5;
 
@@ -354,9 +359,8 @@ class SpecimenStatusTest extends TestCase
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'code' => 'string',
-                            'display' => 'string',
-                            'active' => 'boolean',
+                            'accession_identifier' => 'string',
+                            'collected_at' => 'string',
                             '_links' => 'array'
                         ]);
                     });
@@ -372,9 +376,9 @@ class SpecimenStatusTest extends TestCase
      */
     public function se_puede_obtener_una_lista_cuando_se_modifica_la_pagina(): void
     {
-        SpecimenStatus::factory()->count(20)->create();
+        Specimen::factory()->count(20)->create();
 
-        $list = SpecimenStatus::count();
+        $list = Specimen::count();
 
         $pages = intval(ceil($list / $this->perPage));
         $mod = $list % $this->perPage;
@@ -405,9 +409,8 @@ class SpecimenStatusTest extends TestCase
                     ->has('data.collection.0', function ($json) {
                         $json->whereAllType([
                             'id' => 'integer',
-                            'code' => 'string',
-                            'display' => 'string',
-                            'active' => 'boolean',
+                            'accession_identifier' => 'string',
+                            'collected_at' => 'string',
                             '_links' => 'array'
                         ]);
                     });
@@ -415,32 +418,6 @@ class SpecimenStatusTest extends TestCase
         }
 
         $this->assertDatabaseCount($this->table, $list);
-    }
-
-    /**
-     * @test
-     */
-    public function se_puede_modificar_el_estado_de_un_recurso()
-    {
-        $this->withoutExceptionHandling();
-        $uri = sprintf('%s/%s/status', $this->base_url, $this->model->id);
-
-        if($this->model->active){
-            $response = $this->actingAs($this->user, 'api')
-                ->putJson($uri, [
-                    'active' => false
-                ]);
-        }else{
-            $response = $this->actingAs($this->user, 'api')
-                ->putJson($uri, [
-                    'active' => true
-                ]);
-        }
-
-        $response->assertStatus(Response::HTTP_OK);
-
-        $this->assertNotEquals($response['active'], $this->model->active);
-
     }
 }
 
