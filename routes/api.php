@@ -376,4 +376,11 @@ Route::group([
     Route::get('service-requests/generate-codbar/{service_request}', [ServiceRequestController::class, 'generateCodbar']);
 });
 
-Route::get('service-requests/view-pdf/{service_request}', [ServiceRequestController::class, 'viewPdf']);
+
+Route::group(['prefix' => 'v1/public'], function(){
+
+    Route::get('service-request-observation-codes/search', [ServiceRequestObservationCodeController::class, 'publicIndex']);
+});
+
+
+
