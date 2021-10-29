@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PatientIdentifierUseEnum;
 use App\Http\Requests\PatientRequest;
 use App\Http\Resources\collections\PatientResourceCollection;
 use App\Http\Resources\PatientResource;
@@ -10,6 +11,7 @@ use App\Mail\AppointmentCreated;
 use App\Mail\PatientUpdated;
 use App\Models\HumanName;
 use App\Models\IdentifierPatient;
+use App\Models\IdentifierUse;
 use App\Models\Patient;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -106,8 +108,10 @@ class PatientController extends Controller
 
             $identifierPatient = $identifierPatientCollection->map(function ($item) use ($request) {
 
+
                 return array_merge($item,
                     [
+                        'identifier_use_id' => IdentifierUse::where('code', PatientIdentifierUseEnum::OFFICIAL)->first()->id,
                         'created_user_id' => auth()->id(),
                         'created_user_ip' => $request->ip()
                     ]);

@@ -2,18 +2,22 @@
 
 namespace App\Http\Resources\collections;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SpecimenResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    public function toArray($request)
+    public function toArray($request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'accession_identifier' => $this->accession_identifier,
+            'collected_at' => Carbon::parse($this->collected_at)->format('d/m/Y h:i:s'),
+            '_links' => [
+                'self' => [
+                    'href' => route('api.specimens.show', ['specimen' => $this->id], false),
+                ],
+            ],
+        ];
     }
 }

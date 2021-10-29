@@ -90,6 +90,7 @@ class ServiceRequestResource extends JsonResource
 
         return [
             'name' => $payload->display,
+            'code' => $payload->code,
             '_links' => [
                 'self' => [
                     'href' => route('api.service-request-statuses.show', ['service_request_status' => $payload->id], false)
@@ -201,7 +202,9 @@ class ServiceRequestResource extends JsonResource
                         'use' => $name->use,
                         'given' => $name->given,
                         'father_family' => $name->father_family,
-                        'mother_family' => $name->mother_family];
+                        'mother_family' => $name->mother_family,
+                        'text' => $name->given." ".$name->father_family." ".$name->mother_family
+                    ];
                 }),
             'birthdate' => Carbon::parse($payload->birthdate)->format('d/m/Y'),
             'administrative_gender' => $payload->administrativeGender->display,

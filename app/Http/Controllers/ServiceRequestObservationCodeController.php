@@ -25,7 +25,7 @@ class ServiceRequestObservationCodeController extends Controller
 
         $page = $request->input('page');
 
-        if(isset($page)){
+        if (isset($page)) {
             $items = ServiceRequestObservationCode::select(
                 'id',
                 'name',
@@ -39,7 +39,23 @@ class ServiceRequestObservationCodeController extends Controller
             )
                 ->orderBy('id')
                 ->paginate($request->getPaginate());
-        }else{
+        } else if ($request->input('letter')) {
+
+            $items = ServiceRequestObservationCode::select(
+                'id',
+                'name',
+                'loinc_num',
+                'container_id',
+                'analyte_id',
+                'specimen_code_id',
+                'location_id',
+                'slug',
+                'active',
+            )->where('name', 'like', $request->input('letter') . "%")
+                ->orderBy('id')
+                ->get();
+
+        } else {
             $items = ServiceRequestObservationCode::select(
                 'id',
                 'name',
@@ -81,7 +97,7 @@ class ServiceRequestObservationCodeController extends Controller
 
             $model = ServiceRequestObservationCode::create($data);
 
-            return response()->json(new ServiceRequestObservationCodeResource($model) , Response::HTTP_CREATED);
+            return response()->json(new ServiceRequestObservationCodeResource($model), Response::HTTP_CREATED);
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -119,9 +135,9 @@ class ServiceRequestObservationCodeController extends Controller
         try {
             $serviceRequestObservationCode->update($data);
 
-            return response()->json(new ServiceRequestObservationCodeResource($serviceRequestObservationCode) , Response::HTTP_OK);
-        }catch (\Exception $ex){
-            return response()->json($ex->getMessage() , Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(new ServiceRequestObservationCodeResource($serviceRequestObservationCode), Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -146,7 +162,7 @@ class ServiceRequestObservationCodeController extends Controller
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
 
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -168,7 +184,7 @@ class ServiceRequestObservationCodeController extends Controller
             $serviceRequestObservationCode->update(['active' => $status, 'updated_user_id' => auth()->id()]);
 
             return response()->json(new ServiceRequestObservationCodeResource($serviceRequestObservationCode), Response::HTTP_OK);
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -176,7 +192,7 @@ class ServiceRequestObservationCodeController extends Controller
     public function searchByParams(Request $request): JsonResponse
     {
 
-        if($request->slug){
+        if ($request->slug) {
             $serviceRequestObservationCode = $this->findBySlug($request->slug);
 
             return response()->json(new ServiceRequestObservationCodeResource($serviceRequestObservationCode), Response::HTTP_OK);
@@ -185,7 +201,42 @@ class ServiceRequestObservationCodeController extends Controller
         return response()->json([], Response::HTTP_OK);
     }
 
-    private function findBySlug($slug){
+    private function findBySlug($slug)
+    {
         return ServiceRequestObservationCode::where('slug', $slug)->first();
+    }
+
+
+    public function publicIndex(ServiceRequestObservationCodeRequest $request): JsonResponse
+    {
+
+        if ($request->input('letter')) {
+            $items = ServiceRequestObservationCode::select(
+                'id',
+                'name',
+                'loinc_num',
+                'container_id',
+                'analyte_id',
+                'specimen_code_id',
+                'location_id',
+                'slug',
+                'active',
+            )
+                ->where('name', 'like', Str::upper($request->input('letter')) . "%")
+                ->orderBy('id')
+                ->get();
+
+            $collection = new ServiceRequestObservationCodeResourceCollection($items);
+            return
+                response()
+                    ->json($collection->response()->getData(true), Response::HTTP_OK);
+
+        } else if ($request->input('slug')) {
+            $serviceRequestObservationCode = $this->findBySlug($request->input('slug'));
+
+            return response()->json(new ServiceRequestObservationCodeResource($serviceRequestObservationCode), Response::HTTP_OK);
+        }
+
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }

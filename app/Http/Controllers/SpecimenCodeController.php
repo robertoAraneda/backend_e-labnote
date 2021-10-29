@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SpecimenCodeRequest;
 use App\Http\Resources\collections\SpecimenCodeResourceCollection;
 use App\Http\Resources\SpecimenCodeResource;
+use App\Models\Analyte;
+use App\Models\ServiceRequestObservationCode;
 use App\Models\SpecimenCode;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -102,6 +104,17 @@ class SpecimenCodeController extends Controller
 
         try {
             $specimenCode->update($data);
+
+            $serviceRequestObservationCodes = ServiceRequestObservationCode::where('specimen_code_id', $specimenCode->id)->get();
+
+            foreach ($serviceRequestObservationCodes as $observationCode) {
+                $analyte = $observationCode->analyte;
+                $observationCode->update([
+                    'name' => $analyte->name. ", ".$specimenCode->display,
+                    'updated_user_id' => auth()->id(),
+                    'updated_user_ip' => $request->ip()
+                ]);
+            }
 
             return response()->json(new SpecimenCodeResource($specimenCode) , Response::HTTP_OK);
         }catch (\Exception $ex){
