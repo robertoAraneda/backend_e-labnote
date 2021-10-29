@@ -43,7 +43,7 @@ class AppointmentCreated extends Mailable
 
 
         return $this
-            ->from('robaraneda@gmail.com', 'Roberto Araneda')
+            ->from('soporte@elabnote.cl', 'no-responder')
             ->subject('LABISUR - Aviso reserva de hora agendada')
             ->markdown('emails.appointment.created')
             ->with([
