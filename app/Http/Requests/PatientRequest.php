@@ -36,12 +36,12 @@ class PatientRequest extends FormRequest
                     'telecom.*.system' => 'sometimes|required|string',
                     'telecom.*.value' => 'sometimes|required|string',
                     'telecom.*.use' => 'sometimes|required|string',
-                    'contact.*.id' => 'sometimes|required|integer',
-                    'contact.*.given' => 'sometimes|required|string',
-                    'contact.*.family' => 'sometimes|required|string',
-                    'contact.*.relationship' => 'sometimes|required|string',
-                    'contact.*.phone' => 'sometimes|required|string',
-                    'contact.*.email' => 'sometimes|required|email',
+                    'contact.*.id' => 'integer',
+                    'contact.*.given' => 'string',
+                    'contact.*.family' => 'string',
+                    'contact.*.relationship' => 'string',
+                    'contact.*.phone' => 'string',
+                    'contact.*.email' => 'email',
 
                 ];
             case 'POST':
@@ -62,11 +62,11 @@ class PatientRequest extends FormRequest
                     'telecom.*.system' => 'sometimes|required|string',
                     'telecom.*.value' => 'sometimes|required|string',
                     'telecom.*.use' => 'sometimes|required|string',
-                    'contact.*.given' => 'sometimes|required|string',
-                    'contact.*.family' => 'sometimes|required|string',
-                    'contact.*.relationship' => 'sometimes|required|string',
-                    'contact.*.phone' => 'sometimes|required|string',
-                    'contact.*.email' => 'sometimes|required|email',
+                    'contact.*.given' => 'string',
+                    'contact.*.family' => 'string',
+                    'contact.*.relationship' => 'string',
+                    'contact.*.phone' => 'string',
+                    'contact.*.email' => 'email',
                 ];
             default:
                 return [];

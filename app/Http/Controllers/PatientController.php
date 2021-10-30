@@ -66,7 +66,7 @@ class PatientController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function store(PatientRequest $request): JsonResponse
+    public function store(PatientRequest $request)
     {
 
         $this->authorize('create', Patient::class);
@@ -145,17 +145,21 @@ class PatientController extends Controller
             $model->addressPatient()->createMany($address);
 
             //se obtiene la información de familiar de contacto
-            $contactPatientCollection = collect($request->validated()['contact']);
-            $contactPatient = $contactPatientCollection->map(function ($item) use ($request) {
+            $isContact =  array_key_exists('contact', $dataPatient);
 
-                return array_merge($item,
-                    [
-                        'created_user_id' => auth()->id(),
-                        'created_user_ip' => $request->ip()
-                    ]);
+            if($isContact){
+                $contactPatientCollection = collect($dataPatient['contact']);
+                $contactPatient = $contactPatientCollection->map(function ($item) use ($request) {
 
-            });
-            $model->contactPatient()->createMany($contactPatient);
+                    return array_merge($item,
+                        [
+                            'created_user_id' => auth()->id(),
+                            'created_user_ip' => $request->ip()
+                        ]);
+
+                });
+                $model->contactPatient()->createMany($contactPatient);
+            }
 
             DB::commit();
 
