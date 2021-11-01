@@ -24,7 +24,7 @@ class ServiceRequestRequest extends FormRequest
                 ];
             case 'POST':
                 return [
-                    'note' => 'required|string',
+                    'note' => 'string',
                     'occurrence' => 'required|string',
                     'service_request_priority_id' => 'required|integer',
                     'patient_id' => 'required|integer',
