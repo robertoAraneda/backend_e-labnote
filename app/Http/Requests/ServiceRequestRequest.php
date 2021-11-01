@@ -20,6 +20,7 @@ class ServiceRequestRequest extends FormRequest
                     'specimens.*.patient_id' => 'integer',
                     'specimens.*.container_id' => 'integer',
                     'observations.*.service_request_observation_code_id' => 'integer',
+
                 ];
             case 'POST':
                 return [
@@ -33,6 +34,7 @@ class ServiceRequestRequest extends FormRequest
                     'specimens.*.patient_id' => 'required|integer',
                     'specimens.*.container_id' => 'required|integer',
                     'observations.*.service_request_observation_code_id' => 'integer',
+
                 ];
             default:
                 return [];
