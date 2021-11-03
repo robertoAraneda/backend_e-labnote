@@ -7,7 +7,7 @@ use App\Enums\AppointmentTypeEnum;
 use App\Events\PatientArrived;
 use App\Http\Requests\AppointmentRequest;
 use App\Http\Resources\AppointmentResource;
-use App\Http\Resources\collections\AppointmentResourceCollection;
+use App\Http\Resources\Collections\AppointmentResourceCollection;
 use App\Jobs\SendMailAppointmentCreated;
 use App\Mail\AppointmentCreated;
 use App\Models\Appointment;

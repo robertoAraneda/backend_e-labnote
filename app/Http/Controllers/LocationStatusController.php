@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LocationStatusRequest;
-use App\Http\Resources\collections\LocationStatusResourceCollection;
+use App\Http\Resources\Collections\LocationStatusResourceCollection;
 use App\Http\Resources\LocationStatusResource;
 use App\Models\LocationStatus;
 use Illuminate\Auth\Access\AuthorizationException;

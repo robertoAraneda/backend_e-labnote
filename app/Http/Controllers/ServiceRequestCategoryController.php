@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ServiceRequestCategoryRequest;
-use App\Http\Resources\collections\ServiceRequestCategoryResourceCollection;
+use App\Http\Resources\Collections\ServiceRequestCategoryResourceCollection;
 use App\Http\Resources\ServiceRequestCategoryResource;
 use App\Models\ServiceRequestCategory;
 use Illuminate\Auth\Access\AuthorizationException;

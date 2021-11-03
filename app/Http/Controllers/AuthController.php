@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Helpers\Response;
 use App\Models\User;
 use Carbon\Carbon;
-use App\Http\Resources\collections\PermissionResourceCollection;
+use App\Http\Resources\Collections\PermissionResourceCollection;
 
 class AuthController extends Controller
 {

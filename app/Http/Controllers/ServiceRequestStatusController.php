@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ServiceRequestStatusRequest;
-use App\Http\Resources\collections\ServiceRequestStatusResourceCollection;
+use App\Http\Resources\Collections\ServiceRequestStatusResourceCollection;
 use App\Http\Resources\ServiceRequestStatusResource;
 use App\Models\ServiceRequestStatus;
 use Illuminate\Auth\Access\AuthorizationException;

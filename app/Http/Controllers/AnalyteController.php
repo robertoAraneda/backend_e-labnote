@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AnalyteRequest;
 use App\Http\Resources\AnalyteResource;
-use App\Http\Resources\collections\AnalyteResourceCollection;
+use App\Http\Resources\Collections\AnalyteResourceCollection;
 use App\Models\Analyte;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;

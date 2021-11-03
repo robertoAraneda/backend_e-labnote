@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\ServiceRequestStatusEnum;
 use App\Enums\SpecimenStatusEnum;
 use App\Http\Requests\SpecimenRequest;
-use App\Http\Resources\collections\SpecimenResourceCollection;
+use App\Http\Resources\Collections\SpecimenResourceCollection;
 use App\Http\Resources\SpecimenResource;
 use App\Models\ServiceRequest;
 use App\Models\ServiceRequestStatus;

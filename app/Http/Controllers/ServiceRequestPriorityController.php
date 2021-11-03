@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ServiceRequestPriorityRequest;
-use App\Http\Resources\collections\ServiceRequestPriorityResourceCollection;
+use App\Http\Resources\Collections\ServiceRequestPriorityResourceCollection;
 use App\Http\Resources\ServiceRequestPriorityResource;
 use App\Models\ServiceRequestPriority;
 use Illuminate\Auth\Access\AuthorizationException;

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SampleQuantityRequest;
-use App\Http\Resources\collections\SampleQuantityResourceCollection;
+use App\Http\Resources\Collections\SampleQuantityResourceCollection;
 use App\Http\Resources\SampleQuantityResource;
 use App\Models\SampleQuantity;
 use Illuminate\Auth\Access\AuthorizationException;

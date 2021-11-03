@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MedicalRequestTypeRequest;
-use App\Http\Resources\collections\MedicalRequestTypeResourceCollection;
+use App\Http\Resources\Collections\MedicalRequestTypeResourceCollection;
 use App\Http\Resources\MedicalRequestTypeResource;
 use App\Models\MedicalRequestType;
 use Illuminate\Auth\Access\AuthorizationException;

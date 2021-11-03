@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ModuleRequest;
-use App\Http\Resources\collections\MenuResourceCollection;
-use App\Http\Resources\collections\ModuleResourceCollection;
+use App\Http\Resources\Collections\MenuResourceCollection;
+use App\Http\Resources\Collections\ModuleResourceCollection;
 use App\Http\Resources\MenuResource;
 use App\Http\Resources\ModuleResource;
 use App\Models\Module;

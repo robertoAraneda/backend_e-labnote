@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SamplingIndicationRequest;
-use App\Http\Resources\collections\SamplingIndicationResourceCollection;
+use App\Http\Resources\Collections\SamplingIndicationResourceCollection;
 use App\Http\Resources\SamplingIndicationResource;
 use App\Models\SamplingIndication;
 use Illuminate\Auth\Access\AuthorizationException;

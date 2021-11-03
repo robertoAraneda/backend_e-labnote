@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoincRequest;
 use App\Http\Resources\LoincResource;
-use App\Http\Resources\collections\LoincResourceCollection;
+use App\Http\Resources\Collections\LoincResourceCollection;
 use App\Models\Loinc;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;

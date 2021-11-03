@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\collections\SamplingIndicationResource;
+use App\Http\Resources\Collections\SamplingIndicationResource;
 use App\Models\SpecimenCode;
 use App\Models\SamplingIndication;
 use Illuminate\Auth\Access\AuthorizationException;

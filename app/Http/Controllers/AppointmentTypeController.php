@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AppointmentTypeRequest;
 use App\Http\Resources\AppointmentTypeResource;
-use App\Http\Resources\collections\AppointmentTypeResourceCollection;
+use App\Http\Resources\Collections\AppointmentTypeResourceCollection;
 use App\Models\AppointmentType;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;

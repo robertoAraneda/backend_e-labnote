@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProcessTimeRequest;
-use App\Http\Resources\collections\ProcessTimeResourceCollection;
+use App\Http\Resources\Collections\ProcessTimeResourceCollection;
 use App\Http\Resources\ProcessTimeResource;
 use App\Models\ProcessTime;
 use Illuminate\Auth\Access\AuthorizationException;

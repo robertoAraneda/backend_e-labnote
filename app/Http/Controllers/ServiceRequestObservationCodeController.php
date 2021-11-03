@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ServiceRequestObservationCodeRequest;
-use App\Http\Resources\collections\ServiceRequestObservationCodeResourceCollection;
+use App\Http\Resources\Collections\ServiceRequestObservationCodeResourceCollection;
 use App\Http\Resources\ServiceRequestObservationCodeResource;
 use App\Models\Laboratory;
 use App\Models\LaboratoryInformationSystem;

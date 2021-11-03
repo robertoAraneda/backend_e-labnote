@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CityRequest;
 use App\Http\Resources\CityResource;
-use App\Http\Resources\collections\CityResourceCollection;
+use App\Http\Resources\Collections\CityResourceCollection;
 use App\Models\City;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;

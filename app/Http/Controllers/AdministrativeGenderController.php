@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AdministrativeGenderRequest;
-use App\Http\Resources\collections\AdministrativeGenderResourceCollection;
+use App\Http\Resources\Collections\AdministrativeGenderResourceCollection;
 use App\Http\Resources\AdministrativeGenderResource;
 use App\Models\AdministrativeGender;
 use Illuminate\Auth\Access\AuthorizationException;

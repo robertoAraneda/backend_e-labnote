@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AvailabilityRequest;
 use App\Http\Resources\AvailabilityResource;
-use App\Http\Resources\collections\AvailabilityResourceCollection;
+use App\Http\Resources\Collections\AvailabilityResourceCollection;
 use App\Http\Resources\WorkareaResource;
 use App\Models\Availability;
 use Illuminate\Auth\Access\AuthorizationException;

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SpecimenCodeRequest;
-use App\Http\Resources\collections\SpecimenCodeResourceCollection;
+use App\Http\Resources\Collections\SpecimenCodeResourceCollection;
 use App\Http\Resources\SpecimenCodeResource;
 use App\Models\Analyte;
 use App\Models\ServiceRequestObservationCode;

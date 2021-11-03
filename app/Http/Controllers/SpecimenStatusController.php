@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SpecimenStatusRequest;
-use App\Http\Resources\collections\SpecimenStatusResourceCollection;
+use App\Http\Resources\Collections\SpecimenStatusResourceCollection;
 use App\Http\Resources\SpecimenStatusResource;
 use App\Models\SpecimenStatus;
 use Illuminate\Auth\Access\AuthorizationException;

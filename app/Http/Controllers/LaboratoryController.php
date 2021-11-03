@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LaboratoryRequest;
-use App\Http\Resources\collections\LaboratoryResourceCollection;
+use App\Http\Resources\Collections\LaboratoryResourceCollection;
 use App\Http\Resources\LaboratoryResource;
 use App\Models\Module;
 use App\Models\User;

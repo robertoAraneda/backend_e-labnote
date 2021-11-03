@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\collections\SamplingConditionResource;
+use App\Http\Resources\Collections\SamplingConditionResource;
 use App\Models\Analyte;
 use App\Models\ServiceRequestObservation;
 use App\Models\SamplingCondition;

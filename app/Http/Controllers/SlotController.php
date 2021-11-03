@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SlotRequest;
-use App\Http\Resources\collections\SlotResourceCollection;
+use App\Http\Resources\Collections\SlotResourceCollection;
 use App\Http\Resources\SlotResource;
 use App\Models\Slot;
 use Carbon\Carbon;

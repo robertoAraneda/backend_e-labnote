@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OrganizationRequest;
-use App\Http\Resources\collections\OrganizationResourceCollection;
+use App\Http\Resources\Collections\OrganizationResourceCollection;
 use App\Http\Resources\OrganizationResource;
 use App\Models\Organization;
 use Illuminate\Auth\Access\AuthorizationException;

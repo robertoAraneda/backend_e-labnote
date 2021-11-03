@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PractitionerRequest;
-use App\Http\Resources\collections\PractitionerResourceCollection;
+use App\Http\Resources\Collections\PractitionerResourceCollection;
 use App\Http\Resources\PractitionerResource;
 use App\Models\Practitioner;
 use Illuminate\Auth\Access\AuthorizationException;

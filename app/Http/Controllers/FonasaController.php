@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\FonasaRequest;
-use App\Http\Resources\collections\FonasaResourceCollection;
+use App\Http\Resources\Collections\FonasaResourceCollection;
 use App\Http\Resources\FonasaResource;
 use App\Models\Fonasa;
 use Illuminate\Auth\Access\AuthorizationException;

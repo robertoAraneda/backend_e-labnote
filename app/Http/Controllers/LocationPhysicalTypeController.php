@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LocationPhysicalTypeRequest;
-use App\Http\Resources\collections\LocationPhysicalTypeResourceCollection;
+use App\Http\Resources\Collections\LocationPhysicalTypeResourceCollection;
 use App\Http\Resources\LocationPhysicalTypeResource;
 use App\Models\LocationPhysicalType;
 use Illuminate\Auth\Access\AuthorizationException;

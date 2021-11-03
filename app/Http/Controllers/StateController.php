@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StateRequest;
-use App\Http\Resources\collections\CityResource;
-use App\Http\Resources\collections\DistrictResource;
-use App\Http\Resources\collections\StateResourceCollection;
+use App\Http\Resources\Collections\CityResource;
+use App\Http\Resources\Collections\DistrictResource;
+use App\Http\Resources\Collections\StateResourceCollection;
 use App\Http\Resources\StateResource;
 use App\Models\State;
 use Illuminate\Auth\Access\AuthorizationException;

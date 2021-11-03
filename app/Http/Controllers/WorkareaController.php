@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\WorkareaRequest;
-use App\Http\Resources\collections\WorkareaResourceCollection;
+use App\Http\Resources\Collections\WorkareaResourceCollection;
 use App\Http\Resources\WorkareaResource;
 use App\Models\Module;
 use App\Models\Workarea;

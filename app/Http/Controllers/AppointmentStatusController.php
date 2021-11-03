@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AppointmentStatusRequest;
 use App\Http\Resources\AppointmentStatusResource;
-use App\Http\Resources\collections\AppointmentStatusResourceCollection;
+use App\Http\Resources\Collections\AppointmentStatusResourceCollection;
 use App\Models\AppointmentStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

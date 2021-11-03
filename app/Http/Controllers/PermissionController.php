@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PermissionRequest;
-use App\Http\Resources\collections\PermissionResourceCollection;
+use App\Http\Resources\Collections\PermissionResourceCollection;
 use App\Http\Resources\PermissionResource;
 use Illuminate\Http\JsonResponse;
 use Spatie\Permission\Models\Permission;

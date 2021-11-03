@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleRequest;
-use App\Http\Resources\collections\RoleResourceCollection;
+use App\Http\Resources\Collections\RoleResourceCollection;
 use App\Http\Resources\PermissionResource;
 use App\Http\Resources\RoleResource;
 use App\Models\Module;

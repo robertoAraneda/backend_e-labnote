@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MenuRequest;
-use App\Http\Resources\collections\MenuResourceCollection;
+use App\Http\Resources\Collections\MenuResourceCollection;
 use App\Http\Resources\MenuResource;
 use App\Models\Menu;
 use App\Models\Module;

@@ -7,7 +7,7 @@ use App\Enums\ServiceRequestIntentEnum;
 use App\Enums\ServiceRequestStatusEnum;
 use App\Enums\SpecimenStatusEnum;
 use App\Http\Requests\ServiceRequestRequest;
-use App\Http\Resources\collections\ServiceRequestResourceCollection;
+use App\Http\Resources\Collections\ServiceRequestResourceCollection;
 use App\Http\Resources\ServiceRequestResource;
 use App\Integrations\OML21Nobilis;
 use App\Models\Container;
@@ -260,7 +260,7 @@ class ServiceRequestController extends Controller
     {
         $observations = $serviceRequest->observations()->active()->orderBy('id')->get();
 
-        $collection = \App\Http\Resources\collections\ServiceRequestResource::collection($observations);
+        $collection = \App\Http\Resources\Collections\ServiceRequestResource::collection($observations);
 
         return response()->json($collection, 200);
     }
@@ -274,7 +274,7 @@ class ServiceRequestController extends Controller
     {
         $specimens = $serviceRequest->specimens()->active()->orderBy('id')->get();
 
-        $collection = \App\Http\Resources\collections\ServiceRequestResource::collection($specimens);
+        $collection = \App\Http\Resources\Collections\ServiceRequestResource::collection($specimens);
 
         return response()->json($collection, 200);
     }

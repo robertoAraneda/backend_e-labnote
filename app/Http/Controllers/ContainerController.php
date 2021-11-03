@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ContainerRequest;
-use App\Http\Resources\collections\ContainerResourceCollection;
+use App\Http\Resources\Collections\ContainerResourceCollection;
 use App\Http\Resources\ContainerResource;
 use App\Models\Container;
 use Illuminate\Auth\Access\AuthorizationException;

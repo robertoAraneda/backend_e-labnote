@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ServiceRequestIntentRequest;
-use App\Http\Resources\collections\ServiceRequestIntentResourceCollection;
+use App\Http\Resources\Collections\ServiceRequestIntentResourceCollection;
 use App\Http\Resources\ServiceRequestIntentResource;
 use App\Models\ServiceRequestIntent;
 use Illuminate\Auth\Access\AuthorizationException;

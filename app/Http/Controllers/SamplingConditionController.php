@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SamplingConditionRequest;
-use App\Http\Resources\collections\SamplingConditionResourceCollection;
+use App\Http\Resources\Collections\SamplingConditionResourceCollection;
 use App\Http\Resources\SamplingConditionResource;
 use App\Models\SamplingCondition;
 use Illuminate\Auth\Access\AuthorizationException;

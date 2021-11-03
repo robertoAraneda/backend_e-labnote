@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\PatientIdentifierUseEnum;
 use App\Http\Requests\PatientRequest;
-use App\Http\Resources\collections\PatientResourceCollection;
+use App\Http\Resources\Collections\PatientResourceCollection;
 use App\Http\Resources\PatientResource;
 use App\Integrations\ADTNobilis;
 use App\Jobs\SendMailPatientUpdated;
