@@ -25,11 +25,12 @@ class UserFactory extends Factory
 
         return [
             'rut' => '15.654.738-7',
-            'names' => 'Roberto Alejandro',
-            'lastname' => 'Araneda',
-            'mother_lastname' => 'Espinoza',
+            'names' => 'ROBERTO ALEJANDRO',
+            'lastname' => 'ARANEDA',
+            'mother_lastname' => 'ESPINOZA',
             'email' => $this->faker->safeEmail,
             'password' => bcrypt('admin'), // password
+            'laboratory_id' => 1,
         ];
     }
 

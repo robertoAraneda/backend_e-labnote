@@ -33,6 +33,7 @@ class CreateUsersTable extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->boolean('active')->default(true);
+            $table->unsignedBigInteger('laboratory_id')->nullable();
         });
     }
 
