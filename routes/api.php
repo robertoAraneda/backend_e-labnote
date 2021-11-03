@@ -380,6 +380,8 @@ Route::group([
 Route::group(['prefix' => 'v1/public'], function(){
 
     Route::get('service-request-observation-codes/search', [ServiceRequestObservationCodeController::class, 'publicIndex']);
+    Route::get('service-request/integrations/wiener/OML21/create', [ServiceRequestController::class, 'createOml21Wiener']);
+    Route::get('patients/integrations/wiener/OML21/create', [PatientController::class, 'createAdtNobilis']);
 });
 
 

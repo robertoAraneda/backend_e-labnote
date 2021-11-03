@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ObservationServiceRequestRequest;
 use App\Http\Resources\collections\ObservationServiceRequestResourceCollection;
 use App\Http\Resources\ObservationServiceRequestResource;
+use App\Models\Laboratory;
 use App\Models\ServiceRequestObservation;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 
 class ObservationServiceRequestController extends Controller
 {
+
     /**
      * @param ObservationServiceRequestRequest $request
      * @return JsonResponse

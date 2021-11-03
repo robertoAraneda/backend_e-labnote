@@ -9,6 +9,7 @@ use App\Enums\SpecimenStatusEnum;
 use App\Http\Requests\ServiceRequestRequest;
 use App\Http\Resources\collections\ServiceRequestResourceCollection;
 use App\Http\Resources\ServiceRequestResource;
+use App\Integrations\OML21Nobilis;
 use App\Models\Container;
 use App\Models\IdentifierPatient;
 use App\Models\ServiceRequest;
@@ -20,6 +21,7 @@ use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 use PDF;
 use CodeItNow\BarcodeBundle\Utils\BarcodeGenerator;
@@ -527,6 +529,7 @@ class ServiceRequestController extends Controller
         if (!isset($payload)) return null;
 
         return [
+            'id' => $payload->id,
             'name' => $payload->names,
             'father_family' => $payload->lastname,
             'mother_family' => $payload->mother_lastname,
@@ -543,6 +546,7 @@ class ServiceRequestController extends Controller
         if (!isset($payload)) return null;
 
         return [
+            'id' => $payload->id,
             'given' => $payload->given,
             'family' => $payload->family,
             '_links' => [
@@ -573,6 +577,7 @@ class ServiceRequestController extends Controller
         if (!isset($payload)) return null;
 
         return [
+            'id' => $payload->id,
             'name' => $payload->humanNames
                 ->filter(function ($name) {
                     return $name->use == 'usual' || $name->use == 'official';
@@ -604,5 +609,20 @@ class ServiceRequestController extends Controller
             ]
         ];
     }
+
+    public function createOml21Wiener(){
+
+        $serviceRequest = ServiceRequest::where('requisition' , '21110100002')->first();
+
+        $oml = new OML21Nobilis($this->toArray($serviceRequest), 'NW');
+
+        $hl7 = $oml->create();
+
+        Storage::put("pruebaOML.hl7",  str_replace(chr(10), chr(13), $hl7));
+
+        return response()->json(["hl7" => $hl7]);
+    }
+
+
 
 }
