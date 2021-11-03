@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.4|^8.0",
+        "aranyasen/hl7": "^2.1",
         "barryvdh/laravel-dompdf": "^0.9.0",
         "codeitnowin/barcode": "^3.0",
         "darkaonline/l5-swagger": "^8.0",

@@ -66,8 +66,9 @@ class AuthController extends Controller
         }
     }
 
-    public function login(AuthRequest $request): JsonResponse
+    public function login(AuthRequest $request)
     {
+
         if(!$request->validated()){
             return response()->json($request->messages(), 400);
         }
@@ -102,7 +103,7 @@ class AuthController extends Controller
     }
 
 
-    public function user(Request $request): JsonResponse
+    public function user(Request $request)
     {
         $user = $request->user();
 
@@ -113,7 +114,17 @@ class AuthController extends Controller
         $role = Role::where('name', $nameRol)->first();
 
         return response()->json([
-            'user' => $searchUser,
+            'user' => [
+                'id' => $searchUser->id,
+                'rut' => $searchUser->rut,
+                'names' => $searchUser->names,
+                'lastname' => $searchUser->lastname,
+                'mother_lastname' => $searchUser->mother_lastname,
+                'email' => $searchUser->email,
+                'active' => $searchUser->active,
+                'roles' => $searchUser->roles,
+                'laboratory_id' => $searchUser->laboratory_id,
+                ],
             'role' => $role,
             'permissions' => new PermissionResourceCollection($searchUser->getAllPermissions())
     ], 200);

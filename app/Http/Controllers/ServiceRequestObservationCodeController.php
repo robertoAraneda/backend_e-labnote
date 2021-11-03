@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ServiceRequestObservationCodeRequest;
 use App\Http\Resources\collections\ServiceRequestObservationCodeResourceCollection;
 use App\Http\Resources\ServiceRequestObservationCodeResource;
+use App\Models\Laboratory;
+use App\Models\LaboratoryInformationSystem;
 use App\Models\ServiceRequestObservationCode;
+use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,13 +17,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ServiceRequestObservationCodeController extends Controller
 {
+
+
     /**
      * @param ServiceRequestObservationCodeRequest $request
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function index(ServiceRequestObservationCodeRequest $request): JsonResponse
+    public function index(ServiceRequestObservationCodeRequest $request)
     {
+
         $this->authorize('viewAny', ServiceRequestObservationCode::class);
 
         $page = $request->input('page');
@@ -56,19 +62,44 @@ class ServiceRequestObservationCodeController extends Controller
                 ->get();
 
         } else {
+            $laboratory = Laboratory::find(auth()->user()->laboratory_id);
+
+            $lis  = LaboratoryInformationSystem::find($laboratory->laboratory_information_system_id);
+
             $items = ServiceRequestObservationCode::select(
-                'id',
-                'name',
-                'loinc_num',
-                'container_id',
-                'analyte_id',
-                'specimen_code_id',
-                'location_id',
-                'slug',
-                'active',
-            )
+                'service_request_observation_codes.id',
+                'service_request_observation_codes.name',
+                'service_request_observation_codes.loinc_num',
+                'service_request_observation_codes.container_id',
+                'service_request_observation_codes.analyte_id',
+                'service_request_observation_codes.specimen_code_id',
+                'service_request_observation_codes.location_id',
+                'service_request_observation_codes.slug',
+                'service_request_observation_codes.active',
+            ) ->join('integration_observation_service_requests', function ($join) use ($lis) {
+                $join->on('service_request_observation_codes.id', '=', 'integration_observation_service_requests.observation_service_request_id')
+                    ->where('integration_observation_service_requests.lis_name', $lis->description)
+                    ->where('integration_observation_service_requests.active', true);
+            })
                 ->orderBy('id')
                 ->get();
+
+            if(count($items) === 0){
+                $items = ServiceRequestObservationCode::select(
+                    'id',
+                    'name',
+                    'loinc_num',
+                    'container_id',
+                    'analyte_id',
+                    'specimen_code_id',
+                    'location_id',
+                    'slug',
+                    'active',
+                )
+                    ->orderBy('id')
+                    ->get();
+
+            }
         }
         $collection = new ServiceRequestObservationCodeResourceCollection($items);
         return

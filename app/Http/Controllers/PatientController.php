@@ -6,6 +6,7 @@ use App\Enums\PatientIdentifierUseEnum;
 use App\Http\Requests\PatientRequest;
 use App\Http\Resources\collections\PatientResourceCollection;
 use App\Http\Resources\PatientResource;
+use App\Integrations\ADTNobilis;
 use App\Jobs\SendMailPatientUpdated;
 use App\Mail\AppointmentCreated;
 use App\Mail\PatientUpdated;
@@ -18,6 +19,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -401,6 +403,162 @@ class PatientController extends Controller
             }
         }
         return response()->json([], Response::HTTP_OK);
+    }
+
+    private function toArray($patient){
+        return [
+            'id' => $patient->id,
+            'identifier' => $this->identifier($patient->identifierPatient),
+            'name' =>$this->name($patient->humanNames),
+            'telecom' => $this->telecom($patient->contactPointPatient),
+            'address' => $this->address($patient->addressPatient),
+            'contact' => $this->contact($patient->contactPatient),
+            'administrative_gender_id' => $patient->administrativeGender->id,
+            'birthdate' => $patient->birthdate,
+            'active' => (bool) $patient->active,
+            'created_at' => $this->date($patient->created_at),
+            '_embedded' => [
+                'administrativeGender' => $this->administrativeGender($patient->administrativeGender)
+            ],
+        ];
+    }
+
+    private function date($date): ?string
+    {
+        if(!isset($date)) return null;
+
+        return $date->format('d/m/Y h:i:s');
+    }
+
+    private function telecom($array){
+        if(count($array) === 0) return $array;
+
+        return $array->map(function ($item){
+            return [
+                'id' => $item->id,
+                'system' => $item->system,
+                'value' => $item->value,
+                'use' => $item->use
+            ];
+        });
+
+    }
+
+    private function administrativeGender($payload): ?array
+    {
+        if(!isset($payload)) return null;
+
+        return [
+            'display' => $payload->display,
+            '_links' => [
+                'self' => [
+                    'href' => route('api.administrative-genders.show', ['administrative_gender' => $payload->id], false)
+                ]
+            ]
+        ];
+    }
+
+    private function address($array){
+        if(count($array) === 0) return $array;
+
+        return $array->map(function ($item){
+            return [
+                'id' => $item->id,
+                'use' => $item->use,
+                'text' => $item->text,
+                'city_code'  => (string) $item->city_code,
+                'city_name' => (string) $item->city->name,
+                'state_code' => (string) $item->state_code,
+                'state_name' => (string) $item->state->name,
+            ];
+        });
+
+    }
+
+    private function identifier($array){
+        if(count($array) === 0) return $array;
+
+        return $array->map(function ($item){
+            return [
+                'id' => $item->id,
+                'identifier_use_id' => $item->identifierUse->id,
+                'identifierUse' => $item->identifierUse,
+                'identifier_type_id' => $item->identifierType->id,
+                'identifierType' => $item->identifierType,
+                'value'  => $item->value,
+            ];
+        });
+
+    }
+
+    private function contact($array){
+        if(count($array) === 0) return $array;
+
+        return $array->map(function ($item){
+            return [
+                'id' => $item->id,
+                'given' => $item->given,
+                'family' => $item->family,
+                'relationship'  => $item->relationship,
+                'email' => $item->email,
+                'phone' => $item->phone,
+            ];
+        });
+
+    }
+
+    private function name($array){
+        if(count($array) === 0) return $array;
+
+        return $array->map(function ($item){
+            return [
+                'id' => $item->id,
+                'use' => $item->use,
+                'given' => $item->given,
+                'text' => $item->given." ".$item->father_family." ".$item->mother_family,
+                'father_family' => $item->father_family,
+                'mother_family' => $item->mother_family,
+                '_links' => [
+                    'self' => [
+                        'href' => route('api.users.show', ['user' => $item->id], false)
+                    ]
+                ]
+            ];
+        });
+
+    }
+
+
+    /**
+     * @param $user
+     * @return array|null
+     */
+
+    private function user($user): ?array
+    {
+        if(!isset($user)) return null;
+
+        return [
+            'name' => $user->names,
+            '_links' => [
+                'self' => [
+                    'href' => route('api.users.show', ['user' => $user->id], false)
+                ]
+            ]
+        ];
+    }
+
+    public function createAdtNobilis(){
+
+        $patient = Patient::find(1)->first();
+
+        $adt = new ADTNobilis($this->toArray($patient), 'A04');
+
+        $hl7 = $adt->create();
+
+        Storage::put("pruebaADT.hl7",  str_replace(chr(10), chr(13), $hl7));
+
+        return response()->json(["hl7" => $hl7]);
     }
 
 }

@@ -138,6 +138,7 @@ class PatientResource extends JsonResource
                'id' => $item->id,
                'use' => $item->use,
                'given' => $item->given,
+               'text' => $item->given." ".$item->father_family." ".$item->mother_family,
                'father_family' => $item->father_family,
                'mother_family' => $item->mother_family,
                '_links' => [
