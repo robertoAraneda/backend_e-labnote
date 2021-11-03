@@ -22,13 +22,15 @@ class LaboratorySeeder extends Seeder
             'phone' => '+5699876565',
             'redirect' => 'http://labisur.elabnote.cl',
             'email' => 'laboratorio@asur.cl',
+            'laboratory_information_system_id' => 1
         ]);
         Laboratory::create([
             'name' => 'Laboratorio Hospital HHHA',
             'address' => 'Montt 115',
             'phone' => '+5699876565',
             'redirect' => 'http://hhha.elabnote.cl',
-            'email' => 'hhha@asur.cl'
+            'email' => 'hhha@asur.cl',
+            'laboratory_information_system_id' => 1
         ]);
 
         $modules = Module::all();
