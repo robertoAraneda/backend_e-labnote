@@ -16,6 +16,7 @@ class PractitionerResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'rut' => $this->rut,
+            'administrative_gender_id' => $this->administrative_gender_id,
             'active' => (bool) $this->active,
             'created_user_ip' => $this->created_user_ip,
             'updated_user_ip' => $this->updated_user_ip,

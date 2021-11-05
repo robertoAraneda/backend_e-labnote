@@ -32,7 +32,10 @@ class SlotController extends Controller
                 ->orderBy('id')
                 ->paginate($request->getPaginate());
         } else if ($request->input('date')) {
+
             $date = $request->input('date');
+            $startDate = Carbon::createFromFormat('Y-m-d', $date."-01");
+            $endDate = $startDate->clone()->addMonth();
             $items = Slot::select(
                 'id',
                 'start',
@@ -40,7 +43,7 @@ class SlotController extends Controller
                 'comment',
                 'slot_status_id',
                 'overbooked',
-            )->whereBetween('start', [$date."-01", $date."-31"])
+            )->whereBetween('start', [$startDate, $endDate])
                 ->orderBy('start')
                 ->get();
         } else if ($request->input('simple-date')) {

@@ -274,5 +274,14 @@ class MenuSeeder extends Seeder
             'permission_id' => Permission::where('name', 'samplingRoom.index')->first()->id,
             'order' => 4
         ]);
+
+        Menu::create([
+            'name' => 'Profesionales',
+            'icon' => 'mdi-cog',
+            'url' => 'practitioners',
+            'module_id' => $configurationId,
+            'permission_id' => Permission::where('name', 'practitioner.index')->first()->id,
+            'order' => 4
+        ]);
     }
 }

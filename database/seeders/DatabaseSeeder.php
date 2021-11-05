@@ -80,7 +80,12 @@ class DatabaseSeeder extends Seeder
             SpecimenCodeSeeder::class,
             ContainerSeeder::class,
             SpecimenStatusSeeder::class,
-
+            ServiceRequestPrioritySeeder::class,
+            ServiceRequestIntentSeeder::class,
+            ServiceRequestStatusSeeder::class,
+            ServiceRequestCategorySeeder::class,
+            AppointmentStatusSeeder::class,
+            AppointmentTypeSeeder::class
         ]);
     }
 }
