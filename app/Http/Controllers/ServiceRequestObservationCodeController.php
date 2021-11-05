@@ -64,27 +64,9 @@ class ServiceRequestObservationCodeController extends Controller
         } else {
             $laboratory = Laboratory::find(auth()->user()->laboratory_id);
 
-            $lis  = LaboratoryInformationSystem::find($laboratory->laboratory_information_system_id);
+            $lis = LaboratoryInformationSystem::find($laboratory->laboratory_information_system_id);
 
-            $items = ServiceRequestObservationCode::select(
-                'service_request_observation_codes.id',
-                'service_request_observation_codes.name',
-                'service_request_observation_codes.loinc_num',
-                'service_request_observation_codes.container_id',
-                'service_request_observation_codes.analyte_id',
-                'service_request_observation_codes.specimen_code_id',
-                'service_request_observation_codes.location_id',
-                'service_request_observation_codes.slug',
-                'service_request_observation_codes.active',
-            ) ->join('integration_observation_service_requests', function ($join) use ($lis) {
-                $join->on('service_request_observation_codes.id', '=', 'integration_observation_service_requests.observation_service_request_id')
-                    ->where('integration_observation_service_requests.lis_name', $lis->description)
-                    ->where('integration_observation_service_requests.active', true);
-            })
-                ->orderBy('id')
-                ->get();
-
-            if(count($items) === 0){
+            if(!isset($lis)){
                 $items = ServiceRequestObservationCode::select(
                     'id',
                     'name',
@@ -98,9 +80,43 @@ class ServiceRequestObservationCodeController extends Controller
                 )
                     ->orderBy('id')
                     ->get();
+            }else{
+                $items = ServiceRequestObservationCode::select(
+                    'service_request_observation_codes.id',
+                    'service_request_observation_codes.name',
+                    'service_request_observation_codes.loinc_num',
+                    'service_request_observation_codes.container_id',
+                    'service_request_observation_codes.analyte_id',
+                    'service_request_observation_codes.specimen_code_id',
+                    'service_request_observation_codes.location_id',
+                    'service_request_observation_codes.slug',
+                    'service_request_observation_codes.active',
+                )->join('integration_observation_service_requests', function ($join) use ($lis) {
+                    $join->on('service_request_observation_codes.id', '=', 'integration_observation_service_requests.observation_service_request_id')
+                        ->where('integration_observation_service_requests.lis_name', $lis->description)
+                        ->where('integration_observation_service_requests.active', true);
+                })
+                    ->orderBy('id')
+                    ->get();
 
+                if (count($items) === 0) {
+                    $items = ServiceRequestObservationCode::select(
+                        'id',
+                        'name',
+                        'loinc_num',
+                        'container_id',
+                        'analyte_id',
+                        'specimen_code_id',
+                        'location_id',
+                        'slug',
+                        'active',
+                    )
+                        ->orderBy('id')
+                        ->get();
+                }
             }
         }
+
         $collection = new ServiceRequestObservationCodeResourceCollection($items);
         return
             response()

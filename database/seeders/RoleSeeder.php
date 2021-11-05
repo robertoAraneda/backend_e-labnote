@@ -23,16 +23,17 @@ class RoleSeeder extends Seeder
             'super-admin'
         ];
 
-        $user = User::factory()->create();
+
 
         foreach ($roles as $role){
             Role::create([
                 'name' => $role,
                 'guard_name' => 'api',
-                'created_user_id' => $user->id,
+                'created_user_id' => 1,
                 'active' => true
             ]);
         }
+        $user = User::find(1);
 
         $role = Role::where('name', 'Administrador')->first();
 

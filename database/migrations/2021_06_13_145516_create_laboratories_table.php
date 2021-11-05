@@ -22,7 +22,7 @@ class CreateLaboratoriesTable extends Migration
             $table->string('redirect')->nullable();
             $table->boolean('active')->default(true);
             $table->string('technical_director')->nullable();
-            $table->string('laboratory_information_system_id');
+            $table->string('laboratory_information_system_id')->nullable();
             $table->unsignedBigInteger('created_user_id')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
             $table->unsignedBigInteger('deleted_user_id')->nullable();

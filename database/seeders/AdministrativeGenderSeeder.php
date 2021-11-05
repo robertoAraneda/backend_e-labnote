@@ -10,19 +10,19 @@ class AdministrativeGenderSeeder extends Seeder
    private const AdministrativeGender = [
         [
             'code' => 'male',
-            'display' => 'Masculino'
+            'display' => 'MASCULINO'
         ],
         [
             'code' => 'female',
-            'display' => 'Femenino'
+            'display' => 'FEMENINO'
         ],
         [
             'code' => 'other',
-            'display' => 'Otro'
+            'display' => 'OTRO'
         ],
         [
             'code' => 'unknown',
-            'display' => 'Desconocido'
+            'display' => 'DESCONOCIDO'
         ]
     ];
 

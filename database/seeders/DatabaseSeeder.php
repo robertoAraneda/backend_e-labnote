@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Organization;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,7 +14,16 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
+            UserSeeder::class,
             RoleSeeder::class,
+            ModuleSeeder::class,
+            LaboratorySeeder::class,
+
+            AppointmentPermissionsSeeder::class,
+            SlotPermissionsSeeder::class,
+            AppointmentTypePermissionsSeeder::class,
+            AppointmentStatusPermissionsSeeder::class,
+            SpecimenPermissionsSeeder::class,
             AvailabilityPermissionsSeeder::class,
             ProcessTimePermissionsSeeder::class,
             RolePermissionsSeeder::class,
@@ -51,8 +59,8 @@ class DatabaseSeeder extends Seeder
             ServiceRequestStatusPermissionsSeeder::class,
             ServiceRequestPermissionsSeeder::class,
             SpecimenStatusPermissionsSeeder::class,
-            ModuleSeeder::class,
-            LaboratorySeeder::class,
+            SamplingRoomPermissionsSeeder::class,
+
             MenuSeeder::class,
             WorkareaSeeder::class,
             AnalyteSeeder::class,
@@ -71,7 +79,8 @@ class DatabaseSeeder extends Seeder
             IdentifierUseSeeder::class,
             SpecimenCodeSeeder::class,
             ContainerSeeder::class,
-            SpecimenStatusSeeder::class
+            SpecimenStatusSeeder::class,
+
         ]);
     }
 }

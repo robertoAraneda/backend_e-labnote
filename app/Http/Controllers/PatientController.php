@@ -107,9 +107,7 @@ class PatientController extends Controller
             //se obtiene la información de los identificadores del paciente
             $identifierPatientCollection = collect($request->validated()['identifier']);
 
-
             $identifierPatient = $identifierPatientCollection->map(function ($item) use ($request) {
-
 
                 return array_merge($item,
                     [
@@ -169,7 +167,7 @@ class PatientController extends Controller
         } catch (\Exception $ex) {
 
             DB::rollBack();
-            return response()->json($ex->getTrace(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(['trace' => $ex->getTrace(), 'message' => $ex->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

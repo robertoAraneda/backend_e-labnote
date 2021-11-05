@@ -18,7 +18,6 @@ class ServiceRequestPrioritySeeder extends Seeder
         $serviceRequestPriorities = [
             'RUTINA',
             'URGENCIA',
-            'STAT',
         ];
 
         foreach ($serviceRequestPriorities as $serviceRequestPriority)

@@ -10,15 +10,15 @@ class IdentifierUseSeeder extends Seeder
     private const IdentifierUse = [
         [
             'code' => 'usual',
-            'display' => 'Usual'
+            'display' => 'USUAL'
         ],
         [
             'code' => 'official',
-            'display' => 'Oficial'
+            'display' => 'OFICIAL'
         ],
         [
             'code' => 'temp',
-            'display' => 'Temporal'
+            'display' => 'TEMPORAL'
         ]
     ];
 

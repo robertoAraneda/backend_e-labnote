@@ -16,15 +16,17 @@ class MenuSeeder extends Seeder
      */
     public function run()
     {
-        $configurationId = Module::where('name', 'Configuración')->first()->id;
-        $serviceRequestId = Module::where('name', 'Solicitud de medios')->first()->id;
-        $advancedSettingId = Module::where('name', 'Configuración avanzada')->first()->id;
+        $configurationId = Module::where('slug', 'configuracion')->first()->id;
+        $serviceRequestId = Module::where('slug', 'solicitud-de-medios')->first()->id;
+        $advancedSettingId = Module::where('slug', 'configuracion-avanzada')->first()->id;
+        $samplingRoomId = Module::where('slug', 'toma-de-muestras')->first()->id;
+        $appointmentId = Module::where('slug', 'agenda')->first()->id;
 
         Menu::create([
             'name' => 'Roles',
             'icon' => 'mdi-account-cog',
             'url' => 'roles',
-            'module_id' => $advancedSettingId,
+            'module_id' => $configurationId,
             'permission_id' => Permission::where('name', 'role.index')->first()->id,
             'order' => 1
         ]);
@@ -83,16 +85,16 @@ class MenuSeeder extends Seeder
         ]);
 
         Menu::create([
-            'name' => 'Exámenes',
+            'name' => 'Exámenes base',
             'icon' => 'mdi-gate',
             'url' => 'analytes',
-            'module_id' => $advancedSettingId,
+            'module_id' => $configurationId,
             'permission_id' => Permission::where('name', 'analyte.index')->first()->id,
             'order' => 2
         ]);
 
         Menu::create([
-            'name' => 'Prestaciones',
+            'name' => 'Exámenes',
             'icon' => 'mdi-test-tube',
             'url' => 'serviceRequestObservationCode',
             'module_id' => $configurationId,
@@ -177,7 +179,7 @@ class MenuSeeder extends Seeder
             'icon' => 'mdi-cog',
             'url' => 'searchServiceRequest',
             'module_id' => $serviceRequestId,
-            'permission_id' => Permission::where('name', 'serviceRequest.index')->first()->id,
+            'permission_id' => Permission::where('name', 'searchServiceRequest.index')->first()->id,
             'order' => 5
         ]);
 
@@ -215,6 +217,61 @@ class MenuSeeder extends Seeder
             'url' => 'cities',
             'module_id' => $advancedSettingId,
             'permission_id' => Permission::where('name', 'city.index')->first()->id,
+            'order' => 4
+        ]);
+
+        Menu::create([
+            'name' => 'Buscar solicitudes',
+            'icon' => 'mdi-cog',
+            'url' => 'searchServiceRequest',
+            'module_id' => $serviceRequestId,
+            'permission_id' => Permission::where('name', 'searchServiceRequest.index')->first()->id,
+            'order' => 4
+        ]);
+
+        Menu::create([
+            'name' => 'Intención solicitud examen',
+            'icon' => 'mdi-cog',
+            'url' => 'serviceRequestIntents',
+            'module_id' => $advancedSettingId,
+            'permission_id' => Permission::where('name', 'serviceRequestIntent.index')->first()->id,
+            'order' => 4
+        ]);
+
+        Menu::create([
+            'name' => 'Bloques',
+            'icon' => 'mdi-cog',
+            'url' => 'slots',
+            'module_id' => $configurationId,
+            'permission_id' => Permission::where('name', 'slot.index')->first()->id,
+            'order' => 4
+        ]);
+
+        Menu::create([
+            'name' => 'Agendar',
+            'icon' => 'mdi-cog',
+            'url' => 'createAppointment',
+            'module_id' => $appointmentId,
+            'permission_id' => Permission::where('name', 'appointment.index')->first()->id,
+            'order' => 4
+        ]);
+
+        Menu::create([
+            'name' => 'Calendario',
+            'icon' => 'mdi-cog',
+            'url' => 'schedules',
+            'module_id' => $appointmentId,
+            'permission_id' => Permission::where('name', 'appointment.index')->first()->id,
+            'order' => 4
+        ]);
+
+
+        Menu::create([
+            'name' => 'Recepción',
+            'icon' => 'mdi-cog',
+            'url' => 'samplingRoomReception',
+            'module_id' => $samplingRoomId,
+            'permission_id' => Permission::where('name', 'samplingRoom.index')->first()->id,
             'order' => 4
         ]);
     }
