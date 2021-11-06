@@ -12,6 +12,7 @@ class ServiceRequestRequest extends FormRequest
             case 'PUT':
                 return [
                     'note' => 'string',
+                    'requisition' => 'string',
                     'service_request_priority_id' => 'integer',
                     'patient_id' => 'integer',
                     'performer_id' => 'integer',

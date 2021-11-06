@@ -184,18 +184,59 @@ class ServiceRequestController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function update(ServiceRequestRequest $request, ServiceRequest $serviceRequest): JsonResponse
+    public function update(ServiceRequestRequest $request, ServiceRequest $serviceRequest)
     {
         $this->authorize('update', $serviceRequest);
-
-        $data = array_merge($request->validated(),
-            [
-                'updated_user_id' => auth()->id(),
-                'updated_user_ip' => $request->ip(),
-            ]);
+        $paramsValidated = (object)$request->validated();
 
         try {
-            $serviceRequest->update($data);
+            $serviceRequest->update(
+                array_merge($request->validated(),
+                    [
+                        'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::ACTIVE)->first()->id,
+                        'service_request_intent_id' => ServiceRequestIntent::where('code', ServiceRequestIntentEnum::ORDER)->first()->id,
+                        'service_request_category_id' => ServiceRequestCategory::where('code', ServiceRequestCategoryEnum::LABORATORY)->first()->id,
+                        'updated_user_id' => auth()->id(),
+                        'updated_user_ip' => $request->ip(),
+                    ]));
+
+            //observations
+            $serviceRequest->observations()->delete();
+
+            $observationsCollection = collect($paramsValidated->observations);
+
+            $observations = $observationsCollection->map(function ($item) use ($request) {
+
+                return array_merge($item,
+                    [
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip()
+                    ]);
+            });
+
+            $serviceRequest->observations()->createMany($observations);
+
+            //specimens
+            $specimensCollection = collect($paramsValidated->specimens);
+
+            $serviceRequest->specimens()->delete();
+
+            $requisition = $paramsValidated->requisition;
+
+            $specimens = $specimensCollection->map(function ($item) use ($request, $requisition) {
+
+                $container = Container::find($item['container_id']);
+
+                return array_merge($item,
+                    [
+                        'accession_identifier' => $requisition . $container->suffix,
+                        'specimen_status_id' => SpecimenStatus::where('code', SpecimenStatusEnum::PENDING)->first()->id,
+                        'created_user_id' => auth()->id(),
+                        'created_user_ip' => $request->ip()
+                    ]);
+            });
+
+            $serviceRequest->specimens()->createMany($specimens);
 
             return response()->json(new ServiceRequestResource($serviceRequest), Response::HTTP_OK);
         } catch (\Exception $ex) {
@@ -356,13 +397,13 @@ class ServiceRequestController extends Controller
     public function generateCodbar(ServiceRequestRequest $request, ServiceRequest $serviceRequest)
     {
 
-       $accession_identifier = $request->input('accession_identifier');
+        $accession_identifier = $request->input('accession_identifier');
 
-        if(isset($accession_identifier)){
+        if (isset($accession_identifier)) {
 
             $mappedServiceRequest = $this->toArray($serviceRequest);
 
-            $container = collect($mappedServiceRequest['_links']['specimens']['collection'])->filter(function($specimen) use ($accession_identifier){
+            $container = collect($mappedServiceRequest['_links']['specimens']['collection'])->filter(function ($specimen) use ($accession_identifier) {
                 return $specimen['specimen']['accession_identifier'] == $accession_identifier;
             });
 
@@ -372,7 +413,7 @@ class ServiceRequestController extends Controller
                 'serviceRequest' => $mappedServiceRequest,
             ];
 
-        }else{
+        } else {
             $payload = [
                 'serviceRequest' => $this->toArray($serviceRequest),
             ];
@@ -610,19 +651,19 @@ class ServiceRequestController extends Controller
         ];
     }
 
-    public function createOml21Wiener(){
+    public function createOml21Wiener()
+    {
 
-        $serviceRequest = ServiceRequest::where('requisition' , '21110100002')->first();
+        $serviceRequest = ServiceRequest::where('requisition', '21110100002')->first();
 
         $oml = new OML21Nobilis($this->toArray($serviceRequest), 'NW');
 
         $hl7 = $oml->create();
 
-        Storage::put("pruebaOML.hl7",  str_replace(chr(10), chr(13), $hl7));
+        Storage::put("pruebaOML.hl7", str_replace(chr(10), chr(13), $hl7));
 
         return response()->json(["hl7" => $hl7]);
     }
-
 
 
 }

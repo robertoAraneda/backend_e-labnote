@@ -75,6 +75,7 @@ class ServiceRequestResource extends JsonResource
         if (!isset($user)) return null;
 
         return [
+            'id' => $user->id,
             'name' => $user->names,
             '_links' => [
                 'self' => [
@@ -89,6 +90,7 @@ class ServiceRequestResource extends JsonResource
         if (!isset($payload)) return null;
 
         return [
+            'id' => $payload->id,
             'name' => $payload->display,
             'code' => $payload->code,
             '_links' => [
@@ -104,6 +106,7 @@ class ServiceRequestResource extends JsonResource
         if (!isset($payload)) return null;
 
         return [
+            'id' => $payload->id,
             'name' => $payload->display,
             '_links' => [
                 'self' => [
@@ -118,6 +121,7 @@ class ServiceRequestResource extends JsonResource
         if (!isset($payload)) return null;
 
         return [
+            'id' => $payload->id,
             'name' => $payload->display,
             '_links' => [
                 'self' => [
@@ -132,6 +136,7 @@ class ServiceRequestResource extends JsonResource
         if (!isset($payload)) return null;
 
         return [
+            'id' => $payload->id,
             'name' => $payload->display,
             '_links' => [
                 'self' => [
@@ -147,6 +152,7 @@ class ServiceRequestResource extends JsonResource
         if (!isset($payload)) return null;
 
         return [
+            'id' => $payload->id,
             'name' => $payload->names,
             'father_family' => $payload->lastname,
             'mother_family' => $payload->mother_lastname,
@@ -163,6 +169,7 @@ class ServiceRequestResource extends JsonResource
         if (!isset($payload)) return null;
 
         return [
+            'id' => $payload->id,
             'given' => $payload->given,
             'family' => $payload->family,
             '_links' => [
@@ -179,6 +186,7 @@ class ServiceRequestResource extends JsonResource
         if (!isset($payload)) return null;
 
         return [
+            'id' => $payload->id,
             'name' => $payload->name,
             '_links' => [
                 'self' => [
@@ -193,6 +201,7 @@ class ServiceRequestResource extends JsonResource
         if (!isset($payload)) return null;
 
         return [
+            'id' => $payload->id,
             'name' => $payload->humanNames
                 ->filter(function ($name) {
                     return $name->use == 'usual' || $name->use == 'official';
@@ -208,6 +217,13 @@ class ServiceRequestResource extends JsonResource
                 }),
             'birthdate' => Carbon::parse($payload->birthdate)->format('d/m/Y'),
             'administrative_gender' => $payload->administrativeGender->display,
+            'telecom' => $payload->contactPointPatient->map(function($telecom){
+                return [
+                    'system' => $telecom->system,
+                    'use' => $telecom->use,
+                    'value' => $telecom->value
+                ];
+            }),
             'identifier' => $payload->identifierPatient
                 ->filter(function($identifier){
                     return $identifier->identifierUse->code == 'usual' || $identifier->identifierUse->code == 'official' ;
