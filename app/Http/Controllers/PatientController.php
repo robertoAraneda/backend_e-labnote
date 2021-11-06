@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PatientIdentifierTypeEnum;
 use App\Enums\PatientIdentifierUseEnum;
 use App\Http\Requests\PatientRequest;
 use App\Http\Resources\Collections\PatientResourceCollection;
@@ -12,8 +13,10 @@ use App\Mail\AppointmentCreated;
 use App\Mail\PatientUpdated;
 use App\Models\HumanName;
 use App\Models\IdentifierPatient;
+use App\Models\IdentifierType;
 use App\Models\IdentifierUse;
 use App\Models\Patient;
+use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -103,9 +106,35 @@ class PatientController extends Controller
 
             $model->humanNames()->createMany($name);
 
-
             //se obtiene la información de los identificadores del paciente
             $identifierPatientCollection = collect($request->validated()['identifier']);
+
+            //crear código VIH como identifier confidencial
+            $humanName = (object)$dataPatient['name'][0];
+            $firstGivenLetter = substr($humanName->given, 0, 1);
+            $firstFatherFamilyLetter = substr($humanName->father_family, 0, 1);
+            $firstMotherFamilyLetter = $humanName->mother_family == "" ? '#' : substr($humanName->mother_family, 0, 1);
+
+            $birthdate = Carbon::parse($dataPatient['birthdate'])->format('dmy');
+
+            $identifier = (object)$dataPatient['identifier'][0];
+
+            $identifierTypeCode = IdentifierType::find($identifier->identifier_type_id)->code;
+            $extensionIdentifierValue = "ABC-D";
+
+            if ($identifierTypeCode == PatientIdentifierTypeEnum::RUN) {
+                $extensionIdentifierValue = substr($identifier->value, -5);
+            } else if ($identifierTypeCode == PatientIdentifierTypeEnum::PASSPORT) {
+                $extensionIdentifierValue = "ABC-D";
+            }
+
+            $confidentialIdentifier = "{$firstGivenLetter}{$firstFatherFamilyLetter}{$firstMotherFamilyLetter} {$birthdate} {$extensionIdentifierValue}";
+
+            $identifierPatientCollection->push([
+                'value' => $confidentialIdentifier,
+                'identifier_type_id' => IdentifierType::where('code', PatientIdentifierTypeEnum::CONFIDENTIAL)->first()->id,
+            ]);
+
 
             $identifierPatient = $identifierPatientCollection->map(function ($item) use ($request) {
 
@@ -145,9 +174,9 @@ class PatientController extends Controller
             $model->addressPatient()->createMany($address);
 
             //se obtiene la información de familiar de contacto
-            $isContact =  array_key_exists('contact', $dataPatient);
+            $isContact = array_key_exists('contact', $dataPatient);
 
-            if($isContact){
+            if ($isContact) {
                 $contactPatientCollection = collect($dataPatient['contact']);
                 $contactPatient = $contactPatientCollection->map(function ($item) use ($request) {
 
@@ -193,7 +222,7 @@ class PatientController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function update(PatientRequest $request, Patient $patient): JsonResponse
+    public function update(PatientRequest $request, Patient $patient)
     {
         $this->authorize('update', $patient);
 
@@ -205,8 +234,6 @@ class PatientController extends Controller
                 foreach ($validated->name as $name) {
                     $data = array_merge($name,
                         [
-                            'created_user_id' => auth()->id(),
-                            'created_user_ip' => $request->ip(),
                             'updated_user_id' => auth()->id(),
                             'updated_user_ip' => $request->ip(),
                         ]);
@@ -238,15 +265,32 @@ class PatientController extends Controller
             }
 
             if (isset($validated->identifier) && count($validated->identifier) != 0) {
+                $test = [];
                 foreach ($validated->identifier as $identifierPatient) {
+                    $humanName = (object)$validated->name[0];
+                    $firstGivenLetter = substr($humanName->given, 0, 1);
+                    $firstFatherFamilyLetter = substr($humanName->father_family, 0, 1);
+                    $firstMotherFamilyLetter = $humanName->mother_family == "" ? '#' : substr($humanName->mother_family, 0, 1);
+
+                    $birthdate = Carbon::parse($validated->birthdate)->format('dmy');
+                    $identifierTypeCode = IdentifierType::find($identifierPatient['identifier_type_id'])->code;
+
+                    $extensionIdentifierValue = "ABC-D";
+                    if ($identifierTypeCode == PatientIdentifierTypeEnum::RUN) {
+                        $extensionIdentifierValue = substr($identifierPatient['value'], -5);
+
+                    } else if ($identifierTypeCode == PatientIdentifierTypeEnum::PASSPORT) {
+                        $extensionIdentifierValue = "ABC-D";
+                    }
+
+                    $confidentialIdentifierValue = "{$firstGivenLetter}{$firstFatherFamilyLetter}{$firstMotherFamilyLetter} {$birthdate} {$extensionIdentifierValue}";
 
                     $data = array_merge($identifierPatient,
                         [
-                            'created_user_id' => auth()->id(),
-                            'created_user_ip' => $request->ip(),
                             'updated_user_id' => auth()->id(),
                             'updated_user_ip' => $request->ip(),
                         ]);
+
 
                     $patient->identifierPatient()->updateOrCreate(
                         [
@@ -254,14 +298,32 @@ class PatientController extends Controller
                         ], $data);
 
                 }
+                $identifierType = IdentifierType::where('code', PatientIdentifierTypeEnum::CONFIDENTIAL)->first();
+
+                $confidentialIdentifier = $patient->identifierPatient()->where('identifier_type_id', $identifierType->id)->first();
+
+                if (!isset($confidentialIdentifier)) {
+                    $patient->identifierPatient()->create([
+                        'value' => $confidentialIdentifierValue,
+                        'identifier_use_id' => IdentifierUse::where('code', PatientIdentifierUseEnum::OFFICIAL)->first()->id,
+                        'identifier_type_id' => IdentifierType::where('code', PatientIdentifierTypeEnum::CONFIDENTIAL)->first()->id,
+                        'created_user_id' => auth()->id(),
+                        'createdd_user_ip' => $request->ip()
+                    ]);
+                } else {
+                    $confidentialIdentifier->update([
+                        'value' => $confidentialIdentifierValue,
+                        'updated_user_id' => auth()->id(),
+                        'updated_user_ip' => $request->ip()
+                    ]);
+                }
+
             }
 
             if (isset($validated->telecom) && count($validated->telecom) != 0) {
                 foreach ($validated->telecom as $contactPointPatient) {
                     $data = array_merge($contactPointPatient,
                         [
-                            'created_user_id' => auth()->id(),
-                            'created_user_ip' => $request->ip(),
                             'updated_user_id' => auth()->id(),
                             'updated_user_ip' => $request->ip(),
                         ]);
@@ -369,17 +431,17 @@ class PatientController extends Controller
     public function searchByParams(PatientRequest $request)
     {
 
-        if($request->query('query') == 'identifier'){
+        if ($request->query('query') == 'identifier') {
             $identifier = IdentifierPatient::where('value', $request->query('value'))->first();
 
-            if(isset($identifier)){
+            if (isset($identifier)) {
                 return response()->json(new PatientResource($identifier->patient), Response::HTTP_OK);
-            }else{
+            } else {
                 return response()->json(null, Response::HTTP_OK);
             }
         }
 
-        if($request->query('query') == 'names'){
+        if ($request->query('query') == 'names') {
 
             $given = Str::upper($request->query('given'));
             $father_family = Str::upper($request->query('father_family'));
@@ -387,33 +449,34 @@ class PatientController extends Controller
 
 
             $names = HumanName::where('given', $given)
-                ->orWhere('father_family', 'like',  "%$father_family%")
-                ->orWhere('mother_family',$mother_family )
+                ->orWhere('father_family', 'like', "%$father_family%")
+                ->orWhere('mother_family', $mother_family)
                 ->get()
-            ->map(function($name){
-                return $name->patient;
-            });
+                ->map(function ($name) {
+                    return $name->patient;
+                });
 
-            if(isset($names)){
+            if (isset($names)) {
                 return response()->json(PatientResource::collection($names), Response::HTTP_OK);
-            }else{
+            } else {
                 return response()->json(null, Response::HTTP_OK);
             }
         }
         return response()->json([], Response::HTTP_OK);
     }
 
-    private function toArray($patient){
+    private function toArray($patient)
+    {
         return [
             'id' => $patient->id,
             'identifier' => $this->identifier($patient->identifierPatient),
-            'name' =>$this->name($patient->humanNames),
+            'name' => $this->name($patient->humanNames),
             'telecom' => $this->telecom($patient->contactPointPatient),
             'address' => $this->address($patient->addressPatient),
             'contact' => $this->contact($patient->contactPatient),
             'administrative_gender_id' => $patient->administrativeGender->id,
             'birthdate' => $patient->birthdate,
-            'active' => (bool) $patient->active,
+            'active' => (bool)$patient->active,
             'created_at' => $this->date($patient->created_at),
             '_embedded' => [
                 'administrativeGender' => $this->administrativeGender($patient->administrativeGender)
@@ -423,15 +486,16 @@ class PatientController extends Controller
 
     private function date($date): ?string
     {
-        if(!isset($date)) return null;
+        if (!isset($date)) return null;
 
         return $date->format('d/m/Y h:i:s');
     }
 
-    private function telecom($array){
-        if(count($array) === 0) return $array;
+    private function telecom($array)
+    {
+        if (count($array) === 0) return $array;
 
-        return $array->map(function ($item){
+        return $array->map(function ($item) {
             return [
                 'id' => $item->id,
                 'system' => $item->system,
@@ -444,7 +508,7 @@ class PatientController extends Controller
 
     private function administrativeGender($payload): ?array
     {
-        if(!isset($payload)) return null;
+        if (!isset($payload)) return null;
 
         return [
             'display' => $payload->display,
@@ -456,48 +520,51 @@ class PatientController extends Controller
         ];
     }
 
-    private function address($array){
-        if(count($array) === 0) return $array;
+    private function address($array)
+    {
+        if (count($array) === 0) return $array;
 
-        return $array->map(function ($item){
+        return $array->map(function ($item) {
             return [
                 'id' => $item->id,
                 'use' => $item->use,
                 'text' => $item->text,
-                'city_code'  => (string) $item->city_code,
-                'city_name' => (string) $item->city->name,
-                'state_code' => (string) $item->state_code,
-                'state_name' => (string) $item->state->name,
+                'city_code' => (string)$item->city_code,
+                'city_name' => (string)$item->city->name,
+                'state_code' => (string)$item->state_code,
+                'state_name' => (string)$item->state->name,
             ];
         });
 
     }
 
-    private function identifier($array){
-        if(count($array) === 0) return $array;
+    private function identifier($array)
+    {
+        if (count($array) === 0) return $array;
 
-        return $array->map(function ($item){
+        return $array->map(function ($item) {
             return [
                 'id' => $item->id,
                 'identifier_use_id' => $item->identifierUse->id,
                 'identifierUse' => $item->identifierUse,
                 'identifier_type_id' => $item->identifierType->id,
                 'identifierType' => $item->identifierType,
-                'value'  => $item->value,
+                'value' => $item->value,
             ];
         });
 
     }
 
-    private function contact($array){
-        if(count($array) === 0) return $array;
+    private function contact($array)
+    {
+        if (count($array) === 0) return $array;
 
-        return $array->map(function ($item){
+        return $array->map(function ($item) {
             return [
                 'id' => $item->id,
                 'given' => $item->given,
                 'family' => $item->family,
-                'relationship'  => $item->relationship,
+                'relationship' => $item->relationship,
                 'email' => $item->email,
                 'phone' => $item->phone,
             ];
@@ -505,15 +572,16 @@ class PatientController extends Controller
 
     }
 
-    private function name($array){
-        if(count($array) === 0) return $array;
+    private function name($array)
+    {
+        if (count($array) === 0) return $array;
 
-        return $array->map(function ($item){
+        return $array->map(function ($item) {
             return [
                 'id' => $item->id,
                 'use' => $item->use,
                 'given' => $item->given,
-                'text' => $item->given." ".$item->father_family." ".$item->mother_family,
+                'text' => $item->given . " " . $item->father_family . " " . $item->mother_family,
                 'father_family' => $item->father_family,
                 'mother_family' => $item->mother_family,
                 '_links' => [
@@ -534,7 +602,7 @@ class PatientController extends Controller
 
     private function user($user): ?array
     {
-        if(!isset($user)) return null;
+        if (!isset($user)) return null;
 
         return [
             'name' => $user->names,
@@ -546,7 +614,8 @@ class PatientController extends Controller
         ];
     }
 
-    public function createAdtNobilis(){
+    public function createAdtNobilis()
+    {
 
         $patient = Patient::find(1)->first();
 
@@ -554,7 +623,7 @@ class PatientController extends Controller
 
         $hl7 = $adt->create();
 
-        Storage::put("pruebaADT.hl7",  str_replace(chr(10), chr(13), $hl7));
+        Storage::put("pruebaADT.hl7", str_replace(chr(10), chr(13), $hl7));
 
         return response()->json(["hl7" => $hl7]);
     }

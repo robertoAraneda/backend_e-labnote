@@ -5,9 +5,8 @@ namespace App\Enums;
 abstract class PatientIdentifierTypeEnum
 {
 
-    const  RUT = "rut";
+    const  RUN = "run";
     const  PASSPORT = "passport-number";
-    const  MEDICAL_RECORD = "medical-record-number";
     const  CONFIDENTIAL = "confidential";
 
 }
