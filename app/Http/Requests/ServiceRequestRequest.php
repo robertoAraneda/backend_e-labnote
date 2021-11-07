@@ -18,10 +18,18 @@ class ServiceRequestRequest extends FormRequest
                     'patient_id' => 'integer',
                     'performer_id' => 'integer',
                     'location_id' => 'integer',
-                    'specimens.*.specimen_code_id' => 'integer',
-                    'specimens.*.patient_id' => 'integer',
-                    'specimens.*.container_id' => 'integer',
-                    'observations.*.service_request_observation_code_id' => 'integer',
+                    'confidential_specimens.*.specimen_code_id' => 'integer',
+                    'confidential_specimens.*.patient_id' => 'integer',
+                    'confidential_specimens.*.container_id' => 'integer',
+                    'not_confidential_specimens.*.specimen_code_id' => 'integer',
+                    'not_confidential_specimens.*.patient_id' => 'integer',
+                    'not_confidential_specimens.*.container_id' => 'integer',
+                    'specimens.*.specimen_code_id' => 'required|integer',
+                    'specimens.*.patient_id' => 'required|integer',
+                    'specimens.*.container_id' => 'required|integer',
+                    'observations.*.service_request_observation_code_id' => 'required|integer',
+                    'confidential_observations.*.service_request_observation_code_id' => 'integer',
+                    'not_confidential_observations.*.service_request_observation_code_id' => 'integer',
                 ];
             case 'POST':
                 return [
@@ -32,10 +40,18 @@ class ServiceRequestRequest extends FormRequest
                     'patient_id' => 'required|integer',
                     'performer_id' => 'required|integer',
                     'location_id' => 'required|integer',
+                    'confidential_specimens.*.specimen_code_id' => 'integer',
+                    'confidential_specimens.*.patient_id' => 'integer',
+                    'confidential_specimens.*.container_id' => 'integer',
+                    'not_confidential_specimens.*.specimen_code_id' => 'integer',
+                    'not_confidential_specimens.*.patient_id' => 'integer',
+                    'not_confidential_specimens.*.container_id' => 'integer',
                     'specimens.*.specimen_code_id' => 'required|integer',
                     'specimens.*.patient_id' => 'required|integer',
                     'specimens.*.container_id' => 'required|integer',
-                    'observations.*.service_request_observation_code_id' => 'integer',
+                    'observations.*.service_request_observation_code_id' => 'required|integer',
+                    'confidential_observations.*.service_request_observation_code_id' => 'integer',
+                    'not_confidential_observations.*.service_request_observation_code_id' => 'integer',
                 ];
             default:
                 return [];

@@ -19,6 +19,8 @@ class ServiceRequest extends Model
         'requisition',
         'occurrence',
         'note',
+        'diagnosis',
+        'is_confidential',
         'date_requisition_fragment',
         'correlative_number',
         'service_request_status_id',

@@ -88,77 +88,141 @@ class ServiceRequestController extends Controller
 
         $paramsValidated = (object)$request->validated();
 
+        $serviceRequests = [];
+
         try {
             DB::beginTransaction();
 
-            $currentDate = Carbon::now()->format('ymd');
+            $specimensCollection = collect($paramsValidated->confidential_specimens);
 
+            if ($specimensCollection->count() !== 0) {
+                $currentDate = Carbon::now()->format('ymd');
 
-            $findLastCorrelativeNumber = ServiceRequest::where('date_requisition_fragment', $currentDate)->orderBy('correlative_number', 'desc')->first();
+                $findLastCorrelativeNumber = ServiceRequest::where('date_requisition_fragment', $currentDate)->orderBy('correlative_number', 'desc')->first();
 
-            if (!isset($findLastCorrelativeNumber)) {
-                $correlativeNumber = 1;
-            } else {
-                $correlativeNumber = $findLastCorrelativeNumber->correlative_number + 1;
+                if (!isset($findLastCorrelativeNumber)) {
+                    $correlativeNumber = 1;
+                } else {
+                    $correlativeNumber = $findLastCorrelativeNumber->correlative_number + 1;
+                }
+
+                $secuenceString = str_pad($correlativeNumber, 5, "0", STR_PAD_LEFT);
+
+                $requisition = (string)$currentDate . (string)$secuenceString;
+
+                $serviceRequest = ServiceRequest::create(
+                    array_merge($request->validated(),
+                        [
+                            'requisition' => $requisition,
+                            'date_requisition_fragment' => $currentDate,
+                            'correlative_number' => $correlativeNumber,
+                            'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::ACTIVE)->first()->id,
+                            'service_request_intent_id' => ServiceRequestIntent::where('code', ServiceRequestIntentEnum::ORDER)->first()->id,
+                            'service_request_category_id' => ServiceRequestCategory::where('code', ServiceRequestCategoryEnum::LABORATORY)->first()->id,
+                            'requester_id' => auth()->id(),
+                            'is_confidential' => true,
+                            'created_user_id' => auth()->id(),
+                            'created_user_ip' => $request->ip(),
+                        ]));
+                $specimens = $specimensCollection->map(function ($item) use ($request, $requisition) {
+
+                    $container = Container::find($item['container_id']);
+
+                    return array_merge($item,
+                        [
+                            'accession_identifier' => $requisition . $container->suffix,
+                            'specimen_status_id' => SpecimenStatus::where('code', SpecimenStatusEnum::PENDING)->first()->id,
+                            'created_user_id' => auth()->id(),
+                            'created_user_ip' => $request->ip()
+                        ]);
+                });
+                $serviceRequest->specimens()->createMany($specimens);
+
+                $observationsCollection = collect($paramsValidated->confidential_observations);
+
+                $observations = $observationsCollection->map(function ($item) use ($request) {
+
+                    return array_merge($item,
+                        [
+                            'created_user_id' => auth()->id(),
+                            'created_user_ip' => $request->ip()
+                        ]);
+                });
+
+                $serviceRequest->observations()->createMany($observations);
+                $serviceRequests['confidential'] = $serviceRequest;
             }
 
-            $secuenceString = str_pad($correlativeNumber, 5, "0", STR_PAD_LEFT);
+            $specimensNotConfidentialCollection = collect($paramsValidated->not_confidential_specimens);
 
-            $requisition = (string)$currentDate . (string)$secuenceString;
+            if ($specimensNotConfidentialCollection->count() !== 0) {
+                $currentDate = Carbon::now()->format('ymd');
 
 
-            $serviceRequest = ServiceRequest::create(
-                array_merge($request->validated(),
-                    [
-                        'requisition' => $requisition,
-                        'date_requisition_fragment' => $currentDate,
-                        'correlative_number' => $correlativeNumber,
-                        'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::ACTIVE)->first()->id,
-                        'service_request_intent_id' => ServiceRequestIntent::where('code', ServiceRequestIntentEnum::ORDER)->first()->id,
-                        'service_request_category_id' => ServiceRequestCategory::where('code', ServiceRequestCategoryEnum::LABORATORY)->first()->id,
-                        'requester_id' => auth()->id(),
-                        'created_user_id' => auth()->id(),
-                        'created_user_ip' => $request->ip(),
-                    ]));
+                $findLastCorrelativeNumber = ServiceRequest::where('date_requisition_fragment', $currentDate)->orderBy('correlative_number', 'desc')->first();
 
-            $specimensCollection = collect($paramsValidated->specimens);
+                if (!isset($findLastCorrelativeNumber)) {
+                    $correlativeNumber = 1;
+                } else {
+                    $correlativeNumber = $findLastCorrelativeNumber->correlative_number + 1;
+                }
 
-            $specimens = $specimensCollection->map(function ($item) use ($request, $requisition) {
+                $secuenceString = str_pad($correlativeNumber, 5, "0", STR_PAD_LEFT);
 
-                $container = Container::find($item['container_id']);
+                $requisition = (string)$currentDate . (string)$secuenceString;
 
-                return array_merge($item,
-                    [
-                        'accession_identifier' => $requisition . $container->suffix,
-                        'specimen_status_id' => SpecimenStatus::where('code', SpecimenStatusEnum::PENDING)->first()->id,
-                        'created_user_id' => auth()->id(),
-                        'created_user_ip' => $request->ip()
-                    ]);
-            });
+                $serviceRequest = ServiceRequest::create(
+                    array_merge($request->validated(),
+                        [
+                            'requisition' => $requisition,
+                            'date_requisition_fragment' => $currentDate,
+                            'correlative_number' => $correlativeNumber,
+                            'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::ACTIVE)->first()->id,
+                            'service_request_intent_id' => ServiceRequestIntent::where('code', ServiceRequestIntentEnum::ORDER)->first()->id,
+                            'service_request_category_id' => ServiceRequestCategory::where('code', ServiceRequestCategoryEnum::LABORATORY)->first()->id,
+                            'requester_id' => auth()->id(),
+                            'is_confidential' => false,
+                            'created_user_id' => auth()->id(),
+                            'created_user_ip' => $request->ip(),
+                        ]));
+                $specimens = $specimensNotConfidentialCollection->map(function ($item) use ($request, $requisition) {
 
-            $serviceRequest->specimens()->createMany($specimens);
+                    $container = Container::find($item['container_id']);
 
-            $observationsCollection = collect($paramsValidated->observations);
+                    return array_merge($item,
+                        [
+                            'accession_identifier' => $requisition . $container->suffix,
+                            'specimen_status_id' => SpecimenStatus::where('code', SpecimenStatusEnum::PENDING)->first()->id,
+                            'created_user_id' => auth()->id(),
+                            'created_user_ip' => $request->ip()
+                        ]);
+                });
+                $serviceRequest->specimens()->createMany($specimens);
 
-            $observations = $observationsCollection->map(function ($item) use ($request) {
+                $observationsCollection = collect($paramsValidated->not_confidential_observations);
 
-                return array_merge($item,
-                    [
-                        'created_user_id' => auth()->id(),
-                        'created_user_ip' => $request->ip()
-                    ]);
-            });
+                $observations = $observationsCollection->map(function ($item) use ($request) {
 
-            $serviceRequest->observations()->createMany($observations);
+                    return array_merge($item,
+                        [
+                            'created_user_id' => auth()->id(),
+                            'created_user_ip' => $request->ip()
+                        ]);
+                });
 
+                $serviceRequest->observations()->createMany($observations);
+                $serviceRequests['not_confidential'] = $serviceRequest;
+            }
 
             DB::commit();
 
-            return response()->json(new ServiceRequestResource($serviceRequest), Response::HTTP_CREATED);
+            return response()->json(ServiceRequestResource::collection($serviceRequests), Response::HTTP_CREATED);
         } catch (\Exception $ex) {
 
             DB::rollBack();
-            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json([
+                'trace' => $ex->getTrace(), 'message' => $ex->getMessage(), 'statusCode' => $ex->getCode()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
