@@ -28,7 +28,9 @@ class CreateServiceRequestsTable extends Migration
             $table->unsignedBigInteger('requester_id')->nullable();
             $table->unsignedBigInteger('performer_id')->nullable();
             $table->unsignedBigInteger('location_id')->nullable();
+            $table->boolean('is_confidential')->default(false);
             $table->text('note')->nullable();
+            $table->text('diagnosis')->nullable();
             $table->timestamp('authored_on');
             $table->unsignedBigInteger('updated_user_id')->nullable();
             $table->unsignedBigInteger('deleted_user_id')->nullable();

@@ -12,6 +12,7 @@ class ServiceRequestRequest extends FormRequest
             case 'PUT':
                 return [
                     'note' => 'string',
+                    'diagnosis' => 'string',
                     'requisition' => 'string',
                     'service_request_priority_id' => 'integer',
                     'patient_id' => 'integer',
@@ -21,12 +22,12 @@ class ServiceRequestRequest extends FormRequest
                     'specimens.*.patient_id' => 'integer',
                     'specimens.*.container_id' => 'integer',
                     'observations.*.service_request_observation_code_id' => 'integer',
-
                 ];
             case 'POST':
                 return [
                     'note' => 'string',
                     'occurrence' => 'required|string',
+                    'diagnosis' => 'string',
                     'service_request_priority_id' => 'required|integer',
                     'patient_id' => 'required|integer',
                     'performer_id' => 'required|integer',
@@ -35,7 +36,6 @@ class ServiceRequestRequest extends FormRequest
                     'specimens.*.patient_id' => 'required|integer',
                     'specimens.*.container_id' => 'required|integer',
                     'observations.*.service_request_observation_code_id' => 'integer',
-
                 ];
             default:
                 return [];

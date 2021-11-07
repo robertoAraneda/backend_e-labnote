@@ -16,6 +16,7 @@ class ServiceRequestObservationCodeResource extends JsonResource
             'specimen_code' => $this->specimenCode->display,
             'specimen_id' => $this->specimenCode->id,
             'core_name' => $this->analyte->name,
+            'isConfidential' => (bool) $this->analyte->is_patient_codable,
             'container' => $this->container->name,
             'container_id' => $this->container->id,
             'slug' => $this->slug,

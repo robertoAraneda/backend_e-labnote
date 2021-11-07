@@ -20,6 +20,8 @@ class ServiceRequestResource extends JsonResource
             'occurrence' => Carbon::parse($this->occurrence)->format('d/m/Y h:i:s'),
             'created_user_ip' => $this->created_user_ip,
             'updated_user_ip' => $this->updated_user_ip,
+            'is_confidential' => (boolean) $this->is_confidential,
+            'diagnosis' => $this->diagnosis,
             'authored_on' => $this->date($this->authored_on),
             'updated_at' => $this->date($this->updated_at),
             '_links' => [

@@ -12,6 +12,8 @@ class ServiceRequestResource extends JsonResource
             'id' => $this->id,
             'requisition' => $this->requisition,
             'occurrence' => $this->occurrence,
+            'is_confidential' => (boolean) $this->is_confidential,
+            'diagnosis' => $this->diagnosis,
             'note' => $this->note,
             '_links' => [
                 'self' => [
