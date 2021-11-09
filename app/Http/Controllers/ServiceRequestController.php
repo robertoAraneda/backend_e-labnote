@@ -434,7 +434,7 @@ class ServiceRequestController extends Controller
 
     }
 
-    public function viewPdf(ServiceRequest $serviceRequest)
+    public function serviceRequestPdf(ServiceRequest $serviceRequest)
     {
 
         // PDF::setOptions(['dpi' => 150, 'defaultFont' => 'sans-serif']);
@@ -447,12 +447,22 @@ class ServiceRequestController extends Controller
         $var->setFontSize(12);
         $code = $var->generate();
 
-        $payload = [
-            'barcode' => "data:image/png;base64," . $code,
-            'serviceRequest' => $this->toArray($serviceRequest),
-        ];
+        if($serviceRequest->is_confidential){
+            $payload = [
+                'barcode' => "data:image/png;base64," . $code,
+                'serviceRequest' => $this->toArrayCompact($serviceRequest),
+            ];
+            $pdf = PDF::loadView('pdf.confidentialServiceRequest', $payload);
 
-        $pdf = PDF::loadView('pdf.serviceRequest', $payload);
+          //  return response()->json($this->toArrayCompact($serviceRequest));
+        }else{
+            $payload = [
+                'barcode' => "data:image/png;base64," . $code,
+                'serviceRequest' => $this->toArray($serviceRequest),
+            ];
+
+            $pdf = PDF::loadView('pdf.serviceRequest', $payload);
+        }
 
         return $pdf->stream('prueba.pdf');
 
@@ -489,13 +499,14 @@ class ServiceRequestController extends Controller
         return $pdf->stream('prueba.pdf');
     }
 
-
     public function toArray($serviceRequest): array
     {
         return [
             'id' => $serviceRequest->id,
             'note' => $serviceRequest->note,
             'requisition' => $serviceRequest->requisition,
+            'diagnosis' => $serviceRequest->diagnosis,
+            'is_confidential' => $serviceRequest->is_confidential,
             'occurrence' => Carbon::parse($serviceRequest->occurrence)->format('d/m/Y h:i:s'),
             'created_user_ip' => $serviceRequest->created_user_ip,
             'updated_user_ip' => $serviceRequest->updated_user_ip,
@@ -547,6 +558,47 @@ class ServiceRequestController extends Controller
                 'location' => $this->location($serviceRequest->location),
 
             ],
+        ];
+    }
+
+
+    public function toArrayCompact($serviceRequest): array
+    {
+        return [
+            'id' => $serviceRequest->id,
+            'note' => $serviceRequest->note,
+            'requisition' => $serviceRequest->requisition,
+            'diagnosis' => $serviceRequest->diagnosis,
+            'is_confidential' => $serviceRequest->is_confidential,
+            'occurrence' => Carbon::parse($serviceRequest->occurrence)->format('d/m/Y h:i:s'),
+            'authored_on' => $this->date($serviceRequest->authored_on),
+            'observations' => [
+                'collection' => $serviceRequest->observations->map(function ($observation) {
+                    return $observation->code;
+                })
+            ],
+            'specimens' => [
+                'collection' => $serviceRequest->specimens->map(function ($specimen) {
+                    $var = new BarcodeGenerator();
+                    $var->setText($specimen->accession_identifier);
+                    $var->setType(BarcodeGenerator::Code128);
+                    $var->setScale(2);
+                    $var->setThickness(30);
+                    $var->setFontSize(12);
+                    $var->setLabel('');
+                    $code = $var->generate();
+                    return [
+                        'specimen' => $specimen,
+                        'barcode' => "data:image/png;base64," . $code,
+                        'specimen_code' => $specimen->code,
+                        'specimen_status' => $specimen->status,
+                        'container' => $specimen->container,];
+                })
+            ],
+            'patient' => $this->confidentialPatient($serviceRequest->patient),
+            'performer' => $this->performer($serviceRequest->performer),
+            'requester' => $this->requester($serviceRequest->requester),
+            'location' => $this->location($serviceRequest->location),
         ];
     }
 
@@ -674,6 +726,53 @@ class ServiceRequestController extends Controller
                     'href' => route('api.locations.show', ['location' => $payload->id], false)
                 ]
             ]
+        ];
+    }
+
+    private function confidentialPatient($payload): ?array
+    {
+        if (!isset($payload)) return null;
+
+        return [
+            'id' => $payload->id,
+            'name' => $payload->humanNames
+                ->filter(function ($name) {
+                    return $name->use == 'usual' || $name->use == 'official';
+                })
+                ->map(function ($name) {
+                    return [
+                        'use' => $name->use,
+                        'given' => $name->given,
+                        'father_family' => $name->father_family,
+                        'mother_family' => $name->mother_family];
+                })[0],
+            'birthdate' => Carbon::parse($payload->birthdate)->format('d/m/Y'),
+            'administrative_gender' => $payload->administrativeGender->display,
+            'confidential_identifier' => $payload->identifierPatient
+                ->filter(function ($identifier) {
+                    return $identifier->identifierType->code == 'confidential';
+                })
+                ->map(function ($identifier) {
+                    return [
+                        'use' => $identifier->identifierUse->display,
+                        'type' => $identifier->identifierType->display,
+                        'value' => $identifier->value,
+                    ];
+                })
+                ->values(),
+            'identifier' => $payload->identifierPatient
+                ->filter(function ($identifier) {
+                    return $identifier->identifierType->code == 'run';
+                })
+                ->map(function ($identifier) {
+                    return [
+                        'use' => $identifier->identifierUse->display,
+                        'type' => $identifier->identifierType->display,
+                        'value' => $identifier->value,
+                    ];
+                })
+                ->values(),
+
         ];
     }
 

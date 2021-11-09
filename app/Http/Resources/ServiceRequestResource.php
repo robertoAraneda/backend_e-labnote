@@ -44,7 +44,8 @@ class ServiceRequestResource extends JsonResource
                             'specimen' => $specimen,
                             'specimen_code' => $specimen->code,
                             'specimen_status' => $specimen->status,
-                            'container' => $specimen->container, ];
+                            'container' => $specimen->container,
+                            'collector' => $specimen->collector];
                     })
                 ],
             ],

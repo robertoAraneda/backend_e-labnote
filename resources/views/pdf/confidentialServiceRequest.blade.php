@@ -1,7 +1,7 @@
-@php($patient = (object) $serviceRequest['_embedded']['patient'])
+@php($patient = (object) $serviceRequest['patient'])
 @php($request = (object) $serviceRequest)
-@php($observations = (object) $serviceRequest['_links']['observations']['collection'])
-@php($practitioner = (object) $serviceRequest['_embedded']['performer'])
+@php($observations = (object) $serviceRequest['observations']['collection'])
+@php($practitioner = (object) $serviceRequest['performer'])
 
 <html lang="es">
 <head>
@@ -12,51 +12,60 @@
     html {
         margin: 0;
     }
-    body{
+
+    body {
         font-family: helvetica;
         margin: 340px 20px 160px 20px;
     }
+
     hr {
         page-break-after: always;
         border: 0;
         margin: 0;
         padding: 0;
     }
+
     header {
         position: fixed;
         left: 20px;
         top: 5px;
         right: 20px;
     }
+
     footer {
         position: fixed;
-        left:20px;
+        left: 20px;
         bottom: 80px;
         right: 20px;
         height: 40px;
     }
+
     footer .page:after {
         content: counter(page);
     }
+
     footer table {
         width: 100%;
     }
+
     footer p {
         text-align: right;
     }
+
     footer .izq {
         text-align: left;
     }
+
     footer .cen {
         text-align: center;
     }
 
-    header .page_header{
-        height:60px;
-        width:680px;
-        margin-left:40px;
-        margin-top:30px;
-        position:relative;
+    header .page_header {
+        height: 60px;
+        width: 680px;
+        margin-left: 40px;
+        margin-top: 30px;
+        position: relative;
     }
 
 
@@ -80,9 +89,7 @@
     }
 
 
-
-
-    header .titulo{
+    header .titulo {
         text-align: center;
         font-size: 18px;
         font-weight: bold;
@@ -90,97 +97,110 @@
 
     }
 
-    header .table{
+    header .table {
         width: 600px !important;
         text-align: left;
         /*padding-top: 20px;*/
-        font-family:helvetica;
+        font-family: helvetica;
 
 
     }
 
-    .table_4 th{
-        font-size: 12px !important;
-        text-align: left;
-    }
-    .table_4 td{
+    .table_4 th {
         font-size: 12px !important;
         text-align: left;
     }
 
-    .table_5 th{
-        font-size: 12px !important;
-        text-align: left;
-    }
-    .table_5 td{
+    .table_4 td {
         font-size: 12px !important;
         text-align: left;
     }
 
-    footer .table_4 th{
+    .table_5 th {
         font-size: 12px !important;
         text-align: left;
     }
-    footer .table_4 td{
+
+    .table_5 td {
         font-size: 12px !important;
         text-align: left;
     }
-    header .table_3 th{
+
+    footer .table_4 th {
+        font-size: 12px !important;
+        text-align: left;
+    }
+
+    footer .table_4 td {
+        font-size: 12px !important;
+        text-align: left;
+    }
+
+    header .table_3 th {
         font-size: 12px;
         background-color: black;
         color: white;
         text-align: left;
     }
-    header .table_3 tr td{
+
+    header .table_3 tr td {
         width: 230px;
     }
 
-    header .table_2 th{
+    header .table_2 th {
         font-size: 12px;
         background-color: black;
         color: white;
         text-align: left;
     }
-    header .table_2 tr td{
+
+    header .table_2 tr td {
         width: 352.5px;
     }
-    header .table_1 th{
+
+    header .table_1 th {
         font-size: 12px;
         background-color: black;
         color: white;
         text-align: left;
     }
-    header .table_1 tr td{
+
+    header .table_1 tr td {
         width: 720px;
     }
-    header .cabecera_left{
-        font-family:helvetica;
+
+    header .cabecera_left {
+        font-family: helvetica;
         font-size: 14px;
-        line-height:14px;
+        line-height: 14px;
         margin-top: 20px;
         width: 200px;
         height: 20px;
         position: absolute;
 
     }
-    header .cabecera_right{
-        font-family:helvetica;
+
+    header .cabecera_right {
+        font-family: helvetica;
         font-size: 14px;
         margin-left: 300px;
-        line-height:14px;
+        line-height: 14px;
         margin-top: 20px;
         width: 340px;
         height: 20px;
         position: absolute;
 
     }
-    body #planMejora tr th{
+
+    body #planMejora tr th {
         font-size: 16px !important;
     }
 </style>
 
 <style>
-    .page_break { page-break-before: always; }
+    .page_break {
+        page-break-before: always;
+    }
 </style>
 
 <body>
@@ -202,7 +222,12 @@
     <div style="text-align: center; margin-bottom: 10px;top: 150px; position: absolute;">
         <table style="width: 100%; border-bottom: black 1px solid;">
             <tr>
-                <th style="font-size: 18px; font-weight: bold">SOLICITUD DE EXAMEN </th>
+                <th></th>
+                <th></th>
+                <th style="font-size: 18px; font-weight: bold">SOLICITUD DE EXAMEN {{ $patient->confidential_identifier[0]['type'] }}. </th>
+                <td style="font-size: 18px; font-weight: bold">CÓDIGO: {{ $patient->confidential_identifier[0]['value'] }}</td>
+                <th></th>
+                <td></td>
             </tr>
         </table>
     </div>
@@ -218,6 +243,7 @@
     </table>
     <div style="padding: 10px;position: absolute; top: 165px;">
         <h4>Datos paciente</h4>
+
         <table class="table_4" border="0" cellpadding="1" cellspacing="0">
             <tr>
                 <th style="width: 100px;">Paciente</th>
@@ -230,7 +256,7 @@
             <tr>
                 <th>{{ $patient->identifier[0]['type'] }}</th>
                 <th>:</th>
-                <td>{{ $patient->identifier[0]['value'] }}</td>
+                <td style="">{{ $patient->identifier[0]['value'] }}</td>
                 <th>Fecha de nacimiento:</th>
                 <th>:</th>
                 <td>{{ $patient->birthdate }}</td>
@@ -269,34 +295,22 @@
             </tr>
         </table>
     </div>
-    <div style="text-align: center; margin-bottom: 10px;top: 320px; position: absolute;">
-        <table style="width: 100%; border-bottom: black 1px solid;">
-            <tr>
-                <th style="font-size: 18px; font-weight: bold">&nbsp;</th>
-            </tr>
-        </table>
-    </div>
+    <br>
 </header>
 <footer>
     <table class="table_footer" border="0" cellpadding="0" cellspacing="0">
         <tr>
-            <td></td>
-            <td></td>
-            <td style="text-align: center; font-size: 9px;">{{$practitioner->given}} {{$practitioner->family}}</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td></td>
-            <td style="text-align: center; font-size: 9px;"><b>PROFESIONAL</b></td>
-        </tr>
-        <tr>
-            <td style="padding-top: 10px;text-align: center; font-size: 9px;">Direcci&oacute;n LABISUR</td>
+            <td style="padding-top: 10px;text-align: center; font-size: 9px; padding-bottom: 10px;">Direcci&oacute;n
+                LABISUR
+            </td>
             <td style="padding-top: 10px;text-align: center; font-size: 9px;">Tel&eacute;fono: LABISUR</td>
             <td style="padding-top: 10px;text-align: center; font-size: 9px;">Email: LABISUR</td>
         </tr>
         <tr>
-            <td colspan="3" style="font-size: 10px;border-top:1px solid;border-bottom:1px solid; height: 20px; text-align: center;">
-                Este laboratorio se encuentra adscrito al Programa de Evaluacion Externa de Calidad (PEEC) del Instituto de Salud P&uacute;blica de Chile.      <b style="text-align: right;"></b>
+            <td colspan="3"
+                style="font-size: 10px;border-top:1px solid;border-bottom:1px solid; height: 20px; text-align: center;">
+                Este laboratorio se encuentra adscrito al Programa de Evaluacion Externa de Calidad (PEEC) del Instituto
+                de Salud P&uacute;blica de Chile. <b style="text-align: right;"></b>
             </td>
         </tr>
     </table>
@@ -306,8 +320,11 @@
        $font = $fontMetrics->getFont("Arial", "bold");
        $pdf->page_text(530, 815, "Página {PAGE_NUM}/{PAGE_COUNT}", $font, 10, array(0, 0, 0));
      }
+
+
+
 </script>
-<div style="padding: 10px; position: absolute; top: 0px;">
+<div style="padding: 10px; position: absolute; top: -15px;">
     <h4>Exámenes solicitados</h4>
     <table style="width: 100%" class="table_4" border="0" cellpadding="1" cellspacing="1">
         <tr style="text-align: center; background-color: #3999BF; color: #ffffff;">
@@ -316,7 +333,7 @@
         </tr>
         @foreach($observations as $observation)
             <tr>
-                <td style="height: 25px; padding-left: 10px;" >{{$observation->loinc_num}}</td>
+                <td style="height: 25px; padding-left: 10px;">{{$observation->loinc_num}}</td>
                 <td style="height: 25px">{{$observation->name}}</td>
             </tr>
         @endforeach
@@ -326,6 +343,32 @@
         </tr>
     </table>
 </div>
+
+<div
+    style="border: black 2px solid; width: 750px; text-align: justify; font-size: 12px;position: fixed; left:20px; bottom: 300px; right: 20px; height: 40px; font-family: helvetica,serif;">
+    <br>
+    <div style="font-weight: bold; text-align: center; padding-bottom: 20px;">CONSENTIMIENTO INFORMADO</div>
+    <br>
+    <div style="padding-bottom: 60px;">Doy mi consentimiento por escrito para que se me extraiga una muestra de sangre
+        para estudiar la presencia de anticuerpos al Virus de Inmunodeficiencia Adquirida (VIH) causante del Sindrome de
+        Inmunodeficiencia Adquirida. He sido informado sobre el VIH y su acci&oacute;n en el organismo, la implicancia
+        de ser portador de este virus, sus formas de infecci&oacute;n, medios de prevenci&oacute;n y tratamiento.
+    </div>
+    <table style="width: 100%" border="0" cellpadding="0" cellspacing="10">
+        <tr>
+            <td style="border-bottom: black 1px solid; text-align: center; font-size: 9px;">{{$patient->name['given']}} {{$patient->name['father_family']}} {{$patient->name['mother_family']}}</td>
+            <td style="border-bottom: black 1px solid;"></td>
+            <td style="text-align: center; font-size: 9px; border-bottom: black 1px solid;">{{$practitioner->given}} {{$practitioner->family}}</td>
+        </tr>
+        <tr>
+            <td style="text-align: center; font-size: 10px;"><b>FIRMA PACIENTE</b></td>
+            <td style="text-align: center; font-size: 10px;"><b>FIRMA FAMILIAR O ACOMPAÑANTE</b></td>
+            <td style="text-align: center; font-size: 10px;"><b>FIRMA PROFESIONAL</b></td>
+        </tr>
+    </table>
+
+</div>
+
 
 </body>
 </html>
