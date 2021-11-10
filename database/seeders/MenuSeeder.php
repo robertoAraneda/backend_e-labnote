@@ -261,7 +261,7 @@ class MenuSeeder extends Seeder
             'icon' => 'mdi-cog',
             'url' => 'schedules',
             'module_id' => $appointmentId,
-            'permission_id' => Permission::where('name', 'appointment.index')->first()->id,
+            'permission_id' => Permission::where('name', 'schedule.index')->first()->id,
             'order' => 4
         ]);
 

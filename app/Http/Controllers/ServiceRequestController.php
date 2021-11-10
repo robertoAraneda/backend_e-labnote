@@ -52,10 +52,12 @@ class ServiceRequestController extends Controller
             )
                 ->orderBy('id')
                 ->paginate($request->getPaginate());
+
         } else if (isset($date)) {
             $items = ServiceRequest::where('occurrence', 'like', $date . "%")
                 ->orderBy('id')
                 ->get();
+
         } else {
             $items = ServiceRequest::select(
                 'id',
@@ -88,14 +90,13 @@ class ServiceRequestController extends Controller
 
         $paramsValidated = (object)$request->validated();
 
-        $serviceRequests = [];
-
         try {
             DB::beginTransaction();
 
-            $specimensCollection = collect($paramsValidated->confidential_specimens);
+            $isConfidentialSpecimens = property_exists($paramsValidated, 'confidential_specimens');
 
-            if ($specimensCollection->count() !== 0) {
+            if ($isConfidentialSpecimens) {
+                $specimensCollection = collect($paramsValidated->confidential_specimens);
                 $currentDate = Carbon::now()->format('ymd');
 
                 $findLastCorrelativeNumber = ServiceRequest::where('date_requisition_fragment', $currentDate)->orderBy('correlative_number', 'desc')->first();
