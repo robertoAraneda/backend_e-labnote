@@ -276,6 +276,15 @@ class MenuSeeder extends Seeder
         ]);
 
         Menu::create([
+            'name' => 'Pacientes atendidos',
+            'icon' => 'mdi-cog',
+            'url' => 'patientsAttended',
+            'module_id' => $samplingRoomId,
+            'permission_id' => Permission::where('name', 'samplingRoom.index')->first()->id,
+            'order' => 4
+        ]);
+
+        Menu::create([
             'name' => 'Profesionales',
             'icon' => 'mdi-cog',
             'url' => 'practitioners',

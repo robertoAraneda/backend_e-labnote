@@ -43,6 +43,7 @@ use App\Http\Controllers\SamplingIndicationController;
 use App\Http\Controllers\SpecimenController;
 use App\Http\Controllers\SpecimenStatusController;
 use App\Http\Controllers\StateController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\WorkareaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PermissionController;
@@ -248,6 +249,12 @@ Route::group([
         ->whereNumber('specimen')
         ->names('api.specimens');
 
+    Route::apiResource('tasks', TaskController::class)
+        ->whereNumber('task')
+        ->names('api.tasks');
+
+
+
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     Route::post('slots/range-dates', [SlotController::class, 'createWithRangeDates']);
@@ -289,6 +296,7 @@ Route::group([
         ->names('api.specimens.sampling-indications');
 
 
+
     //search queries
     Route::get('modules/search', [ModuleController::class, 'searchByParams']);
     Route::get('patients/search', [PatientController::class, 'searchByParams']);
@@ -297,9 +305,15 @@ Route::group([
     Route::get('loinc/search/{code}', [LoincController::class, 'findLoincCodeFHIR']);
     Route::get('specimens/search', [SpecimenController::class, 'searchByParams']);
 
+    //activate sampling room service-request
+    Route::post('service-requests/is-sampling-room/update', [ServiceRequestController::class, 'updateIsSamplingRoom']);
+
 
     //change tracking models
     Route::get('specimens/tracking', [SpecimenController::class, 'changeTracking']);
+
+    //change status_service_request
+    Route::get('service-requests/{service_request}/tracking', [ServiceRequestController::class, 'changeStatusAttribute']);
 
 
 

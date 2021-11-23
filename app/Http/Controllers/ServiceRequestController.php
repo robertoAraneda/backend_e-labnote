@@ -6,6 +6,7 @@ use App\Enums\ServiceRequestCategoryEnum;
 use App\Enums\ServiceRequestIntentEnum;
 use App\Enums\ServiceRequestStatusEnum;
 use App\Enums\SpecimenStatusEnum;
+use App\Events\PatientSamplingRoom;
 use App\Http\Requests\ServiceRequestRequest;
 use App\Http\Resources\Collections\ServiceRequestResourceCollection;
 use App\Http\Resources\ServiceRequestResource;
@@ -117,7 +118,7 @@ class ServiceRequestController extends Controller
                             'requisition' => $requisition,
                             'date_requisition_fragment' => $currentDate,
                             'correlative_number' => $correlativeNumber,
-                            'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::ACTIVE)->first()->id,
+                            'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::DRAFT)->first()->id,
                             'service_request_intent_id' => ServiceRequestIntent::where('code', ServiceRequestIntentEnum::ORDER)->first()->id,
                             'service_request_category_id' => ServiceRequestCategory::where('code', ServiceRequestCategoryEnum::LABORATORY)->first()->id,
                             'requester_id' => auth()->id(),
@@ -154,9 +155,11 @@ class ServiceRequestController extends Controller
                 $serviceRequests['confidential'] = $serviceRequest;
             }
 
-            $specimensNotConfidentialCollection = collect($paramsValidated->not_confidential_specimens);
+            $isNotConfidentialSpecimens = property_exists($paramsValidated, 'not_confidential_specimens');
 
-            if ($specimensNotConfidentialCollection->count() !== 0) {
+
+            if ($isNotConfidentialSpecimens) {
+                $specimensNotConfidentialCollection = collect($paramsValidated->not_confidential_specimens);
                 $currentDate = Carbon::now()->format('ymd');
 
 
@@ -178,7 +181,7 @@ class ServiceRequestController extends Controller
                             'requisition' => $requisition,
                             'date_requisition_fragment' => $currentDate,
                             'correlative_number' => $correlativeNumber,
-                            'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::ACTIVE)->first()->id,
+                            'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::DRAFT)->first()->id,
                             'service_request_intent_id' => ServiceRequestIntent::where('code', ServiceRequestIntentEnum::ORDER)->first()->id,
                             'service_request_category_id' => ServiceRequestCategory::where('code', ServiceRequestCategoryEnum::LABORATORY)->first()->id,
                             'requester_id' => auth()->id(),
@@ -258,9 +261,9 @@ class ServiceRequestController extends Controller
             $serviceRequest->update(
                 array_merge($request->validated(),
                     [
-                        'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::ACTIVE)->first()->id,
-                        'service_request_intent_id' => ServiceRequestIntent::where('code', ServiceRequestIntentEnum::ORDER)->first()->id,
-                        'service_request_category_id' => ServiceRequestCategory::where('code', ServiceRequestCategoryEnum::LABORATORY)->first()->id,
+                       // 'service_request_status_id' => ServiceRequestStatus::where('code', ServiceRequestStatusEnum::ACTIVE)->first()->id,
+                     //   'service_request_intent_id' => ServiceRequestIntent::where('code', ServiceRequestIntentEnum::ORDER)->first()->id,
+                      //  'service_request_category_id' => ServiceRequestCategory::where('code', ServiceRequestCategoryEnum::LABORATORY)->first()->id,
                         'updated_user_id' => auth()->id(),
                         'updated_user_ip' => $request->ip(),
                     ]));
@@ -358,6 +361,24 @@ class ServiceRequestController extends Controller
         }
     }
 
+    public function changeStatusAttribute(ServiceRequestRequest $request, ServiceRequest $serviceRequest): JsonResponse
+    {
+        $this->authorize('update', $serviceRequest);
+
+        $status = ServiceRequestStatus::where("code", $request->input('status_code'))->first()->id;
+
+        try {
+            $serviceRequest->update(['service_request_status_id' => $status, 'updated_user_id' => auth()->id()]);
+
+            event( new PatientSamplingRoom('Patient in sampling room'));
+
+            return response()->json(new ServiceRequestResource($serviceRequest), Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
     /**
      * @param ServiceRequest $serviceRequest
      * @return JsonResponse
@@ -368,9 +389,8 @@ class ServiceRequestController extends Controller
 
         $collection = \App\Http\Resources\Collections\ServiceRequestResource::collection($observations);
 
-        return response()->json($collection, 200);
+        return response()->json($collection);
     }
-
 
     /**
      * @param ServiceRequest $serviceRequest
@@ -382,7 +402,16 @@ class ServiceRequestController extends Controller
 
         $collection = \App\Http\Resources\Collections\ServiceRequestResource::collection($specimens);
 
-        return response()->json($collection, 200);
+        return response()->json($collection);
+    }
+
+    public function tasks(ServiceRequest $serviceRequest): JsonResponse
+    {
+        $specimens = $serviceRequest->tasks()->active()->orderBy('id')->get();
+
+        $collection = \App\Http\Resources\Collections\ServiceRequestResource::collection($specimens);
+
+        return response()->json($collection);
     }
 
     public function searchByParams(ServiceRequestRequest $request): JsonResponse
@@ -562,7 +591,6 @@ class ServiceRequestController extends Controller
         ];
     }
 
-
     public function toArrayCompact($serviceRequest): array
     {
         return [
@@ -609,7 +637,6 @@ class ServiceRequestController extends Controller
 
         return $date->format('d/m/Y H:i:s');
     }
-
 
     private function user($user): ?array
     {
@@ -818,7 +845,7 @@ class ServiceRequestController extends Controller
     public function createOml21Wiener()
     {
 
-        $serviceRequest = ServiceRequest::where('requisition', '21110100002')->first();
+        $serviceRequest = ServiceRequest::where('requisition', '21111000014')->first();
 
         $oml = new OML21Nobilis($this->toArray($serviceRequest), 'NW');
 
@@ -827,6 +854,22 @@ class ServiceRequestController extends Controller
         Storage::put("pruebaOML.hl7", str_replace(chr(10), chr(13), $hl7));
 
         return response()->json(["hl7" => $hl7]);
+    }
+
+    public function updateIsSamplingRoom(ServiceRequestRequest $request, ServiceRequest $serviceRequest): JsonResponse
+    {
+        $this->authorize('update', $serviceRequest);
+
+        $isSamplingRoom = filter_var($request->input('is_sampling_room'), FILTER_VALIDATE_BOOLEAN);
+        try {
+            $serviceRequest->update(['is_sampling_rppm' => $isSamplingRoom, 'updated_user_id' => auth()->id()]);
+
+            event(new PatientSamplingRoom('Patient in sampling room'));
+
+            return response()->json(new ServiceRequestResource($serviceRequest), Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
 

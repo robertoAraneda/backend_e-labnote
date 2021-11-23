@@ -113,4 +113,9 @@ class ServiceRequest extends Model
     {
         return $this->hasMany(Specimen::class, 'service_request_id', 'id');
     }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'based_on', 'id');
+    }
 }

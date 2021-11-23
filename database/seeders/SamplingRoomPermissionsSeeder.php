@@ -31,12 +31,27 @@ class SamplingRoomPermissionsSeeder extends Seeder
             'description' => 'Acceso a módulo y gestión de tomas de muestra'
         ]);
 
+        $permission2 = Permission::create([
+            'name' => 'patientsAttended.index',
+            'guard_name' => 'api',
+            'model' => 'SamplingRoom',
+            'action' => 'index',
+            'description' => 'Acceso a módulo de pacientes atendidos'
+        ]);
+
         ModulePermission::create([
             'module_id' => $module->id,
             'permission_id' => $permission->id,
             'user_id' => $user->id,
         ]);
 
+        ModulePermission::create([
+            'module_id' => $module->id,
+            'permission_id' => $permission2->id,
+            'user_id' => $user->id,
+        ]);
+
         $role->givePermissionTo('samplingRoom.index');
+        $role->givePermissionTo('patientsAttended.index');
     }
 }

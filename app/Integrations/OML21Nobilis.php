@@ -7,6 +7,7 @@ use App\Models\IntegrationObservationServiceRequest;
 use App\Models\IntegrationTypeDocument;
 use App\Models\NobilisDocumentType;
 use App\Models\NobilisObservationsServiceRequest;
+use Aranyasen\HL7\Connection;
 use Aranyasen\HL7\Message; // If Message is used
 use Aranyasen\HL7\Segment; // If Segment is used
 use Aranyasen\HL7\Segments\DG1;
@@ -66,7 +67,11 @@ class OML21Nobilis
         $nte = $this->createNTE();
         $msg->addSegment($nte);
 
-       return $msg->toString(true);
+        $connection = new Connection('190.151.59.106', '6665');
+
+        $response = $connection->send($msg);
+
+        return $msg->toString(true);
 
     }
 

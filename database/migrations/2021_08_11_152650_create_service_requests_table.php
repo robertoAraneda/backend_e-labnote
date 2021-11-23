@@ -25,6 +25,7 @@ class CreateServiceRequestsTable extends Migration
             $table->unsignedBigInteger('service_request_category_id');
             $table->unsignedBigInteger('patient_id');
             $table->timestamp('occurrence');
+            $table->boolean('is_sampling_room')->default(false);
             $table->unsignedBigInteger('requester_id')->nullable();
             $table->unsignedBigInteger('performer_id')->nullable();
             $table->unsignedBigInteger('location_id')->nullable();

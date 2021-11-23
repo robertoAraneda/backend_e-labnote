@@ -20,3 +20,7 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 Broadcast::channel('patient', function () {
     return true;
 });
+
+Broadcast::channel('patient-sampling-room', function () {
+    return true;
+});

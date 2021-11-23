@@ -48,6 +48,11 @@ class ServiceRequestResource extends JsonResource
                             'collector' => $specimen->collector];
                     })
                 ],
+                'tasks' => [
+                    'collection' => $this->tasks->map(function($task){
+                        return $task;
+                    })
+                ]
             ],
             '_embedded' => [
                 'createdUser' => $this->user($this->createdUser),

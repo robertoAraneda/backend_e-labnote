@@ -60,6 +60,7 @@ class DatabaseSeeder extends Seeder
             ServiceRequestPermissionsSeeder::class,
             SpecimenStatusPermissionsSeeder::class,
             SamplingRoomPermissionsSeeder::class,
+            BusinessStatusPermissionsSeeder::class,
 
             MenuSeeder::class,
             WorkareaSeeder::class,
@@ -85,7 +86,8 @@ class DatabaseSeeder extends Seeder
             ServiceRequestStatusSeeder::class,
             ServiceRequestCategorySeeder::class,
             AppointmentStatusSeeder::class,
-            AppointmentTypeSeeder::class
+            AppointmentTypeSeeder::class,
+            BusinessStatusSeeder::class,
         ]);
     }
 }
