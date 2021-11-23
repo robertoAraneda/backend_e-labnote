@@ -168,7 +168,7 @@ class MenuSeeder extends Seeder
         Menu::create([
             'name' => 'Crear solicitud',
             'icon' => 'mdi-cog',
-            'url' => 'createServiceRequest',
+            'url' => 'findPatient',
             'module_id' => $serviceRequestId,
             'permission_id' => Permission::where('name', 'serviceRequest.index')->first()->id,
             'order' => 4
