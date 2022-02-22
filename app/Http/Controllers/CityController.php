@@ -166,4 +166,8 @@ class CityController extends Controller
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function comunes(){
+        return City::select('name')->get();
+    }
 }

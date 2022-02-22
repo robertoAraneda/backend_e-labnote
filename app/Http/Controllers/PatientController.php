@@ -363,7 +363,7 @@ class PatientController extends Controller
 
             DB::commit();
 
-            SendMailPatientUpdated::dispatch($patient)->delay(now()->addMinute());
+            SendMailPatientUpdated::dispatch($patient)->delay(now()->addSeconds(5));
 
             return response()->json(new PatientResource($patient), Response::HTTP_OK);
         } catch (\Exception $ex) {

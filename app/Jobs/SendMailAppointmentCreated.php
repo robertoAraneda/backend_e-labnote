@@ -34,7 +34,7 @@ class SendMailAppointmentCreated implements ShouldQueue
      */
     public function handle()
     {
-        Mail::to('c.alarconlazo@gmail.com')
+        Mail::to($this->appointment->patient->contactPointPatient()->where('system', 'EMAIL')->first()->value)
             ->cc('robaraneda@gmail.com')
             ->send(new AppointmentCreated($this->appointment));
     }

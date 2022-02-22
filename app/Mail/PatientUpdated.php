@@ -33,7 +33,7 @@ class PatientUpdated extends Mailable
     public function build()
     {
         return $this
-            ->from('soporte@elabnote.cl', 'no-responder')
+            ->from('soporte@elabnote.cl', 'e-LabNote')
             ->subject('LABISUR - Aviso modificación de datos personales')
             ->markdown('emails.patient.edited')
             ->with([

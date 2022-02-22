@@ -8,6 +8,7 @@ abstract class ServiceRequestStatusEnum
     const  DRAFT = "borrador";
     const  ACTIVE = "activo";
     const  ON_HOLD = "suspendido";
+    const  SPECIMEN_PENDING = "muestras-pendientes";
     const  REVOKED = "cancelado";
     const  COMPLETED = "completo";
     const  ENTERED_IN_ERROR = "ingresado-con-error";

@@ -24,6 +24,9 @@ class ServiceRequestResource extends JsonResource
             'diagnosis' => $this->diagnosis,
             'authored_on' => $this->date($this->authored_on),
             'updated_at' => $this->date($this->updated_at),
+            'request_hl7_file' => $this->request_hl7_file,
+            'response_hl7_file' => $this->response_hl7_file,
+            'request_hl7_date' => Carbon::parse($this->request_hl7_date)->format('d/m/Y H:i:s'),
             '_links' => [
                 'self' => [
                     'href' => route(
@@ -64,7 +67,7 @@ class ServiceRequestResource extends JsonResource
                 'patient' => $this->patient($this->patient),
                 'requester' => $this->requester($this->requester),
                 'performer' => $this->performer($this->performer),
-                'location' => $this->location($this->location),
+                'location' => $this->location($this->location)
 
             ],
         ];

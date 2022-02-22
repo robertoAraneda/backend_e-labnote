@@ -66,7 +66,7 @@ class ServiceRequestObservationCodeController extends Controller
 
             $lis = LaboratoryInformationSystem::find($laboratory->laboratory_information_system_id);
 
-            if(!isset($lis)){
+            if (!isset($lis)) {
                 $items = ServiceRequestObservationCode::select(
                     'id',
                     'name',
@@ -80,7 +80,7 @@ class ServiceRequestObservationCodeController extends Controller
                 )
                     ->orderBy('id')
                     ->get();
-            }else{
+            } else {
                 $items = ServiceRequestObservationCode::select(
                     'service_request_observation_codes.id',
                     'service_request_observation_codes.name',
@@ -285,5 +285,19 @@ class ServiceRequestObservationCodeController extends Controller
         }
 
         return response()->json(null, Response::HTTP_NO_CONTENT);
+    }
+
+    public function nobilisAnalyte(Request $request, ServiceRequestObservationCode $serviceRequestObservationCode)
+    {
+
+        $serviceRequestObservationCode->nobilis()->create([
+            "lis_name" => "Nobilis",
+            "observation_service_request_id" => $request->input('observation_service_request_id'),
+            "model" => "App\\Models\\NobilisObservationsServiceRequest",
+            "model_id" => $request->input('model_id'),
+            "active" => true,
+        ]);
+
+        return $serviceRequestObservationCode->nobilis->where('model_id', $request->input('model_id'))->first();
     }
 }

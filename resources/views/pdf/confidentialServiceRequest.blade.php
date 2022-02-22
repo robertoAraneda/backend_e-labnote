@@ -2,6 +2,8 @@
 @php($request = (object) $serviceRequest)
 @php($observations = (object) $serviceRequest['observations']['collection'])
 @php($practitioner = (object) $serviceRequest['performer'])
+@php($location = (object) $serviceRequest['location'])
+@php($currentDate = \Carbon\Carbon::now())
 
 <html lang="es">
 <head>
@@ -251,47 +253,47 @@
                 <td style="width: 370px">{{$patient->name['given']}} {{$patient->name['father_family']}} {{$patient->name['mother_family']}}</td>
                 <th style="width: 130px;">Previsi&oacute;n</th>
                 <th>:</th>
-                <td>previsión</td>
+                <td></td>
             </tr>
             <tr>
                 <th>{{ $patient->identifier[0]['type'] }}</th>
                 <th>:</th>
-                <td style="">{{ $patient->identifier[0]['value'] }}</td>
+                <td>{{ $patient->identifier[0]['value'] }}</td>
                 <th>Fecha de nacimiento:</th>
                 <th>:</th>
                 <td>{{ $patient->birthdate }}</td>
             </tr>
             <tr>
-                <th>Edad</th>
+                <th>Direcci&oacute;n</th>
                 <th>:</th>
-                <td>edad</td>
-                <th>Tel&eacute;fono</th>
-                <th>:</th>
-                <td>teléfono</td>
-            </tr>
-            <tr>
+                <td>{{$patient->address[0]['value']}}</td>
                 <th>Sexo</th>
                 <th>:</th>
                 <td>{{ $patient->administrative_gender }}</td>
+            </tr>
+            <tr>
+                <th>Servicio</th>
+                <th>:</th>
+                <td>{{ $location->name  }}</td>
+                <th>Edad</th>
+                <th>:</th>
+                <td>{{\Carbon\Carbon::createFromFormat('d/m/Y', $patient->birthdate)->diffInYears($currentDate)}} años</td>
+            </tr>
+            <tr>
+                <th>Di&aacute;gnostico</th>
+                <th>:</th>
+                <td>{{  $request->diagnosis }}</td>
                 <th></th>
                 <th></th>
                 <td></td>
             </tr>
             <tr>
-                <th>Direcci&oacute;n</th>
-                <th>:</th>
-                <td>dirección</td>
-                <th>Servicio</th>
-                <th>:</th>
-                <td>servicio</td>
-            </tr>
-            <tr>
-                <th>Di&aacute;gnostico</th>
-                <th>:</th>
-                <td>diagnóstico</td>
                 <th>Observacion</th>
                 <th>:</th>
                 <td>{{$request->note }}</td>
+                <th></th>
+                <th></th>
+                <td></td>
             </tr>
         </table>
     </div>

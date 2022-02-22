@@ -6,7 +6,9 @@ use App\Enums\ServiceRequestCategoryEnum;
 use App\Enums\ServiceRequestIntentEnum;
 use App\Enums\ServiceRequestStatusEnum;
 use App\Enums\SpecimenStatusEnum;
+use App\Events\CancelPatientSamplingRoom;
 use App\Events\PatientSamplingRoom;
+use App\Events\SendPatientSamplingRoom;
 use App\Http\Requests\ServiceRequestRequest;
 use App\Http\Resources\Collections\ServiceRequestResourceCollection;
 use App\Http\Resources\ServiceRequestResource;
@@ -98,7 +100,7 @@ class ServiceRequestController extends Controller
 
             if ($isConfidentialSpecimens) {
                 $specimensCollection = collect($paramsValidated->confidential_specimens);
-                $currentDate = Carbon::now()->format('ymd');
+                $currentDate = Carbon::createFromFormat('Y-m-d H:i:s', $paramsValidated->occurrence)->format('ymd');
 
                 $findLastCorrelativeNumber = ServiceRequest::where('date_requisition_fragment', $currentDate)->orderBy('correlative_number', 'desc')->first();
 
@@ -160,7 +162,7 @@ class ServiceRequestController extends Controller
 
             if ($isNotConfidentialSpecimens) {
                 $specimensNotConfidentialCollection = collect($paramsValidated->not_confidential_specimens);
-                $currentDate = Carbon::now()->format('ymd');
+                $currentDate = Carbon::createFromFormat('Y-m-d H:i:s', $paramsValidated->occurrence)->format('ymd');
 
 
                 $findLastCorrelativeNumber = ServiceRequest::where('date_requisition_fragment', $currentDate)->orderBy('correlative_number', 'desc')->first();
@@ -361,16 +363,45 @@ class ServiceRequestController extends Controller
         }
     }
 
-    public function changeStatusAttribute(ServiceRequestRequest $request, ServiceRequest $serviceRequest): JsonResponse
+    public function changeStatusAttribute(ServiceRequestRequest $request, ServiceRequest $serviceRequest)
     {
         $this->authorize('update', $serviceRequest);
 
         $status = ServiceRequestStatus::where("code", $request->input('status_code'))->first()->id;
 
         try {
-            $serviceRequest->update(['service_request_status_id' => $status, 'updated_user_id' => auth()->id()]);
 
-            event( new PatientSamplingRoom('Patient in sampling room'));
+            $hl7 = $this->createOml21Wiener($serviceRequest->requisition);
+
+            $serviceRequest->update([
+                'service_request_status_id' => $status,
+                'updated_user_id' => auth()->id(),
+                'request_hl7_file' => $hl7['hl7_incoming'],
+                'response_hl7_file' => $hl7['hl7_response'],
+                'request_hl7_date' => Carbon::now()->format('Y-m-d H:i:s')
+            ]);
+
+            event( new SendPatientSamplingRoom([
+                'id'=> $serviceRequest->id,
+                'requisition' => $serviceRequest->requisition ]));
+
+            return response()->json(new ServiceRequestResource($serviceRequest), Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getTrace(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function draftStatusServiceRequest(ServiceRequest $serviceRequest): JsonResponse
+    {
+        $this->authorize('update', $serviceRequest);
+
+        try {
+            $serviceRequest->tasks()->delete();
+
+            event( new CancelPatientSamplingRoom([
+                'id'=> $serviceRequest->id,
+                'requisition' => $serviceRequest->requisition ]
+            ));
 
             return response()->json(new ServiceRequestResource($serviceRequest), Response::HTTP_OK);
         } catch (\Exception $ex) {
@@ -378,11 +409,6 @@ class ServiceRequestController extends Controller
         }
     }
 
-
-    /**
-     * @param ServiceRequest $serviceRequest
-     * @return JsonResponse
-     */
     public function observations(ServiceRequest $serviceRequest): JsonResponse
     {
         $observations = $serviceRequest->observations()->active()->orderBy('id')->get();
@@ -392,10 +418,6 @@ class ServiceRequestController extends Controller
         return response()->json($collection);
     }
 
-    /**
-     * @param ServiceRequest $serviceRequest
-     * @return JsonResponse
-     */
     public function specimens(ServiceRequest $serviceRequest): JsonResponse
     {
         $specimens = $serviceRequest->specimens()->active()->orderBy('id')->get();
@@ -529,6 +551,37 @@ class ServiceRequestController extends Controller
         return $pdf->stream('prueba.pdf');
     }
 
+    public function generateConfidentialCodbar(ServiceRequestRequest $request, ServiceRequest $serviceRequest)
+    {
+
+        $accession_identifier = $request->input('accession_identifier');
+
+        if (isset($accession_identifier)) {
+
+            $mappedServiceRequest = $this->toArrayCompact($serviceRequest);
+
+            $container = collect($mappedServiceRequest['specimens']['collection'])->filter(function ($specimen) use ($accession_identifier) {
+                return $specimen['specimen']['accession_identifier'] == $accession_identifier;
+            });
+
+            $mappedServiceRequest['specimens']['collection'] = $container;
+
+            $payload = [
+                'serviceRequest' => $mappedServiceRequest,
+            ];
+
+        } else {
+            $payload = [
+                'serviceRequest' => $this->toArrayCompact($serviceRequest),
+            ];
+        }
+
+
+        $pdf = PDF::loadView('pdf.specimenConfidentialLabel', $payload);
+
+        return $pdf->stream('prueba.pdf');
+    }
+
     public function toArray($serviceRequest): array
     {
         return [
@@ -537,7 +590,7 @@ class ServiceRequestController extends Controller
             'requisition' => $serviceRequest->requisition,
             'diagnosis' => $serviceRequest->diagnosis,
             'is_confidential' => $serviceRequest->is_confidential,
-            'occurrence' => Carbon::parse($serviceRequest->occurrence)->format('d/m/Y h:i:s'),
+            'occurrence' => Carbon::parse($serviceRequest->occurrence)->format('d/m/Y H:i:s'),
             'created_user_ip' => $serviceRequest->created_user_ip,
             'updated_user_ip' => $serviceRequest->updated_user_ip,
             'authored_on' => $this->date($serviceRequest->authored_on),
@@ -775,6 +828,17 @@ class ServiceRequestController extends Controller
                         'mother_family' => $name->mother_family];
                 })[0],
             'birthdate' => Carbon::parse($payload->birthdate)->format('d/m/Y'),
+            'address' => $payload->addressPatient
+                ->filter(function ($address) {
+                    return $address->use == 'PARTICULAR';
+                })
+                ->map(function ($address) {
+                    return [
+                        'use' => $address->use,
+                        'value' => $address->text,
+                    ];
+                })
+                ->values(),
             'administrative_gender' => $payload->administrativeGender->display,
             'confidential_identifier' => $payload->identifierPatient
                 ->filter(function ($identifier) {
@@ -822,6 +886,17 @@ class ServiceRequestController extends Controller
                         'mother_family' => $name->mother_family];
                 })[0],
             'birthdate' => Carbon::parse($payload->birthdate)->format('d/m/Y'),
+            'address' => $payload->addressPatient
+                ->filter(function ($address) {
+                    return $address->use == 'PARTICULAR';
+                })
+                ->map(function ($address) {
+                    return [
+                        'use' => $address->use,
+                        'value' => $address->text,
+                    ];
+                })
+                ->values(),
             'administrative_gender' => $payload->administrativeGender->display,
             'identifier' => $payload->identifierPatient
                 ->filter(function ($identifier) {
@@ -842,18 +917,18 @@ class ServiceRequestController extends Controller
         ];
     }
 
-    public function createOml21Wiener()
+    public function createOml21Wiener($requisition)
     {
 
-        $serviceRequest = ServiceRequest::where('requisition', '21111000014')->first();
+        $serviceRequest = ServiceRequest::where('requisition', $requisition)->first();
 
         $oml = new OML21Nobilis($this->toArray($serviceRequest), 'NW');
 
         $hl7 = $oml->create();
 
-        Storage::put("pruebaOML.hl7", str_replace(chr(10), chr(13), $hl7));
+        Storage::put($requisition.".hl7", str_replace(chr(10), chr(13), $hl7));
 
-        return response()->json(["hl7" => $hl7]);
+        return $hl7;
     }
 
     public function updateIsSamplingRoom(ServiceRequestRequest $request, ServiceRequest $serviceRequest): JsonResponse
@@ -864,7 +939,9 @@ class ServiceRequestController extends Controller
         try {
             $serviceRequest->update(['is_sampling_rppm' => $isSamplingRoom, 'updated_user_id' => auth()->id()]);
 
-            event(new PatientSamplingRoom('Patient in sampling room'));
+            event(new PatientSamplingRoom([
+                'id'=> $serviceRequest->id,
+                'requisition' => $serviceRequest->requisition ]));
 
             return response()->json(new ServiceRequestResource($serviceRequest), Response::HTTP_OK);
         } catch (\Exception $ex) {

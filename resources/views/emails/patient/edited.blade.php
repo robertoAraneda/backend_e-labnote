@@ -6,6 +6,6 @@
 
 ## Sus datos personales han sido modificados.
 
-Thanks,<br>
+Gracias,<br>
 {{ config('app.name') }}
 @endcomponent

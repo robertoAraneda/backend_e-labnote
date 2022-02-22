@@ -9,6 +9,7 @@ use App\Models\NobilisDocumentType;
 use App\Models\NobilisObservationsServiceRequest;
 use Aranyasen\HL7\Connection;
 use Aranyasen\HL7\Message; // If Message is used
+use Aranyasen\HL7\Messages\ACK;
 use Aranyasen\HL7\Segment; // If Segment is used
 use Aranyasen\HL7\Segments\DG1;
 use Aranyasen\HL7\Segments\MSH;
@@ -36,9 +37,13 @@ class OML21Nobilis
 
         $this->requisition = $payload['requisition'];
         $this->requisition = $payload['requisition'];
-        $this->authoredOn = Carbon::parse($payload['authored_on']);
+        $this->authoredOn = Carbon::createFromFormat('d/m/Y H:i:s',$payload['authored_on']);
         $this->patient = $payload['_embedded']['patient'];
         $this->observations = $payload['_links']['observations']['collection'];
+
+    }
+
+    public function response($hl7){
 
     }
 
@@ -67,11 +72,13 @@ class OML21Nobilis
         $nte = $this->createNTE();
         $msg->addSegment($nte);
 
-        $connection = new Connection('190.151.59.106', '6665');
+       // $connection = new Connection('190.151.59.106', '6665');
 
-        $response = $connection->send($msg);
+       // $response = $connection->send($msg);
 
-        return $msg->toString(true);
+        $response =  new ACK($msg, null, ['SEGMENT_SEPARATOR' => '\r\n', 'HL7_VERSION' => '2.6']);
+
+        return ['hl7_incoming' => $msg->toString(true), 'hl7_response' => $response->toString(true)] ;
 
     }
 

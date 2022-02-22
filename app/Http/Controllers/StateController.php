@@ -15,19 +15,19 @@ use Symfony\Component\HttpFoundation\Response;
 class StateController extends Controller
 {
     /**
- * Display a listing of the resource.
- *
- * @param StateRequest $request
- * @return JsonResponse
- * @throws AuthorizationException
- */
+     * Display a listing of the resource.
+     *
+     * @param StateRequest $request
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
     public function index(StateRequest $request): JsonResponse
     {
         $this->authorize('viewAny', State::class);
 
         $page = $request->input('page');
 
-        if(isset($page)){
+        if (isset($page)) {
             $items = State::select(
                 'code',
                 'name',
@@ -35,7 +35,7 @@ class StateController extends Controller
             )
                 ->orderBy('code')
                 ->paginate($request->getPaginate());
-        }else{
+        } else {
             $items = State::select(
                 'code',
                 'name',
@@ -70,7 +70,7 @@ class StateController extends Controller
 
             $model = State::create($data);
 
-            return response()->json(new StateResource($model) , Response::HTTP_CREATED);
+            return response()->json(new StateResource($model), Response::HTTP_CREATED);
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -111,9 +111,9 @@ class StateController extends Controller
         try {
             $state->update($data);
 
-            return response()->json(new StateResource($state) , Response::HTTP_OK);
-        }catch (\Exception $ex){
-            return response()->json($ex->getMessage() , Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(new StateResource($state), Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -140,7 +140,7 @@ class StateController extends Controller
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
 
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -161,7 +161,7 @@ class StateController extends Controller
             $state->update(['active' => $status, 'updated_user_id' => auth()->id()]);
 
             return response()->json(new StateResource($state), Response::HTTP_OK);
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -177,6 +177,26 @@ class StateController extends Controller
         $collection = CityResource::collection($cities);
 
         return response()->json($collection, 200);
+    }
+
+    public function eagerRegions()
+    {
+        $regions = State::all();
+
+        $data = $regions->map(function ($region) {
+            return [
+                    'code' => $region->code,
+                    'name' => $region->name,
+                    'communes' => $region->cities()->active()->orderBy('code')->get()->map(function ($commune) {
+                        return [
+                            'code' => $commune->code,
+                            'name' => $commune->name
+                        ];
+                    })
+                ];
+        });
+
+        return $data;
     }
 
 }

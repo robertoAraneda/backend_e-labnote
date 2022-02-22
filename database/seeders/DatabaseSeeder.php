@@ -61,6 +61,7 @@ class DatabaseSeeder extends Seeder
             SpecimenStatusPermissionsSeeder::class,
             SamplingRoomPermissionsSeeder::class,
             BusinessStatusPermissionsSeeder::class,
+            NobilisAnalytePermissionsSeeder::class,
 
             MenuSeeder::class,
             WorkareaSeeder::class,

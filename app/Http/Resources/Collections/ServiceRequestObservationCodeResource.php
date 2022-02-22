@@ -19,6 +19,7 @@ class ServiceRequestObservationCodeResource extends JsonResource
             'isConfidential' => (bool) $this->analyte->is_patient_codable,
             'container' => $this->container->name,
             'container_id' => $this->container->id,
+            'integration' => $this->integration($this->nobilis),
             'slug' => $this->slug,
             'active' => (bool)$this->active,
             '_links' => [
@@ -27,5 +28,35 @@ class ServiceRequestObservationCodeResource extends JsonResource
                 ],
             ],
         ];
+    }
+
+    private function integration($payload){
+        if(!isset($payload)) return null;
+
+        return [
+            'lis' => $payload->lis_name,
+            'observation_service_request' =>
+                [
+                    'id' => $payload->serviceRequestObservationCode->id,
+                    'name' => $payload->serviceRequestObservationCode->name,
+                    'loinc_num' => $payload->serviceRequestObservationCode->loinc_num,
+                    '_links' => [
+                        'self' => [
+                            'href' => route('api.service-request-observation-codes.show', ['service_request_observation_code' => $payload->serviceRequestObservationCode->id], false)
+                        ]
+                    ]
+                ],
+            'nobilis' =>
+                [
+                    'id' => $payload->nobilis->id,
+                    'description' => $payload->nobilis->description,
+                    '_links' => [
+                        'self' => [
+                            'href' => route('api.nobilis-analytes.show', ['nobilis_analyte' => $payload->nobilis->id], false)
+                        ]
+                    ]
+                ],
+        ];
+
     }
 }

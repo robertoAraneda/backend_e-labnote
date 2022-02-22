@@ -14,7 +14,7 @@ class CreateNobilisObservationsServiceRequestsTable extends Migration
     public function up()
     {
         Schema::create('nobilis_observations_service_requests', function (Blueprint $table) {
-            $table->string('id')->primary();
+            $table->string('id');
             $table->string('description');
             $table->timestamps();
         });

@@ -33,6 +33,9 @@ class CreateServiceRequestsTable extends Migration
             $table->text('note')->nullable();
             $table->text('diagnosis')->nullable();
             $table->timestamp('authored_on');
+            $table->text('request_hl7_file')->nullable();
+            $table->timestamp('request_hl7_date')->nullable();
+            $table->text('response_hl7_file')->nullable();
             $table->unsignedBigInteger('updated_user_id')->nullable();
             $table->unsignedBigInteger('deleted_user_id')->nullable();
             $table->string('created_user_ip', 15)->nullable();

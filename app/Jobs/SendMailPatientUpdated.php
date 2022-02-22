@@ -34,8 +34,8 @@ class SendMailPatientUpdated implements ShouldQueue
     public function handle()
     {
 
-        Mail::to('c.alarconlazo@gmail.com')
-            ->cc('robaraneda@gmail.com')
+        Mail::to($this->patient->contactPointPatient()->where('system', 'EMAIL')->first()->value)
+            ->cc(['robaraneda@gmail.com', 'c.alarconlazo@gmail.com'])
             ->send(new PatientUpdated($this->patient));
     }
 }

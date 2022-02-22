@@ -49,7 +49,12 @@ class TaskController extends Controller
 
                 $model = Task::create($data);
 
-                event(new PatientSamplingRoom('Patient in sampling room'));
+                $serviceRequest = $model->serviceRequest;
+
+                event(new PatientSamplingRoom([
+                    'id' => $serviceRequest->id,
+                    'requisition' => $serviceRequest->requisition
+                ]));
 
                 return response()->json(new TaskResource($model), Response::HTTP_CREATED);
             }

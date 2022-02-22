@@ -19,6 +19,7 @@ use App\Http\Controllers\LoincController;
 use App\Http\Controllers\MedicalRequestTypeController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\NobilisAnalyteController;
 use App\Http\Controllers\ObservationServiceRequestController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PatientController;
@@ -31,12 +32,14 @@ use App\Http\Controllers\RelSpecimenSamplingIndicationController;
 use App\Http\Controllers\ResponseTimeController;
 use App\Http\Controllers\SampleQuantityController;
 use App\Http\Controllers\ServiceRequestCategoryController;
+use App\Http\Controllers\ServiceRequestChartController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\ServiceRequestIntentController;
 use App\Http\Controllers\ServiceRequestObservationCodeController;
 use App\Http\Controllers\ServiceRequestPriorityController;
 use App\Http\Controllers\ServiceRequestStatusController;
 use App\Http\Controllers\SlotController;
+use App\Http\Controllers\SpecimenChartController;
 use App\Http\Controllers\SpecimenCodeController;
 use App\Http\Controllers\SamplingConditionController;
 use App\Http\Controllers\SamplingIndicationController;
@@ -73,11 +76,7 @@ Route::group([
     ], function () {
         Route::get('user', [App\Http\Controllers\AuthController::class, 'user']);
         Route::post('menus', [RelModulePermissionController::class, 'allModulesWithPermissions']);
-
-        // Route::get('logout', 'AuthController@logout');
-
-
-
+        Route::get('logout', [App\Http\Controllers\AuthController::class, 'logout']);
     });
 });
 
@@ -253,15 +252,19 @@ Route::group([
         ->whereNumber('task')
         ->names('api.tasks');
 
-
+    Route::apiResource('nobilis-analytes', NobilisAnalyteController::class)
+        ->whereNumber('nobilis_analyte')
+        ->names('api.nobilis-analytes');
 
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'syncRolesPermission']);
     Route::post('slots/range-dates', [SlotController::class, 'createWithRangeDates']);
-    Route::delete('slots/batch/{ids}',[SlotController::class, 'deleteInBatch'] );
-    Route::put('slots/batch/{ids}',[SlotController::class, 'updateInBatch'] );
+    Route::delete('slots/batch/{ids}', [SlotController::class, 'deleteInBatch']);
+    Route::put('slots/batch/{ids}', [SlotController::class, 'updateInBatch']);
     //Route::post('laboratories/{laboratory}/modules', [LaboratoryController::class, 'syncModulesLaboratory']);
 
+    //rel
+    Route::post('service-request-observation-codes/{service_request_observation_code}/nobilis-analytes', [ServiceRequestObservationCodeController::class, 'nobilisAnalyte']);
 
     //rels one to many
     Route::get('roles/{role}/permissions', [RoleController::class, 'permissionsByRole']);
@@ -296,7 +299,6 @@ Route::group([
         ->names('api.specimens.sampling-indications');
 
 
-
     //search queries
     Route::get('modules/search', [ModuleController::class, 'searchByParams']);
     Route::get('patients/search', [PatientController::class, 'searchByParams']);
@@ -314,7 +316,7 @@ Route::group([
 
     //change status_service_request
     Route::get('service-requests/{service_request}/tracking', [ServiceRequestController::class, 'changeStatusAttribute']);
-
+    Route::get('service-requests/{service_request}/tracking/draft', [ServiceRequestController::class, 'draftStatusServiceRequest']);
 
 
     //change active attribute mode
@@ -359,20 +361,20 @@ Route::group([
 
 
     //closures Routes
-    Route::get('identifier-types', function(){
-       $identifierTypes =  \App\Models\IdentifierType::all()->map(function ($identifier){
-           return [
-               'id' => $identifier->id,
-               'code' => $identifier->code,
-               'display' => $identifier->display
-           ];
-       });
+    Route::get('identifier-types', function () {
+        $identifierTypes = \App\Models\IdentifierType::all()->map(function ($identifier) {
+            return [
+                'id' => $identifier->id,
+                'code' => $identifier->code,
+                'display' => $identifier->display
+            ];
+        });
 
         return response()->json(['collection' => $identifierTypes], 200);
     });
 
-    Route::get('identifier-uses', function(){
-        $identifierUses =  \App\Models\IdentifierUse::all()->map(function ($identifier){
+    Route::get('identifier-uses', function () {
+        $identifierUses = \App\Models\IdentifierUse::all()->map(function ($identifier) {
             return [
                 'id' => $identifier->id,
                 'code' => $identifier->code,
@@ -385,17 +387,32 @@ Route::group([
     });
 
 
+    //charts
+    Route::get('specimens/chart/day/{day}', [SpecimenChartController::class, 'samplingLineChart']);
+    Route::get('patients/chart/total-day/{day}', [SpecimenChartController::class, 'patientTotalDay']);
+    Route::get('patients/chart/schedule-day/{day}', [SpecimenChartController::class, 'schedulePatientTotalDay']);
+
+    Route::get('service-requests/chart/day/{day}', [ServiceRequestChartController::class, 'serviceRequestDayLineChart']);
+    Route::get('service-requests/chart/month/{date}', [ServiceRequestChartController::class, 'serviceRequestMonthLineChart']);
+    Route::get('service-requests-observations/chart/day/{date}', [ServiceRequestChartController::class, 'analytesSelectedByDay']);
+    Route::get('service-requests-observations/chart/month/{day}', [ServiceRequestChartController::class, 'analytesSelectedByMonth']);
+
+
     //pdf
     Route::get('service-requests/view-pdf/{service_request}', [ServiceRequestController::class, 'serviceRequestPdf']);
     Route::get('service-requests/generate-codbar/{service_request}', [ServiceRequestController::class, 'generateCodbar']);
+    Route::get('service-requests/generate-codbar-confidential/{service_request}', [ServiceRequestController::class, 'generateConfidentialCodbar']);
 });
 
 
-Route::group(['prefix' => 'v1/public'], function(){
+Route::group(['prefix' => 'v1/public'], function () {
 
     Route::get('service-request-observation-codes/search', [ServiceRequestObservationCodeController::class, 'publicIndex']);
     Route::get('service-request/integrations/wiener/OML21/create', [ServiceRequestController::class, 'createOml21Wiener']);
     Route::get('patients/integrations/wiener/OML21/create', [PatientController::class, 'createAdtNobilis']);
+
+    Route::get('regions/all', [StateController::class, 'eagerRegions']);
+    Route::get('communes/all', [CityController::class, 'comunes']);
 });
 
 

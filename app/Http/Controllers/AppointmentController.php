@@ -128,7 +128,7 @@ class AppointmentController extends Controller
 
             $appointmentResource = new AppointmentResource($model);
 
-            SendMailAppointmentCreated::dispatch($model)->delay(now()->addMinutes(1));
+            SendMailAppointmentCreated::dispatch($model)->delay(now()->addSeconds(5));
             event(new PatientArrived('HELOOOO!!!!'));
 
             return response()->json($appointmentResource, Response::HTTP_CREATED);

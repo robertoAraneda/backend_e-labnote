@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ServiceRequestObservationCode extends Model
@@ -72,6 +73,11 @@ class ServiceRequestObservationCode extends Model
         return $this->belongsToMany(SamplingCondition::class, 'observation_sampling_condition')
             ->withPivot('user_id', 'created_at', 'updated_at')
             ->withTimestamps();
+    }
+
+    public function nobilis(): HasOne
+    {
+        return $this->hasOne(IntegrationObservationServiceRequest::class, 'observation_service_request_id', 'id');
     }
 
     /**

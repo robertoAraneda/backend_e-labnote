@@ -41,6 +41,7 @@ class ServiceRequestObservationCodeResource extends JsonResource
                 'container' => $this->container($this->container),
                 'loinc' => $this->loinc($this->loinc),
                 'analyte' => $this->analyte($this->analyte),
+                'integration' => $this->integration($this->nobilis)
             ],
         ];
     }
@@ -114,6 +115,41 @@ class ServiceRequestObservationCodeResource extends JsonResource
             '_links' => [
                 'self' => [
                     'href' => route('api.analytes.show', ['analyte' => $analyte->id], false)
+                ]
+            ]
+        ];
+    }
+
+    private function integration($payload): ?array
+    {
+        if (!isset($payload)) return null;
+
+        return [
+            'lis' => $payload->lis_name,
+            'observation_service_request' =>
+                [
+                    'id' => $payload->serviceRequestObservationCode->id,
+                    'name' => $payload->serviceRequestObservationCode->name,
+                    'loinc_num' => $payload->serviceRequestObservationCode->loinc_num,
+                    '_links' => [
+                        'self' => [
+                            'href' => route('api.service-request-observation-codes.show', ['service_request_observation_code' => $payload->serviceRequestObservationCode->id], false)
+                        ]
+                    ]
+                ],
+            'nobilis' =>
+            [
+                'id' => $payload->nobilis->id,
+                'description' => $payload->nobilis->description,
+                '_links' => [
+                    'self' => [
+                        'href' => route('api.nobilis-analytes.show', ['nobilis_analyte' => $payload->nobilis->id], false)
+                    ]
+                ]
+            ],
+            '_links' => [
+                'self' => [
+                    'href' => route('api.analytes.show', ['analyte' => $payload->id], false)
                 ]
             ]
         ];
