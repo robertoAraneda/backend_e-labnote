@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\NobilisAnalyteRequest;
-use App\Http\Resources\collections\NobilisAnalyteResourceCollection;
+use App\Http\Resources\Collections\NobilisAnalyteResourceCollection;
 use App\Http\Resources\NobilisAnalyteResource;
 use App\Models\NobilisAnalyte;
 use Illuminate\Http\JsonResponse;
